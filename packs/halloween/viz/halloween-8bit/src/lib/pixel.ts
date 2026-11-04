@@ -5,6 +5,8 @@
 
 import type {Theme} from '@cycletron/viz-sdk';
 import {mixRgb, rgbOf} from '@cycletron/viz-sdk';
+import {checker} from '@naderlabs/pixel-kit/night';
+import {css, greenest} from '@naderlabs/pixel-kit/color';
 
 type Rgb = [number, number, number];
 
@@ -95,41 +97,8 @@ export function bakePix(t: Theme): Pix {
     };
 }
 
-function checker(a: string, b: string): CanvasPattern {
-    const c = document.createElement('canvas');
-    c.width = 2;
-    c.height = 2;
-    const g = c.getContext('2d');
-    if (!g) throw new Error('2d');
-    g.fillStyle = a;
-    g.fillRect(0, 0, 2, 2);
-    g.fillStyle = b;
-    g.fillRect(0, 0, 1, 1);
-    g.fillRect(1, 1, 1, 1);
-    const pattern = g.createPattern(c, 'repeat');
-    if (!pattern) throw new Error('pattern');
-    return pattern;
-}
-
 /** Grey, pulled a little toward green so it stays cooler than near-white bone. */
 function khaki(text: Rgb, green: Rgb): Rgb {
     const lum = Math.round((text[0] + text[1] + text[2]) / 3);
     return mixRgb([lum, lum, lum], green, 0.28);
-}
-
-function css(rgb: readonly [number, number, number]): string {
-    return `rgb(${rgb[0]},${rgb[1]},${rgb[2]})`;
-}
-
-function greenest(pool: readonly Rgb[], fallback: Rgb): Rgb {
-    let best = fallback;
-    let score = -1e9;
-    for (const c of pool) {
-        const s = c[1] - Math.max(c[0], c[2]);
-        if (s > score) {
-            score = s;
-            best = c;
-        }
-    }
-    return best;
 }

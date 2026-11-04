@@ -8,7 +8,7 @@ See `docs/PACKS.md` in the Cycletron repo.
 | Path | What |
 | --- | --- |
 | `pack.json` | Manifest: id, authors, license, the viz pack, its songs and shows |
-| `viz/christmas/` | The visualizer pack: `src/`, the built `dist/index.js`, its own `pack.json` |
+| `viz/christmas/` | The visualizer pack: its own `pack.json` and the built `dist/index.js` (`src/` is in the repo only, not the zip) |
 | `songs/01-jingle-bells.strudel` | Jingle Bells (Pierpont, 1857) as a synth-score opener, 120 BPM, 96 bars |
 | `songs/02-deck-the-halls.strudel` | Deck the Halls (Welsh traditional) as the production line, D minor to F, 124 BPM, 96 bars |
 | `songs/03-god-rest-ye-merry-gentlemen.strudel` | God Rest Ye Merry, Gentlemen (English traditional), the dark middle, 104 BPM, 84 bars |

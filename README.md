@@ -2,15 +2,45 @@
 
 Packs for [Cycletron](https://github.com/nukleas/cycletron): each one is a
 folder of visualizer modes, songs and shows that travel together and install
-as one unit (`docs/PACKS.md` in the app repo has the format).
+as one unit (`docs/PACKS.md` in the app repo has the format). The app's own
+modes stay its cyberpunk core; the seasonal one-offs (Halloween, Christmas)
+live here.
 
 ```
 packs/<id>/            one pack; <id> is its pack.json id
   pack.json            the library manifest
   viz/<name>/          a visualizer pack: pack.json, src/, tsconfig.json
   songs/  shows/       the music and the show files
+  probe/               probe.show.toml: every mode, two bars each (cycpack probe)
   README.md
+kit/                   @naderlabs/pixel-kit, 8-bit scene parts the packs share
+bin/cycpack.ts         the CLI
 ```
+
+Inside a visualizer pack's `src/`:
+
+```
+index.ts               the VizPack: manifest, mode defs, palettes
+modes/<mode>/          one folder per mode: index.ts exports its VizModeDef,
+                       next to the helpers only that mode uses
+lib/                   code two or more modes share, nothing else
+```
+
+A helper starts in its mode's folder and moves to `lib/` when a second mode
+imports it; one mode never imports from another mode's folder.
+
+`kit/` is the tier above: code that two or more *packs* share, imported as
+`@naderlabs/pixel-kit/<module>` (an npm workspace; `npm install` links it).
+Today it holds `pen` (outlined rect figures), `drum-rig` (a seated drummer's
+kit flashes and arm strokes), `night` (stars, clouds, ridge, moon, dither),
+`roles` (hap roles by drum voice and register) and `color`. Each pack's build
+bundles what it uses, so an installed pack still needs only the SDK. Code
+moves into the kit when it is the same in two packs; what makes a pack look
+like itself (sprites, colours, which sounds count as which drum) stays in the
+pack.
+
+Everything here is TypeScript: the modes run in the app's web view, and
+`bin/cycpack.ts` runs on Node's type stripping (Node 22.18 or newer), no build.
 
 The visualizer sources import `@cycletron/viz-sdk`, which `npm install`
 links from the Cycletron checkout next to this repo
@@ -20,16 +50,40 @@ set `CYCLETRON` if it lives somewhere else.
 
 ```sh
 npm install
-npx cycpack check christmas                 # tsc on the pack's viz folders
+npm run lint                                # oxlint (with oxlint-anti-slop) on the whole repo
+npx cycpack check christmas                 # tsc + oxlint on the pack's viz folders, bin/ and kit/
 npx cycpack build christmas                 # tsc + bundle each viz folder to dist/
 npx cycpack zip christmas                   # build, then dist/christmas-<version>.zip
 npx cycpack render packs/christmas/shows/jingle-bells.show.toml --size 960x540 --fps 24
-npx cycpack seam christmas                  # the determinism test on the built modes
+npx cycpack seam christmas                  # build, then the determinism test on the built modes
+npx cycpack probe christmas                 # render probe/, hash the frames, compare with the last probe
 ```
 
+`render`, `seam` and `probe` build the pack first: the renderer only rebuilds
+when a pack's `src/` is newer than its `dist/`, which misses kit edits.
+
+A refactor that should change nothing (moving code into the kit, renames,
+lint fixes) should leave `cycpack probe` saying `unchanged`. It renders on one
+job, so the frames are exact; the digest of the last probe is kept in
+`renders/probe.digest`.
+
 Install a zip in the app: Samples panel, Install from Zip, Replace if the pack
-is already there; new visualizer code loads at the next launch.
+is already there; new visualizer code loads at the next launch. The zip
+carries the built `dist/` but not `src/`, which imports the kit.
 
 Renders (`packs/*/renders/`), build output (`dist/`) and `_*` staging folders
 are not tracked. Pack code runs inside the app with the app's permissions, so
 the app only loads packs you install on purpose.
+
+## Lint
+
+`.oxlintrc.json` runs Oxlint's correctness and suspicious categories plus the
+[oxlint-anti-slop](https://github.com/emilioSp/oxlint-anti-slop) rules, all as
+errors; `cycpack check` fails on any finding. Two rules are off on purpose:
+`anti-slop/require-logical-blank-lines` (a spacing convention that fights the
+dense drawing code) and `unicorn/no-array-sort` (`toSorted` is ES2023 and
+allocates a copy each frame; in-place sorts of per-frame scratch arrays are
+intended). A type assertion needs a `JUSTIFICATION:` comment, but type the
+value so the assertion isn't needed first. `no-restricted-imports` holds the
+layout above: a mode can't import another mode's folder, `lib/` can't import
+a mode, and `kit/` can't import a pack.

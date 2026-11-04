@@ -1,9 +1,9 @@
 import {type VizPack, validatePack} from '@cycletron/viz-sdk';
 import manifest from '../pack.json';
-import {ghostFogDef} from './ghost-fog.js';
-import {graveyardDef} from './graveyard.js';
-import {hauntedHouseDef} from './haunted-house.js';
-import {monsterBandDef} from './monster-band.js';
+import {ghostFogDef} from './modes/ghost-fog/index.js';
+import {graveyardDef} from './modes/graveyard/index.js';
+import {hauntedHouseDef} from './modes/haunted-house/index.js';
+import {monsterBandDef} from './modes/monster-band/index.js';
 
 export const halloween8bit: VizPack = validatePack({
     manifest,

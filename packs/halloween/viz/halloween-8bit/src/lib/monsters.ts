@@ -7,9 +7,12 @@
 
 import {drawSprite, spr, type Sprite} from '@cycletron/viz-sdk';
 import {type Ink} from './pixel.js';
-import {halloweenRole, type Role} from './roles.js';
+import {halloweenRole} from './roles.js';
 import {drawGhostAt} from './sky.js';
 import {instrumentFamily} from '@cycletron/viz-sdk';
+import {along, at, b, limb, ln, paint, type Pt, put, seg, stance} from '@naderlabs/pixel-kit/pen';
+import {DOWN, SEAT, SHOULDER_L, SHOULDER_R, hot, idleKit, type KitFlash, type KitPiece, leftStroke, rightStroke, type Stroke} from '@naderlabs/pixel-kit/drum-rig';
+import {type Role} from '@naderlabs/pixel-kit/roles';
 
 export type Cast = 'drummer' | 'frank' | 'wolf' | 'mummy' | 'vamp' | 'witch' | 'pumpkin' | 'ghost';
 
@@ -17,25 +20,6 @@ export type Cast = 'drummer' | 'frank' | 'wolf' | 'mummy' | 'vamp' | 'witch' | '
 export type Costume = Cast | 'bride' | 'keytarist';
 
 export type WinKind = 'vamp' | 'witch' | 'frank' | 'mummy' | 'wolf' | 'cat' | 'boo';
-
-export type KitPiece = 'kick' | 'snare' | 'hat' | 'tom' | 'crash';
-
-export interface KitFlash {
-    kick: number;
-    snare: number;
-    hat: number;
-    tom: number;
-    crash: number;
-    /** Flips on every snare hit, so rolls alternate hands. */
-    snareHand: number;
-    /** The last tom hit was the floor tom. */
-    floorTom: boolean;
-    kickCss: string;
-    snareCss: string;
-    hatCss: string;
-    tomCss: string;
-    crashCss: string;
-}
 
 const DRUM_VOICE = /^(bd|kick|sd|sn|cp|clap|rim|rs|cr|crash|ride|rd|lt|mt|ht|tom|toms|hh|oh|ch|hat|shaker|tb|tamb|cb|cowbell|cow|perc|drum|cy|cymbal)$/;
 
@@ -338,46 +322,6 @@ export function drawPerformer(
         case 'witch': drawWitch(ctx, f, hit, lift, accent, ink); break;
         case 'pumpkin': drawPumpkin(ctx, f, hit, lift, accent, ink); break;
     }
-}
-
-/** Origin for `b` and `ln`, so each figure is drawn around its own feet. */
-let ox = 0;
-let oy = 0;
-
-function at(x: number, y: number): void {
-    ox = Math.round(x);
-    oy = Math.round(y);
-}
-
-function b(x: number, y: number, w: number, h: number, c: string, edge = true): void {
-    put(ox + x, oy + y, w, h, c, edge);
-}
-
-function ln(x0: number, y0: number, x1: number, y1: number, size: number, c: string, edge = true): void {
-    seg(ox + x0, oy + y0, ox + x1, oy + y1, size, c, edge);
-}
-
-/** Shoulder to elbow in the sleeve, elbow to hand in the skin, and a 3px hand. */
-function limb(sx: number, sy: number, ex: number, ey: number, hx: number, hy: number, sleeve: string, skin: string): void {
-    ln(sx, sy, ex, ey, 2, sleeve);
-    ln(ex, ey, hx, hy, 2, skin);
-    b(hx - 1, hy - 1, 3, 3, skin);
-}
-
-/** Two legs; on a hit one foot stamps, alternating by frame. */
-function stance(hit: number, frame: number, leg: string, shoe: string, gap = 1): void {
-    const lift = hit > 0.5 ? frame & 1 : -1;
-    const l = lift === 0 ? 1 : 0;
-    const r = lift === 1 ? 1 : 0;
-    b(-4 - gap, -11 - l, 4, 8, leg);
-    b(gap, -11 - r, 4, 8, leg);
-    b(-6 - gap, -4 - l, 6, 4, shoe);
-    b(gap, -4 - r, 6, 4, shoe);
-}
-
-/** A point `t` of the way along a neck from (x0, y0) to (x1, y1). */
-function along(x0: number, y0: number, x1: number, y1: number, t: number): Pt {
-    return [Math.round(x0 + (x1 - x0) * t), Math.round(y0 + (y1 - y0) * t)];
 }
 
 /** Frankenstein in a dark jacket, on bass. Low notes reach up the neck; the bolts spark on the hit. */
@@ -878,109 +822,7 @@ const DRUM_TORSO: Sprite = spr(`
     ...11...11...
 `);
 
-/** Pelvis sits this far above the riser, behind the kick. */
-const SEAT = 19;
-
-type Pt = readonly [number, number];
-
-/** Elbow, hand and stick tip, relative to the drummer's foot. */
-interface Stroke {
-    elbow: Pt;
-    hand: Pt;
-    tip: Pt;
-}
-
-/** A target played down (stick on the head) and up (stick cocked over it). */
-interface Target {
-    down: Stroke;
-    up: Stroke;
-}
-
-const SHOULDER_L: Pt = [-5, -30];
-const SHOULDER_R: Pt = [5, -30];
-
-/**
- * Viewer's left hand: rack tom, floor tom, crash, and every other snare
- * stroke. It rebounds to its own side, clear of the skull.
- */
-const LEFT = {
-    tom: {
-        down: {elbow: [-11, -24], hand: [-10, -31], tip: [-14, -27]},
-        up: {elbow: [-11, -25], hand: [-10, -35], tip: [-13, -43]},
-    },
-    floor: {
-        down: {elbow: [-12, -24], hand: [-18, -26], tip: [-26, -19]},
-        up: {elbow: [-12, -25], hand: [-17, -30], tip: [-22, -38]},
-    },
-    crash: {
-        down: {elbow: [-11, -33], hand: [-17, -39], tip: [-28, -45]},
-        up: {elbow: [-11, -34], hand: [-17, -42], tip: [-24, -50]},
-    },
-    snare: {
-        down: {elbow: [-8, -24], hand: [-1, -27], tip: [8, -24]},
-        up: {elbow: [-10, -25], hand: [-8, -31], tip: [-11, -39]},
-    },
-} as const satisfies Record<string, Target>;
-
-/** Viewer's right hand: hats and snare. */
-const RIGHT = {
-    snare: {
-        down: {elbow: [10, -24], hand: [8, -29], tip: [15, -24]},
-        up: {elbow: [10, -25], hand: [9, -33], tip: [13, -41]},
-    },
-    hat: {
-        down: {elbow: [11, -33], hand: [18, -36], tip: [28, -36]},
-        up: {elbow: [11, -34], hand: [18, -39], tip: [26, -44]},
-    },
-} as const satisfies Record<string, Target>;
-
-const REST_L: Stroke = {elbow: [-10, -24], hand: [-10, -30], tip: [-15, -36]};
-const REST_R: Stroke = {elbow: [10, -24], hand: [9, -30], tip: [14, -36]};
-
-/** Above this the stick is on the head; above `UP` it is still cocked over it. */
-const DOWN = 0.55;
-const UP = 0.12;
-
-/** Rects for one outlined layer, kept between frames. Outlines go down first, then the fills. */
-const layer: {x: number; y: number; w: number; h: number; c: string; edge: boolean}[] = [];
-let layerN = 0;
-
-function put(x: number, y: number, w: number, h: number, c: string, edge = true): void {
-    let r = layer[layerN];
-    if (!r) {
-        r = {x: 0, y: 0, w: 0, h: 0, c: '', edge: true};
-        layer[layerN] = r;
-    }
-    r.x = x;
-    r.y = y;
-    r.w = w;
-    r.h = h;
-    r.c = c;
-    r.edge = edge;
-    layerN++;
-}
-
-function paint(ctx: CanvasRenderingContext2D, outline: string): void {
-    ctx.fillStyle = outline;
-    for (let i = 0; i < layerN; i++) {
-        const r = layer[i];
-        if (r.edge) ctx.fillRect(r.x - 1, r.y - 1, r.w + 2, r.h + 2);
-    }
-    for (let i = 0; i < layerN; i++) {
-        const r = layer[i];
-        ctx.fillStyle = r.c;
-        ctx.fillRect(r.x, r.y, r.w, r.h);
-    }
-    layerN = 0;
-}
-
-/** A `size`-pixel brush along a line. */
-function seg(x0: number, y0: number, x1: number, y1: number, size: number, c: string, edge = true): void {
-    const n = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0), 1);
-    for (let i = 0; i <= n; i++) {
-        put(Math.round(x0 + ((x1 - x0) * i) / n), Math.round(y0 + ((y1 - y0) * i) / n), size, size, c, edge);
-    }
-}
+const IDLE_KIT = idleKit();
 
 function drawDrummer(
     ctx: CanvasRenderingContext2D, x: number, foot: number, hit: number,
@@ -1011,44 +853,6 @@ function drawDrummer(
     paint(ctx, ink.line);
 }
 
-const IDLE_KIT: KitFlash = {
-    kick: 0, snare: 0, hat: 0, tom: 0, crash: 0, snareHand: 0, floorTom: false,
-    kickCss: '', snareCss: '', hatCss: '', tomCss: '', crashCss: '',
-};
-
-/**
- * Snare strokes alternate hands, unless the other hand is busy: the right
- * hand plays the hats, the left the toms and the crash.
- */
-function snareLeft(k: KitFlash): boolean {
-    if (k.hat >= k.snare) return true;
-    if (Math.max(k.tom, k.crash) >= k.snare) return false;
-    return k.snareHand === 1;
-}
-
-/** Each hand plays whichever of its pieces was hit last. */
-function leftStroke(k: KitFlash): Stroke {
-    const snare = snareLeft(k) ? k.snare : 0;
-    let v = k.tom;
-    let t: Target = k.floorTom ? LEFT.floor : LEFT.tom;
-    if (k.crash > v) {
-        v = k.crash;
-        t = LEFT.crash;
-    }
-    if (snare > v) {
-        v = snare;
-        t = LEFT.snare;
-    }
-    return v > DOWN ? t.down : v > UP ? t.up : REST_L;
-}
-
-function rightStroke(k: KitFlash): Stroke {
-    const snare = snareLeft(k) ? 0 : k.snare;
-    const t = k.hat >= snare ? RIGHT.hat : RIGHT.snare;
-    const v = Math.max(k.hat, snare);
-    return v > DOWN ? t.down : v > UP ? t.up : REST_R;
-}
-
 function drawArm(X: number, foot: number, shoulder: Pt, s: Stroke, grip: string, ink: Ink): void {
     const sx = X + shoulder[0];
     const sy = foot + shoulder[1];
@@ -1060,10 +864,6 @@ function drawArm(X: number, foot: number, shoulder: Pt, s: Stroke, grip: string,
     seg(sx, sy, ex, ey, 2, ink.bone);
     seg(ex, ey, hx, hy, 2, ink.bone);
     put(hx - 1, hy - 1, 3, 3, grip);
-}
-
-function hot(amount: number, css: string, idle: string): string {
-    return amount > 0.35 && css ? css : idle;
 }
 
 /** Crash on a boom over the floor tom, hats on the right. Both sit behind the drummer. */

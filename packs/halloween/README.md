@@ -9,7 +9,7 @@ Cycletron repo.
 | Path | What |
 | --- | --- |
 | `pack.json` | Manifest: id, authors, license, the viz pack, its songs and shows |
-| `viz/halloween-8bit/` | The visualizer pack: `src/`, the built `dist/index.js`, its own `pack.json` |
+| `viz/halloween-8bit/` | The visualizer pack: its own `pack.json` and the built `dist/index.js` (`src/` is in the repo only, not the zip) |
 | `songs/bustin-neil-cicierega.strudel` | Bustin' (Neil Cicierega), sectioned. A cover, so it stays out of the public repo |
 | `songs/_bustin-neil-cicierega/` | The MIDI, the flat import, and the copy from before the mix |
 | `shows/bustin.show.toml` | The Bustin' show |

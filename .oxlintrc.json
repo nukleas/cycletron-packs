@@ -1,0 +1,102 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": [
+    "typescript",
+    "unicorn",
+    "oxc",
+    "import"
+  ],
+  "jsPlugins": [
+    {
+      "name": "anti-slop",
+      "specifier": "oxlint-anti-slop"
+    }
+  ],
+  "categories": {
+    "correctness": "error",
+    "suspicious": "error"
+  },
+  "ignorePatterns": [
+    "**/dist/**",
+    "**/_*/**",
+    "node_modules/**"
+  ],
+  "rules": {
+    "anti-slop/no-chained-type-assertions": "error",
+    "anti-slop/no-unnecessary-type-widening": "error",
+    "anti-slop/no-object-parameters": "error",
+    "anti-slop/no-reduce-accumulator-copy": "error",
+    "anti-slop/no-typeof-outside-guards": "error",
+    "anti-slop/no-meaningless-unknown-aliases": "error",
+    "anti-slop/no-unsafe-dictionary-values": "error",
+    "anti-slop/no-narrowing-after-widening": "error",
+    "anti-slop/require-type-assertion-justification": "error",
+    "anti-slop/require-logical-blank-lines": "off",
+    "unicorn/no-array-sort": "off",
+    "prefer-const": "error",
+    "no-else-return": [
+      "error",
+      {
+        "allowElseIf": false
+      }
+    ],
+    "import/no-commonjs": "error",
+    "import/no-cycle": "error"
+  },
+  "overrides": [
+    {
+      "files": [
+        "**/src/modes/**"
+      ],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "regex": "^\\.\\./[^.]",
+                "message": "A mode imports only its own folder and src/lib/. Move shared code to src/lib/."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "**/src/lib/**"
+      ],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "regex": "/modes/",
+                "message": "src/lib/ is shared by modes and must not import from one."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": [
+        "kit/**"
+      ],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "regex": "^\\.\\./",
+                "message": "kit/ is shared by every pack and must not import from one."
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

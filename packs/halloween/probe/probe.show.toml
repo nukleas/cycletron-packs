@@ -1,0 +1,21 @@
+# The probe: every mode of the pack for two bars each, small and with nothing
+# on top, for `cycpack probe halloween`. Its frames hash to one digest, so a
+# refactor that should change nothing can prove it.
+
+[show]
+title = "Halloween probe"
+out = "../renders/probe.mp4"
+size = "480x270"
+fps = 8
+
+[defaults]
+code = "hide"
+titles = false
+camera = { move = "still", punch = 0, kick = 0 }
+palette = "pumpkin"
+grain = 0
+
+[[song]]
+source = "../songs/bustin-neil-cicierega.strudel"
+shots = ["graveyard", "haunted-house", "monster-band", "ghost-fog"]
+every = 2

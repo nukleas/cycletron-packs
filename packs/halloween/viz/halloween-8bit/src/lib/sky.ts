@@ -6,7 +6,8 @@
 import {hash32, rand01, SeededRandom, TAU} from '@cycletron/viz-sdk';
 import {drawSprite, PH, PW} from '@cycletron/viz-sdk';
 import {type Pix} from './pixel.js';
-import {BATS, GHOSTS, MOON, TREE} from './sprites.js';
+import {BATS, GHOSTS, TREE} from './sprites.js';
+import {drawStars, drawClouds, MOON} from '@naderlabs/pixel-kit/night';
 
 export interface Bolt {
     age: number;
@@ -142,58 +143,6 @@ export function drawNight(
     }
     drawSprite(ctx, MOON, moonX, moonY, [null, hot ? pix.ink.bone : pix.ink.moon, pix.ink.moonDim]);
     if (bats) drawAmbientBats(ctx, cycle, pix.ink.line);
-}
-
-function drawStars(ctx: CanvasRenderingContext2D, horizon: number, cycle: number, color: string): void {
-    const epoch = Math.floor(cycle / 8);
-    const tick = Math.floor(cycle * 2);
-    ctx.fillStyle = color;
-    ctx.beginPath();
-    for (let i = 0; i < 42; i++) {
-        if ((hash32(i * 7 + 3, tick) & 3) === 0) continue;
-        const x = hash32(i * 7 + 1, epoch) % PW;
-        const y = hash32(i * 7 + 2, epoch) % horizon;
-        ctx.rect(x, y, 1, 1);
-        if ((hash32(i * 7 + 4, epoch) & 7) === 0) {
-            ctx.rect(x - 1, y, 1, 1);
-            ctx.rect(x + 1, y, 1, 1);
-            ctx.rect(x, y - 1, 1, 1);
-            ctx.rect(x, y + 1, 1, 1);
-        }
-    }
-    ctx.fill();
-}
-
-function drawClouds(ctx: CanvasRenderingContext2D, cycle: number, pattern: CanvasPattern): void {
-    const span = PW + 48;
-    const scroll = Math.floor(cycle * 6) % span;
-    ctx.fillStyle = pattern;
-    const blobs = [
-        [12, 16, 28, 5],
-        [84, 26, 18, 4],
-        [156, 14, 34, 6],
-        [236, 24, 22, 4],
-        [308, 18, 24, 5],
-    ];
-    for (const [x, y, w, h] of blobs) {
-        let px = x - scroll;
-        if (px < -w) px += span;
-        ctx.fillRect(px, y, w, h);
-        if (w > 10) ctx.fillRect(px + 3, y - 2, w - 8, 3);
-    }
-}
-
-/** Stepped hills on a horizon. Sizes come from the index, not from a clock. */
-export function drawRidge(ctx: CanvasRenderingContext2D, base: number, color: string): void {
-    ctx.fillStyle = color;
-    for (let i = 0; i < 8; i++) {
-        const w = 28 + (hash32(i, 4) % 14);
-        const h = 8 + (hash32(i, 9) % 10);
-        const x = i * 42 - 12;
-        ctx.fillRect(x, base - (h >> 1), w, h >> 1);
-        ctx.fillRect(x + 4, base - h, w - 8, h);
-        ctx.fillRect(x + 10, base - h - 5, Math.max(6, w - 20), 6);
-    }
 }
 
 function drawAmbientBats(ctx: CanvasRenderingContext2D, cycle: number, css: string): void {

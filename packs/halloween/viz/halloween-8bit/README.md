@@ -1,6 +1,6 @@
 # Halloween, 8-bit
 
-A visualizer pack (see `docs/PACKS.md` in the Cycletron repo): four modes and the `pumpkin` palette, drawn for the Bustin' show. `src/` holds the modes, shared code in `src/lib/`; `dist/index.js` is what the app loads, built with `node ui/scripts/pack-build.mjs <this folder>`; it imports `@cycletron/viz-sdk` (the show renderer builds it when `src/` is newer).
+A visualizer pack (see `docs/PACKS.md` in the Cycletron repo): four modes and the `pumpkin` palette, drawn for the Bustin' show. `dist/index.js` is what the app loads; it imports only `@cycletron/viz-sdk`. The sources live in the cycletron-packs repo (`src/modes/<mode>/` per mode, `src/lib/` for what the modes share, and the repo's `kit/` for what the packs share), which builds and zips this folder; an installed copy carries only the build.
 
 Graveyard is a Ghosts 'n Goblins / Castlevania yard: three terraces, grid tombs, bone sprites that climb out and cycle two or four dance frames on the beat. Held notes are Boo ghosts. Hats are two-frame bats, snares are staircase bolts, kicks hop the ground.
 

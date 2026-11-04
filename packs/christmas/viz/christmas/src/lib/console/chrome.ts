@@ -9,6 +9,7 @@
 import {alphaRamp, clamp01, drawLabel, mixRgb, rampAt, rgbOf, type Theme, type VizServices} from '@cycletron/viz-sdk';
 import type {Alert} from './alert.js';
 import {pad} from './panel.js';
+import {css} from '@naderlabs/pixel-kit/color';
 
 export interface Rect {
     x: number;
@@ -192,8 +193,4 @@ export function rule(ctx: CanvasRenderingContext2D, x0: number, y: number, x1: n
     ctx.moveTo(x0, y);
     ctx.lineTo(x1, y);
     ctx.stroke();
-}
-
-function css(rgb: readonly [number, number, number]): string {
-    return `rgb(${rgb[0]},${rgb[1]},${rgb[2]})`;
 }

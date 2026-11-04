@@ -1,12 +1,12 @@
 import {type VizPack, validatePack} from '@cycletron/viz-sdk';
 import manifest from '../pack.json';
-import {christmasBandDef} from './christmas-band.js';
-import {santaTrackerDef} from './santa-tracker.js';
-import {workshopDef} from './workshop.js';
-import {snowfallDef} from './snowfall.js';
-import {snowglobeDef} from './snowglobe.js';
-import {sleighRoadDef} from './sleigh-road.js';
-import {christmasHouseDef} from './christmas-house.js';
+import {christmasBandDef} from './modes/christmas-band/index.js';
+import {santaTrackerDef} from './modes/santa-tracker/index.js';
+import {workshopDef} from './modes/workshop/index.js';
+import {snowfallDef} from './modes/snowfall/index.js';
+import {snowglobeDef} from './modes/snowglobe/index.js';
+import {sleighRoadDef} from './modes/sleigh-road/index.js';
+import {christmasHouseDef} from './modes/christmas-house/index.js';
 
 export const christmas: VizPack = validatePack({
     manifest,
