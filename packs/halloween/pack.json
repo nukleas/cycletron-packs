@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "id": "halloween",
+  "name": "Halloween",
+  "version": "0.1.0",
+  "authors": [
+    "NaderLabs"
+  ],
+  "license": "AGPL-3.0-or-later",
+  "description": "Songs and shows for Halloween, played on the 8-bit Halloween visualizers.",
+  "viz": [
+    "viz/halloween-8bit"
+  ],
+  "songs": [
+    "songs/bustin-neil-cicierega.strudel"
+  ],
+  "shows": [
+    "shows/bustin.show.toml"
+  ]
+}

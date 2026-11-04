@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "id": "christmas",
+  "name": "Christmas",
+  "version": "0.7.0",
+  "authors": [
+    "NaderLabs"
+  ],
+  "license": "AGPL-3.0-or-later",
+  "description": "A Cycletron Christmas as a tense ops room: four cinematic synth pieces built on the carols and a dubstep encore, with shows on the situation display, production, morale feed, SAT feed and rec room stations, the sleigh road and the house outside.",
+  "viz": [
+    "viz/christmas"
+  ],
+  "songs": [
+    "songs/01-jingle-bells.strudel",
+    "songs/02-deck-the-halls.strudel",
+    "songs/03-god-rest-ye-merry-gentlemen.strudel",
+    "songs/04-last-christmas.strudel",
+    "songs/06-deck-the-halls-dubstep.strudel"
+  ],
+  "shows": [
+    "shows/christmas-album.show.toml",
+    "shows/jingle-bells.show.toml",
+    "shows/deck-the-halls.show.toml",
+    "shows/god-rest-ye-merry-gentlemen.show.toml",
+    "shows/last-christmas.show.toml",
+    "shows/deck-the-halls-dubstep.show.toml"
+  ]
+}

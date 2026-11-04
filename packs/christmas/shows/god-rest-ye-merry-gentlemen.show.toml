@@ -1,0 +1,92 @@
+# God Rest Ye Merry, Gentlemen, for the Christmas pack. Format: docs/SHOW_FILES.md.
+# Bars count from the section's start; the song is one bar per cycle at 104 BPM.
+# The ops room's dark middle: the situation display on norad, lifts amber, the last
+# refrain blood, the break on the SAT FEED in evergreen. Stations keep a still camera.
+
+[show]
+title = "God Rest Ye Merry, Gentlemen"
+out = "../renders/god-rest-ye-merry-gentlemen.mp4"
+size = "1920x1080"
+fps = 60
+
+[defaults]
+code = "hide"
+titles = false
+camera = { move = "still", punch = 0, kick = 0.4 }
+palette = "norad"
+grain = 0.12
+
+[[song]]
+source = "../songs/03-god-rest-ye-merry-gentlemen.strudel"
+mode = "santa-tracker"
+fade = { in = 1, out = 3 }
+
+# 0–12 · the pulse, the pad, bells and morse. The tracker boots, then the name.
+[song.sections.intro]
+mode = "santa-tracker"
+text = [
+  { say = "> STN-01 SITUATION DISPLAY · TRACK ACQUIRED", at = 0, hold = 1.5, place = "top" },
+  { say = "GOD REST YE MERRY, GENTLEMEN", at = 2, hold = 3, style = "card" },
+]
+
+# 12–20 · the verse, low and far off. The tracker holds.
+[song.sections.verse]
+mode = "santa-tracker"
+transition = "fade"
+
+# 20–28 · the march: rim, then snare, then the roll. Amber, the sleigh run.
+[song.sections.lift]
+mode = "sleigh-road"
+palette = "amber"
+letterbox = 2.39
+transition = "fade"
+camera = { move = "push", punch = 0.5, kick = 1 }
+
+# 28–36 · the refrain drop: trumpet, trombone, bells.
+[song.sections.drop]
+shots = ["santa-tracker", "snowglobe", "santa-tracker", "sleigh-road"]
+every = 2
+transition = "fade"
+camera = { move = "still", punch = 0, kick = 0.6 }
+text = [{ say = "O TIDINGS OF COMFORT AND JOY", at = 0, hold = 2.5, place = "top" }]
+
+# 36–44 · the tense verse with the arp. Back on the tracker.
+[song.sections.verse2]
+mode = "santa-tracker"
+transition = "fade"
+text = [{ say = "> STN-01 CONTACT HOLDING · ALL STATIONS TRACK", at = 0, hold = 1.5, place = "top" }]
+
+# 44–52 · pad and bells only. The outside view, wide and slow.
+[song.sections.break]
+mode = "snowfall"
+palette = "evergreen"
+letterbox = 2.39
+transition = "fade"
+camera = { move = "still", punch = 0, kick = 0.4 }
+text = [{ say = "> STN-04 SAT FEED · NO THREAT", at = 0, hold = 2, place = "top" }]
+
+# 52–60 · the march again, the klaxon and the countdown. Amber.
+[song.sections.lift2]
+mode = "lens-bench"
+palette = "amber"
+transition = "fade"
+camera = { move = "push", punch = 0.5, kick = 1 }
+text = [{ say = "> ALL HANDS · BRACE FOR THE REFRAIN", at = 1, hold = 2, place = "top" }]
+
+# 60–72 · the biggest refrain and the tag, in red.
+[song.sections.final]
+shots = ["santa-tracker", "snowglobe", "santa-tracker", "sleigh-road", "christmas-house", "snowglobe"]
+every = 2
+palette = "blood"
+transition = "flash"
+strobe = { on = "snare", strength = 0.2 }
+camera = { move = "still", punch = 0, kick = 0.8 }
+
+# 72–84 · bells toll the first line, the pulse fades. The tracker stands down.
+[song.sections.outro]
+mode = "santa-tracker"
+transition = "fade"
+text = [
+  { say = "> STAND DOWN · STATIONS HOLD", at = 0, hold = 2, place = "top" },
+  { say = "COMFORT AND JOY", at = 6, hold = 3, style = "card" },
+]

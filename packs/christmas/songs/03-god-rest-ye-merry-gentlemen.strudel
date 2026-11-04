@@ -1,0 +1,213 @@
+---
+name: "God Rest Ye Merry, Gentlemen"
+bpm: 104
+created: 2026-11-02
+tags: [christmas, carol, chiptune]
+---
+// God Rest Ye Merry, Gentlemen. English traditional, the London tune (in print by 1815),
+// words by 1760. Public domain. Original arrangement in E minor; the melody
+// is the Stainer 1867 version, checked against the Open Hymnal ABC.
+// The situation display at night: a pulse on E, a 909 march that grows from a rim tick
+// to a roll, cold pads, tubular bells, brass on the refrain.
+//
+// FORM (104 BPM · 1 cycle = 1 bar · 84 bars ≈ 3:14):
+//   intro    12  e1  sub pulse on E, saw joins at bar 5, string pad, bells toll, morse
+//   verse     8  e2  pulse walks Em D C B, rim tick, the verse low and far off on square
+//   lift      8  e3  909 kick, rim march, then the snare march and a roll; "Remember Christ"
+//   drop      8  e5  the refrain: full kit, 16th saw, trumpet on the tune, trombone, bells
+//   verse2    8  e3  tense: half-time kick, an updown arp, the verse up an octave
+//   break     8  e1  pad and bells only, the refrain in half time
+//   lift2     8  e3  the march again, trombone under it, klaxon and countdown into the last drop
+//   final    12  e5  the refrain with octave echo and sleigh bells, a tag, ends on E major
+//   outro    12  e1  bells toll the first line, the pulse fades out
+// hook: the refrain "O tidings of comfort and joy", trumpet + square + tubular bells, both drops.
+// Degrees are from E3:minor so none go negative: 7 = E4, 11 = B4, 14 = E5.
+
+setbpm(104);
+
+"<intro@3 verse@2 lift@2 drop@2 verse2@2 break@2 lift2@2 final@3 outro@3>".slow(4).pickRestart({
+  intro: stack(
+    // sub sine pulse on E
+    note("e1*4").s("sine").decay(0.35).sustain(0.4).release(0.2).gain(0.5),
+    // saw an octave up on the offbeats, in from bar 5
+    note("[~ e2]*4").mask("<~ ~ ~ ~ 1 1 1 1 1 1 1 1>")
+      .s("sawtooth").lpf(320).lpenv(1.5).lpdecay(0.12).decay(0.15).sustain(0.2).gain(0.28),
+    // cold string pad
+    chord("<Em Em D D C C B B Em Em Em Em>").voicing().s("wt_strings")
+      .attack(1.6).release(2.2).lpf(900).room(0.75).gain(0.17),
+    // tubular bells toll E and B
+    note("<[7 ~ ~ ~] ~ [4 ~ ~ ~] ~ [7 ~ ~ ~] ~ [4 ~ ~ ~] ~ [7 ~ ~ ~] ~ [4 ~ ~ ~] [~ ~ ~ 7]>")
+      .scale("E3:minor").s("tubularbells").room(0.85).roomsize(0.9).gain(0.3).pan(0.6),
+    // morse ping on bars 1 and 7
+    note("<[c7 c7 ~ c7 c7 c7 ~ ~] ~ ~ ~ ~ ~ [c7 ~ c7 ~ ~ c7 ~ ~] ~ ~ ~ ~ ~>").s("square").decay(0.03).sustain(0).hpf(2000).gain(0.08).pan(0.25),
+    // radio static on the last beat of the section
+    s("<~@11 [~ ~ ~ white]>").bpf(1800).bandq(6).coarse(6).decay(0.12).sustain(0).gain(0.12).pan(0.8)
+  ),
+  verse: stack(
+    note("<[e1*4] [d1*4] [c1*4] [b0*4] [e1*4] [d1*4] [c1*4] [b0*4]>")
+      .s("sine").decay(0.35).sustain(0.4).release(0.2).gain(0.5),
+    note("<[e2*8] [d2*8] [c2*8] [b1*8] [e2*8] [d2*8] [c2*8] [b1*8]>")
+      .s("sawtooth").lpf(380).lpenv(1.8).lpdecay(0.1).decay(0.12).sustain(0.2).gain("[0.2 0.28]*4"),
+    // 909 rim tick on 2 and 4
+    s("~ rim ~ rim").bank("RolandTR909").gain(0.14).pan(0.55),
+    // the verse, low and far off
+    note("<[7 11 11 10] [9 8 7 6] [7 8 9 10] [11@3 7] [7 11 11 10] [9 8 7 6] [7 8 9 10] [11@2 ~ 11]>")
+      .scale("E2:minor").s("square").decay(0.15).sustain(0.5).release(0.1)
+      .lpf(1800).room(0.6).delay(0.3).delaytime(0.433).delayfeedback(0.3).gain(0.28).pan(0.4),
+    chord("<Em D C B Em D C B>").voicing().s("wt_strings")
+      .attack(0.8).release(1.6).lpf(1000).room(0.7).gain(0.17),
+    // radio static on the last beat of the section
+    s("<~@7 [~ ~ ~ white]>").bpf(1800).bandq(6).coarse(6).decay(0.12).sustain(0).gain(0.12).pan(0.8)
+  ),
+  lift: stack(
+    s("bd*4").bank("RolandTR909").gain(0.7),
+    // the march on the rim for four bars
+    s("[~ rim] ~ [~ rim] [rim rim]").mask("<1 1 1 1 ~ ~ ~ ~>").bank("RolandTR909").gain(0.2).pan(0.55),
+    // then the snare, rolling into the drop
+    s("<~@4 [[~ sd] ~ [~ sd] [sd sd]] [[~ sd] ~ [~ sd] [sd sd]] sd*8 sd*16>").bank("RolandTR909")
+      .velocity(saw.range(0.45, 0.9).slow(8)).gain(0.42).pan(0.5),
+    s("hh*8").mask("<~ ~ ~ ~ 1 1 1 ~>").bank("RolandTR909").gain(0.14).pan(0.4),
+    note("<[a1*4] [g1*4] [e1*4] [b0*4] [a1*4] [g1*4] [e1*4] [b0*4]>")
+      .s("sine").decay(0.35).sustain(0.4).release(0.2).gain(0.46),
+    note("<[a2*8] [g2*8] [e2*8] [b1*8] [a2*8] [g2*8] [e2*8] [b1*8]>")
+      .s("sawtooth").lpf(saw.range(400, 900).slow(8)).lpenv(1.8).lpdecay(0.1).decay(0.12).sustain(0.2).gain("[0.2 0.28]*4"),
+    // "Remember Christ our Saviour", twice
+    note("<[12 10 11 12] [13 14 11 10] [9 7 8 9] [10@2 9 10] [12 10 11 12] [13 14 11 10] [9 7 8 9] [10@2 ~ ~]>")
+      .scale("E3:minor").s("square").decay(0.12).sustain(0.5).release(0.08)
+      .lpf(2800).room(0.4).delay(0.2).delaytime(0.433).gain(0.26).pan(0.45),
+    chord("<Am G Em B Am G Em B>").voicing().s("wt_strings")
+      .attack(0.4).release(1.2).lpf(1300).room(0.6).gain(0.18),
+    // radio static on the last beat of the section
+    s("<~@7 [~ ~ ~ white]>").bpf(1800).bandq(6).coarse(6).decay(0.12).sustain(0).gain(0.12).pan(0.8)
+  ),
+  drop: stack(
+    s("bd*4").bank("RolandTR909").gain(0.72),
+    s("~ sd ~ sd").bank("RolandTR909").gain(0.4).pan(0.55),
+    s("hh*16").bank("RolandTR909").gain("[0.14 0.09]*8").pan(sine.range(0.35, 0.65)),
+    s("cr").mask("<1 ~ ~ ~ 1 ~ ~ ~>").bank("RolandTR909").gain(0.2).pan(0.6),
+    note("<[e1*4] [d1*4] [e1*4] [a1*4] [g1*4] [e1 e1 e1 b0] [e1*4] [e1*4]>")
+      .s("sine").decay(0.3).sustain(0.3).release(0.15).gain(0.42),
+    // 16th saw, ducked off each kick
+    note("<[e2*16] [d2*16] [e2*16] [a1*16] [g1*16] [e2*12 b1*4] [e2*16] [e2*16]>")
+      .s("sawtooth").lpf(650).lpenv(2).lpdecay(0.08).decay(0.1).sustain(0.2).gain("[0.1 0.2 0.24 0.2]*4"),
+    // the refrain on trumpet, square doubling it
+    note("<[11@2 12 11] [11 10 9 8] [7@2 [9 8] 7] [10@2 9 10] [11 12 13 14] [11 10 9 8] [7@3 ~] [~ ~ ~ 7]>")
+      .scale("E3:minor").s("gm_trumpet").release(0.3).room(0.4).gain(0.3).pan(0.45),
+    note("<[11@2 12 11] [11 10 9 8] [7@2 [9 8] 7] [10@2 9 10] [11 12 13 14] [11 10 9 8] [7@3 ~] [~ ~ ~ 7]>")
+      .scale("E3:minor").s("square").decay(0.1).sustain(0.5).release(0.05)
+      .lpf(3200).delay(0.2).delaytime(0.433).gain(0.16).pan(0.6),
+    // trombone on root and fifth
+    note("<[e3 b2] [d3 a2] [e3 b2] [a2 e3] [g2 d3] [e3 b2] [e3 b2] [e3 ~]>")
+      .s("gm_trombone").release(0.4).gain(0.24).pan(0.35),
+    note("<[11 ~ ~ ~] ~ [7 ~ ~ ~] ~ [11 ~ ~ ~] ~ [7 ~ ~ ~] ~>")
+      .scale("E3:minor").s("tubularbells").room(0.8).roomsize(0.9).gain(0.28).pan(0.65),
+    chord("<Em D Em Am G [Em@3 B] Em Em>").voicing().s("wt_choir")
+      .attack(0.3).release(1.0).lpf(1600).room(0.6).gain(0.15),
+    // radio static on the last beat of the section
+    s("<~@7 [~ ~ ~ white]>").bpf(1800).bandq(6).coarse(6).decay(0.12).sustain(0).gain(0.12).pan(0.8)
+  ),
+  verse2: stack(
+    s("bd ~ ~ ~ ~ ~ bd ~").bank("RolandTR909").gain(0.7),
+    s("[~ rim] ~ [~ rim] ~").bank("RolandTR909").gain(0.18).pan(0.55),
+    note("<[e1*4] [d1*4] [c1*4] [b0*4] [e1*4] [d1*4] [c1*4] [b0*4]>")
+      .s("sine").decay(0.35).sustain(0.4).release(0.2).gain(0.46),
+    note("<[e2*8] [d2*8] [c2*8] [b1*8] [e2*8] [d2*8] [c2*8] [b1*8]>")
+      .s("sawtooth").lpf(480).lpenv(2).lpdecay(0.1).decay(0.12).sustain(0.2).gain("[0.2 0.28]*4"),
+    // updown arp on the verse chords
+    chord("<[Em Em] [D D] [C C] [B B] [Em Em] [D D] [C C] [B B]>").voicing().arp("updown")
+      .s("pulse").width(0.25).decay(0.08).sustain(0).lpf(2400)
+      .delay(0.25).delaytime(0.433).gain(0.13).pan(0.7),
+    // the verse an octave up
+    note("<[7 11 11 10] [9 8 7 6] [7 8 9 10] [11@3 7] [7 11 11 10] [9 8 7 6] [7 8 9 10] [11@2 ~ 11]>")
+      .scale("E3:minor").s("square").decay(0.12).sustain(0.5).release(0.08)
+      .lpf(2600).room(0.4).delay(0.2).delaytime(0.433).gain(0.24).pan(0.4),
+    chord("<Em D C B Em D C B>").voicing().s("wt_strings")
+      .attack(0.6).release(1.4).lpf(1200).room(0.6).gain(0.17),
+    // radio static on the last beat of the section
+    s("<~@7 [~ ~ ~ white]>").bpf(1800).bandq(6).coarse(6).decay(0.12).sustain(0).gain(0.12).pan(0.8)
+  ),
+  break: stack(
+    chord("<Em Em D D C C B B>").voicing().s("wt_choir")
+      .attack(1.5).release(2.4).lpf(900).room(0.8).gain(0.2),
+    // the refrain on tubular bells in half time
+    note("<[11 ~ 11 ~] [12 ~ 11 ~] [11 ~ 10 ~] [9 ~ 8 ~] [7 ~ ~ ~] [9 ~ 8 ~] [7 ~ ~ ~] [10 ~ ~ ~]>")
+      .scale("E3:minor").s("tubularbells").room(0.85).roomsize(0.9).gain(0.3).pan(0.6),
+    // the first line far off on glockenspiel
+    note("<[7 ~ ~ ~] [~ ~ ~ ~] [~ ~ 4 ~] [~ ~ ~ ~] [2 ~ ~ ~] [~ ~ ~ ~] [~ ~ 4 ~] [~ ~ ~ 7]>")
+      .scale("E4:minor").s("glockenspiel").gain(0.18).pan(0.3).delay(0.4).delaytime(0.577),
+    // morse ping on bar 1
+    note("<[c7 c7 ~ c7 c7 c7 ~ ~] ~@7>").s("square").decay(0.03).sustain(0).hpf(2000).gain(0.08).pan(0.25),
+    // radio static on the last beat of the section
+    s("<~@7 [~ ~ ~ white]>").bpf(1800).bandq(6).coarse(6).decay(0.12).sustain(0).gain(0.12).pan(0.8)
+  ),
+  lift2: stack(
+    s("bd*4").bank("RolandTR909").gain(0.7),
+    s("[~ rim] ~ [~ rim] [rim rim]").mask("<1 1 1 1 ~ ~ ~ ~>").bank("RolandTR909").gain(0.2).pan(0.55),
+    s("<~@4 [[~ sd] ~ [~ sd] [sd sd]] [[~ sd] ~ [~ sd] [sd sd]] sd*8 sd*16>").bank("RolandTR909")
+      .velocity(saw.range(0.45, 0.95).slow(8)).gain(0.44).pan(0.5),
+    s("hh*8").mask("<~ ~ ~ ~ 1 1 1 ~>").bank("RolandTR909").gain(0.14).pan(0.4),
+    note("<[a1*4] [g1*4] [e1*4] [b0*4] [a1*4] [g1*4] [e1*4] [b0*4]>")
+      .s("sine").decay(0.35).sustain(0.4).release(0.2).gain(0.46),
+    // saw drops out on the last bar
+    note("<[a2*8] [g2*8] [e2*8] [b1*8] [a2*8] [g2*8] [e2*8] ~>")
+      .s("sawtooth").lpf(saw.range(450, 1000).slow(8)).lpenv(1.8).lpdecay(0.1).decay(0.12).sustain(0.2).gain("[0.2 0.28]*4"),
+    // "Remember Christ", then the refrain in pieces
+    note("<[12 10 11 12] [13 14 11 10] [9 7 8 9] [10@2 9 10] [11@2 12 11] [11 10 9 8] ~ ~>")
+      .scale("E3:minor").s("square").decay(0.12).sustain(0.5).release(0.08)
+      .lpf(3000).room(0.4).delay(0.2).delaytime(0.433).gain(0.26).pan(0.45),
+    note("<a2 g2 e2 b2 a2 g2 e2 b2>").s("gm_trombone").release(0.5).gain(0.22).pan(0.35),
+    chord("<Am G Em B Am G Em B>").voicing().s("wt_strings")
+      .attack(0.3).release(1.0).lpf(isaw.range(2400, 900).slow(8)).room(0.5).gain(0.18),
+    // klaxon: two detuned saws a fifth apart, swelling over the last two bars
+    note("<~@6 [b2,f#3]@2>").s("sawtooth").superimpose(x => x.detune(0.12)).vib(5).vibmod(0.3)
+      .attack(1.5).sustain(1).release(0.4).lpf(400).lpenv(2.6).lpattack(4.0).lpsustain(1).gain(0.035).pan(0.3),
+    // countdown tick on every beat of the last bar, hard left
+    s("<~@7 rim*4>").coarse(8).gain(0.1).pan(0),
+    // radio static on the last beat of the section
+    s("<~@7 [~ ~ ~ white]>").bpf(1800).bandq(6).coarse(6).decay(0.12).sustain(0).gain(0.12).pan(0.8)
+  ),
+  final: stack(
+    s("bd*4").bank("RolandTR909").gain(0.72),
+    s("~ sd ~ [sd ~ sd sd]").bank("RolandTR909").gain(0.42).pan(0.55),
+    s("hh*16").bank("RolandTR909").gain("[0.14 0.09]*8").pan(sine.range(0.35, 0.65)),
+    s("~ oh ~ oh").bank("RolandTR909").gain(0.09).pan(0.3),
+    s("cr").mask("<1 ~ ~ ~ 1 ~ ~ ~ 1 ~ ~ 1>").bank("RolandTR909").gain(0.2).pan(0.6),
+    s("sleighbells*4").gain(0.12).pan(0.75),
+    note("<[e1*4] [d1*4] [e1*4] [a1*4] [g1*4] [e1 e1 e1 b0] [e1*4] [e1*4] [g1*4] [e1 e1 e1 b0] [e1*4] [e1*4]>")
+      .s("sine").decay(0.3).sustain(0.3).release(0.15).gain(0.42),
+    note("<[e2*16] [d2*16] [e2*16] [a1*16] [g1*16] [e2*12 b1*4] [e2*16] [e2*16] [g1*16] [e2*12 b1*4] [e2*16] [e2*16]>")
+      .s("sawtooth").lpf(750).lpenv(2).lpdecay(0.08).decay(0.1).sustain(0.2).gain("[0.1 0.2 0.24 0.2]*4"),
+    // the refrain, then a tag on "comfort and joy"
+    note("<[11@2 12 11] [11 10 9 8] [7@2 [9 8] 7] [10@2 9 10] [11 12 13 14] [11 10 9 8] [7@3 ~] [~ ~ ~ 7] [11 12 13 14] [11 10 9 8] [7@2 [9 8] 7] [7@3 ~]>")
+      .scale("E3:minor").s("gm_trumpet").release(0.3).room(0.4).gain(0.3).pan(0.45),
+    note("<[11@2 12 11] [11 10 9 8] [7@2 [9 8] 7] [10@2 9 10] [11 12 13 14] [11 10 9 8] [7@3 ~] [~ ~ ~ 7] [11 12 13 14] [11 10 9 8] [7@2 [9 8] 7] [7@3 ~]>")
+      .scale("E3:minor").s("square").decay(0.1).sustain(0.5).release(0.05)
+      .lpf(3600).gain(0.15).pan(0.6)
+      .off(0.0625, x => x.add(12).gain(0.08).pan(0.7)),
+    note("<[e3 b2] [d3 a2] [e3 b2] [a2 e3] [g2 d3] [e3 b2] [e3 b2] [e3 b2] [g2 d3] [e3 b2] [e3 b2] [e3,g#3]>")
+      .s("gm_trombone").release(0.4).gain(0.24).pan(0.35),
+    note("<[11 ~ ~ ~] ~ [7 ~ ~ ~] ~ [11 ~ ~ ~] ~ [7 ~ ~ ~] ~ [11 ~ ~ ~] ~ [7 ~ ~ ~] [0 ~ ~ ~]>")
+      .scale("E3:minor").s("tubularbells").room(0.8).roomsize(0.9).gain(0.28).pan(0.65),
+    // the last chord turns to E major
+    chord("<Em D Em Am G [Em@3 B] Em Em G [Em@3 B] Em E>").voicing().s("wt_choir")
+      .attack(0.3).release(1.2).lpf(1900).room(0.6).gain(0.15),
+    // radio static on the last beat of the section
+    s("<~@11 [~ ~ ~ white]>").bpf(1800).bandq(6).coarse(6).decay(0.12).sustain(0).gain(0.12).pan(0.8)
+  ),
+  outro: stack(
+    // the pulse on E, thinning and fading
+    note("<[e1*4] [e1*4] [e1*4] [e1*4] [e1*4] [e1*4] [e1*4] [e1*4] [e1 ~ e1 ~] [e1 ~ e1 ~] [e1 ~ ~ ~] [e1 ~ ~ ~]>")
+      .s("sine").decay(0.35).sustain(0.4).release(0.3).gain(isaw.range(0.48, 0.2).slow(12)),
+    note("[~ e2]*4").mask("<1 1 1 1 1 1 1 1 ~ ~ ~ ~>")
+      .s("sawtooth").lpf(isaw.range(380, 160).slow(8)).decay(0.15).sustain(0.2).gain(0.26),
+    chord("Em").voicing().s("wt_strings")
+      .attack(1.6).release(3).lpf(isaw.range(1000, 400).slow(12)).room(0.8).gain(0.17),
+    // tubular bells toll the first line
+    note("<[7 ~ 11 ~] [11 ~ 10 ~] [9 ~ 8 ~] [7 ~ 6 ~] [7 ~ 8 ~] [9 ~ 10 ~] [11 ~ ~ ~] [~ ~ ~ ~] [7 ~ ~ ~] ~ [7 ~ ~ ~] ~>")
+      .scale("E3:minor").s("tubularbells").room(0.85).roomsize(0.9).gain(0.3).pan(0.6),
+    // morse ping on bar 9
+    note("<~@8 [c7 c7 ~ c7 c7 c7 ~ ~] ~@3>").s("square").decay(0.03).sustain(0).hpf(2000).gain(0.08).pan(0.25),
+    // radio static on the last beat of the section
+    s("<~@11 [~ ~ ~ white]>").bpf(1800).bandq(6).coarse(6).decay(0.12).sustain(0).gain(0.12).pan(0.8)
+  )
+})

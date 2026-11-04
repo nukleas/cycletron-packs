@@ -1,0 +1,111 @@
+# A Cycletron Christmas: the five songs back to back, run as an ops room.
+# Open it to play the album; ⌘⇧F for Stage. Format: docs/SHOW_FILES.md.
+#
+# The per-song shows in this folder are the working copies; this one is
+# assembled from them. norad is home; the SAT FEED (snowfall) runs evergreen,
+# builds and lifts go amber, final drops blood. Stations keep a still camera so
+# the console stays in frame. Section names come from each track's pickRestart form.
+
+[show]
+title = "A Cycletron Christmas"
+out = "../renders/christmas-album.mp4"
+size = "1920x1080"
+fps = 60
+
+[defaults]
+code = "solo"
+titles = false
+camera = { move = "still", punch = 0, kick = 0.4 }
+palette = "norad"
+grain = 0.12
+
+# ---- 01 · Jingle Bells ------------------------------------
+# 120 BPM, 96 bars. The shift begins: the morale feed, the outside view to open and close.
+
+[[song]]
+source = "../songs/01-jingle-bells.strudel"
+mode = "christmas-band"
+fade = { in = 1 }
+
+[song.sections]
+intro  = { mode = "snowfall", palette = "evergreen", title = "01 · JINGLE BELLS", text = [{ say = "> STN-04 SAT FEED ONLINE", at = 2, hold = 1.5, place = "top" }, { say = "J. L. PIERPONT · 1857", at = 5, hold = 2, style = "card" }] }
+verse  = { transition = "fade", text = [{ say = "> STN-03 MORALE FEED · LINK LOCKED", at = 0, hold = 1.5, place = "top" }] }
+build  = { mode = "sleigh-road", palette = "amber", letterbox = 2.39, transition = "fade", camera = { move = "push", punch = 0.5, kick = 0.5 }, text = [{ say = "> SLEIGHCON RISING", at = 1, hold = 2, place = "top" }] }
+drop   = { shots = ["christmas-band", { mode = "snowfall", palette = "evergreen" }, { mode = "christmas-house", palette = "evergreen" }, "snowglobe"], every = 4, transition = "flash", camera = { move = "still", punch = 0, kick = 0.6 }, text = [{ say = "> ALL STATIONS · JINGLE ALL THE WAY", at = 0, hold = 2, place = "top" }, { say = "> STN-05 REC ROOM · DISCO RIG ARMED", at = 12, hold = 1.5, place = "top" }] }
+break  = { shots = [{ mode = "snowfall", bars = 8, palette = "evergreen" }, { mode = "snowglobe", bars = 8 }], transition = "fade", text = [{ say = "> STN-04 SAT FEED · HOLDING", at = 0, hold = 1.5, place = "top" }] }
+build2 = { mode = "sleigh-road", palette = "amber", letterbox = 2.39, transition = "fade", camera = { move = "push", punch = 0.5, kick = 0.6 }, text = [{ say = "> SLEIGHCON RISING · ALL STATIONS", at = 1, hold = 2, place = "top" }] }
+final  = { shots = ["christmas-band", "snowglobe", "christmas-house", { mode = "snowfall", palette = "evergreen" }], every = 4, palette = "blood", transition = "flash", strobe = { on = "snare", strength = 0.2 }, camera = { move = "still", punch = 0, kick = 0.8 }, text = [{ say = "OH WHAT FUN", at = 4, hold = 2, place = "top" }] }
+outro  = { shots = [{ mode = "snowfall", bars = 4, palette = "evergreen" }, { mode = "snowfall", bars = 4, palette = "ice" }], transition = "fade", text = [{ say = "> STAND DOWN · STN-04", at = 0, hold = 1.5, place = "top" }] }
+
+# ---- 02 · Deck the Halls ----------------------------------
+# 124 BPM, 96 bars. The production line, D minor until the overdrive final.
+
+[[song]]
+source = "../songs/02-deck-the-halls.strudel"
+mode = "workshop"
+
+[song.sections]
+intro  = { mode = "snowfall", palette = "evergreen", title = "02 · DECK THE HALLS", text = [{ say = "> STN-04 SAT FEED ONLINE", at = 2, hold = 1.5, place = "top" }] }
+verse  = { transition = "fade", text = [{ say = "> STN-02 PRODUCTION · LINE A RUNNING", at = 0, hold = 1.5, place = "top" }] }
+build  = { palette = "amber", transition = "fade", camera = { move = "still", punch = 0, kick = 0.8 } }
+drop   = { shots = ["workshop", "snowglobe", "workshop", { mode = "snowfall", palette = "evergreen" }], every = 4, transition = "fade", camera = { move = "still", punch = 0, kick = 0.6 } }
+break  = { shots = [{ mode = "snowfall", palette = "evergreen", bars = 8 }, { mode = "christmas-house", palette = "evergreen", bars = 8 }], transition = "fade" }
+build2 = { palette = "amber", transition = "fade", camera = { move = "still", punch = 0, kick = 1 }, text = [{ say = "> QUOTA RAISED · OVERDRIVE AUTHORISED", at = 1, hold = 2, place = "top" }] }
+final  = { shots = ["workshop", "snowglobe", "workshop", "sleigh-road"], every = 4, palette = "blood", transition = "flash", strobe = { on = "snare", strength = 0.2 }, camera = { move = "still", punch = 0, kick = 0.8 } }
+outro  = { shots = [{ mode = "workshop", bars = 4 }, { mode = "snowfall", bars = 4, palette = "evergreen" }], transition = "fade", text = [{ say = "> SHIFT COMPLETE · LINE A IDLE", at = 0, hold = 1.5, place = "top" }] }
+
+# ---- 03 · God Rest Ye Merry, Gentlemen --------------------
+# 104 BPM, 84 bars. The dark middle: the situation display.
+
+[[song]]
+source = "../songs/03-god-rest-ye-merry-gentlemen.strudel"
+mode = "santa-tracker"
+
+[song.sections]
+intro  = { title = "03 · GOD REST YE MERRY, GENTLEMEN", text = [{ say = "> STN-01 SITUATION DISPLAY · TRACK ACQUIRED", at = 2, hold = 1.5, place = "top" }] }
+verse  = { transition = "fade" }
+lift   = { mode = "sleigh-road", palette = "amber", letterbox = 2.39, transition = "fade", camera = { move = "push", punch = 0.5, kick = 1 } }
+drop   = { shots = ["santa-tracker", "snowglobe", "santa-tracker", "sleigh-road"], every = 2, transition = "fade", camera = { move = "still", punch = 0, kick = 0.6 }, text = [{ say = "O TIDINGS OF COMFORT AND JOY", at = 0, hold = 2.5, place = "top" }] }
+verse2 = { transition = "fade", text = [{ say = "> STN-01 CONTACT HOLDING · ALL STATIONS TRACK", at = 0, hold = 1.5, place = "top" }] }
+break  = { mode = "snowfall", palette = "evergreen", letterbox = 2.39, transition = "fade", text = [{ say = "> STN-04 SAT FEED · NO THREAT", at = 0, hold = 2, place = "top" }] }
+lift2  = { mode = "lens-bench", palette = "amber", transition = "fade", camera = { move = "push", punch = 0.5, kick = 1 }, text = [{ say = "> ALL HANDS · BRACE FOR THE REFRAIN", at = 1, hold = 2, place = "top" }] }
+final  = { shots = ["santa-tracker", "snowglobe", "santa-tracker", "sleigh-road", "christmas-house", "snowglobe"], every = 2, palette = "blood", transition = "flash", strobe = { on = "snare", strength = 0.2 }, camera = { move = "still", punch = 0, kick = 0.8 } }
+outro  = { transition = "fade", text = [{ say = "> STAND DOWN · STATIONS HOLD", at = 0, hold = 2, place = "top" }, { say = "COMFORT AND JOY", at = 6, hold = 3, style = "card" }] }
+
+# ---- 04 · Last Christmas ----------------------------------
+# 92 BPM, 84 bars. The closer on the SAT feed; the morale feed for the one big chorus.
+
+[[song]]
+source = "../songs/04-last-christmas.strudel"
+mode = "snowfall"
+palette = "evergreen"
+fade = { out = 3 }
+
+[song.sections]
+intro   = { title = "04 · LAST CHRISTMAS", text = [{ say = "> STN-04 SAT FEED · PASS 07", at = 2, hold = 1.5, place = "top" }, { say = "WHAM! · 1984", at = 4, hold = 2.4, style = "card" }] }
+verse   = { transition = "fade" }
+lift    = { mode = "sleigh-road", palette = "amber", letterbox = 2.39, transition = "fade", camera = { move = "push", punch = 0.5, kick = 0.5 }, text = [{ say = "> SLEIGHCON RISING · ALL STATIONS", at = 1, hold = 2, place = "top" }] }
+chorus  = { shots = [{ mode = "christmas-band", palette = "norad" }, { mode = "snowglobe", palette = "norad" }, { mode = "christmas-house", palette = "evergreen" }, { mode = "snowfall", palette = "evergreen" }], every = 4, transition = "flash", camera = { move = "still", punch = 0, kick = 0.6 }, text = [{ say = "> STN-03 MORALE FEED · LINK LOCKED", at = 0, hold = 1.5, place = "top" }, { say = "LAST CHRISTMAS I GAVE YOU MY HEART", at = 2, hold = 2.5, place = "top" }] }
+verse2  = { transition = "fade", text = [{ say = "> STN-04 SAT FEED · PASS 08", at = 0, hold = 1.5, place = "top" }] }
+refrain = { shots = [{ mode = "snowfall" }, { mode = "snowglobe", palette = "norad" }], every = 4, transition = "fade" }
+bridge  = { shots = [{ mode = "sleigh-road", bars = 8, palette = "ice" }, { mode = "lissajous", bars = 8, palette = "ice" }], letterbox = 2.39, transition = "fade", camera = { move = "drift", punch = 0, kick = 0 }, grain = 0.2 }
+outro   = { transition = "fade", text = [{ say = "> ALL STATIONS HOLD · GOOD NIGHT", at = 0, hold = 2, place = "top" }, { say = "MERRY CHRISTMAS", at = 10, hold = 3.5, style = "card" }] }
+
+# ---- 06 · Deck the Halls (Dubstep) ------------------------
+# 140 BPM, 104 bars. The encore: the house outside after hours, the rec room on the drops.
+
+[[song]]
+source = "../songs/06-deck-the-halls-dubstep.strudel"
+mode = "christmas-house"
+fade = { in = 1, out = 3 }
+
+[song.sections]
+intro  = { mode = "snowfall", palette = "evergreen", title = "06 · DECK THE HALLS (DUBSTEP)", text = [{ say = "> STN-04 SAT FEED ONLINE", at = 2, hold = 1.5, place = "top" }, { say = "> STN-05 REC ROOM · AFTER HOURS", at = 8, hold = 2, place = "top" }] }
+build  = { mode = "sleigh-road", palette = "amber", letterbox = 2.39, transition = "fade", camera = { move = "push", punch = 0.5, kick = 0.6 }, text = [{ say = "> BASS AUTHORISED", at = 1, hold = 2, place = "top" }] }
+drop1  = { shots = [{ mode = "christmas-house", palette = "evergreen" }, "snowglobe", { mode = "christmas-house", palette = "evergreen" }, "sleigh-road"], every = 4, transition = "flash", camera = { move = "still", punch = 0, kick = 0.6 } }
+drop1b = { mode = "christmas-house", palette = "evergreen", transition = "flash", camera = { move = "still", punch = 0, kick = 0.6 } }
+break  = { shots = [{ mode = "christmas-house", palette = "ice", bars = 6 }, { mode = "snowfall", palette = "evergreen", bars = 6 }], transition = "fade" }
+build2 = { mode = "sleigh-road", palette = "amber", letterbox = 2.39, transition = "fade", camera = { move = "push", punch = 0.5, kick = 0.6 }, text = [{ say = "> SLEIGHCON RISING · ALL STATIONS", at = 1, hold = 2, place = "top" }] }
+drop2  = { shots = ["christmas-house", "snowglobe", "christmas-house", "sleigh-road"], every = 4, palette = "blood", transition = "flash", strobe = { on = "snare", strength = 0.2 }, camera = { move = "still", punch = 0, kick = 0.8 } }
+drop2b = { mode = "christmas-house", palette = "blood", transition = "flash", strobe = { on = "snare", strength = 0.2 }, camera = { move = "still", punch = 0, kick = 0.8 } }
+outro  = { shots = [{ mode = "christmas-house", palette = "evergreen", bars = 6 }, { mode = "snowfall", palette = "evergreen", bars = 6 }], transition = "fade", text = [{ say = "> LIGHTS OUT · GOODNIGHT", at = 0, hold = 2, place = "top" }] }

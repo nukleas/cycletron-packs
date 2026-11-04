@@ -1,0 +1,79 @@
+# Deck the Halls, for the Christmas pack. Format: docs/SHOW_FILES.md.
+# Bars count from the section's start; the song is one bar per cycle at 124 BPM.
+# The ops room: norad is home, the SAT FEED (snowfall) runs evergreen, builds amber,
+# the final drop blood. Stations keep a still camera so the console stays in frame.
+
+[show]
+title = "Deck the Halls"
+out = "../renders/deck-the-halls.mp4"
+size = "1920x1080"
+fps = 60
+
+[defaults]
+code = "hide"
+titles = false
+camera = { move = "still", punch = 0, kick = 0.4 }
+palette = "norad"
+grain = 0.12
+
+[[song]]
+source = "../songs/02-deck-the-halls.strudel"
+mode = "workshop"
+fade = { in = 1, out = 3 }
+
+# 0–8 · morse and the first line on bells, outside. The press drops at bar 5.
+[song.sections.intro]
+mode = "snowfall"
+palette = "evergreen"
+text = [
+  { say = "> STN-04 SAT FEED ONLINE", at = 0, hold = 1.5, place = "top" },
+  { say = "DECK THE HALLS", at = 1, hold = 2, style = "card" },
+]
+
+# 8–24 · the riff alone. The line is running.
+[song.sections.verse]
+mode = "workshop"
+transition = "fade"
+text = [{ say = "> STN-02 PRODUCTION · LINE A RUNNING", at = 0, hold = 1.5, place = "top" }]
+
+# 24–32 · 16th bass, the press, the snare roll.
+[song.sections.build]
+mode = "workshop"
+palette = "amber"
+transition = "fade"
+camera = { move = "still", punch = 0, kick = 0.8 }
+
+# 32–48 · the whole tune on the line, in D minor.
+[song.sections.drop]
+shots = ["workshop", "snowglobe", "workshop", { mode = "snowfall", palette = "evergreen" }]
+every = 4
+transition = "fade"
+camera = { move = "still", punch = 0, kick = 0.6 }
+
+# 48–64 · the line idles. The tune on bells, outside, then back on the floor.
+[song.sections.break]
+shots = [{ mode = "snowfall", palette = "evergreen", bars = 8 }, { mode = "christmas-house", palette = "evergreen", bars = 8 }]
+transition = "fade"
+
+# 64–72 · the klaxon and the countdown.
+[song.sections.build2]
+mode = "workshop"
+palette = "amber"
+transition = "fade"
+camera = { move = "still", punch = 0, kick = 1 }
+text = [{ say = "> QUOTA RAISED · OVERDRIVE AUTHORISED", at = 1, hold = 2, place = "top" }]
+
+# 72–88 · F major, overdrive, in red.
+[song.sections.final]
+shots = ["workshop", "snowglobe", "workshop", "sleigh-road"]
+every = 4
+palette = "blood"
+transition = "flash"
+strobe = { on = "snare", strength = 0.2 }
+camera = { move = "still", punch = 0, kick = 0.8 }
+
+# 88–96 · the belt stops, one last tubular bell.
+[song.sections.outro]
+shots = [{ mode = "workshop", bars = 4 }, { mode = "snowfall", bars = 4, palette = "evergreen" }]
+transition = "fade"
+text = [{ say = "> SHIFT COMPLETE · LINE A IDLE", at = 0, hold = 1.5, place = "top" }]

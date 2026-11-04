@@ -1,0 +1,392 @@
+---
+name: "Bustin' (Neil Cicierega)"
+bpm: 120
+created: 2026-11-01
+tags: [cycletron,cover,halloween]
+---
+// Bustin' — Neil Cicierega (Mouth Sounds, 2014), built on the Ghostbusters theme (Ray Parker Jr., 1984).
+// Cover. Transcribed from _bustin-neil-cicierega/bustin-neil-cicierega.mid with the MIDI Lab.
+// One cycle is one bar at 120 BPM. The MIDI jumps to 150 BPM at bar 112.5, so the outro runs .fast(1.25) in a 13-cycle slot.
+// FORM: intro 5 | groove 8 | verse1 8 | chorus1 8 | verse2 12 | chorus2 8 | afraid 8 | breakdown 8 | stabs 8 | verse3 8 | break 8 | chorus3 8 | chorus4 8 | finale 8 | outro 13 (16 bars at 1.25x)
+// Sectioned from _bustin-neil-cicierega/flat.strudel with ui/scripts/section-song.mjs.
+setcpm(30)
+
+"<intro@5 groove@8 verse1@8 chorus1@8 verse2@12 chorus2@8 afraid@8 breakdown@8 stabs@8 verse3@8 break@8 chorus3@8 chorus4@8 finale@8 outro@13>".slow(1).pickRestart({
+  intro: stack(
+    // Track 4: Saw Synthesizer (C:chromatic)
+    note(`<
+      [A#3 B3 A#3 B3 A#3 B3 A#3 B3]!3 [A#3@2 B3 A#3@2 B3 A#3@2 B3 A#3@2 B3]!2>`).sound("supersaw").gain(0.34).attack(0.003).release(0.1).pan(0.78).hpf(480).lpf(4800).chorus("0.3:0.35").room(0.1).dist(0.18),
+    // Track 5: Saw Synthesizer (C:chromatic)
+    note(`<
+      [B2 G3] [F#3 F3] [E3 -] A#2@2>`).sound("gm_epiano1").gain(0.40).attack(0.006).release(0.4).pan(0.36).hpf(90).lpf(1700).room(0.16),
+    // Track 9: Electric Guitar 1 (E:blues)
+    note(`<
+      [A#3 B3 A#3 B3 A#3 B3 A#3 B3] [A#3 B3 A#3 B3 A#3 B3 A#3 B3] [A#3 B3 A#3 B3 A#3 B3 A#3 B3] [A#3 B3 A#3 B3 A#3 B3 A#3 B3]
+      [A#3 B3 A#3 B3 A#3 B3 A#3 B3]>`).sound("gm_overdriven_guitar").gain(0.32).attack(0.002).release(0.04).pan(0.12).hpf(700).lpf(3200),
+    // Track 10: Electric Guitar 2 (C:chromatic)
+    note(`<
+      [[B2,B3] [G3,G4]] [[F#3,F#4] [F3,F4]] [[E3,E4] [D4,D5]] [A#3,A#4]@2>`).sound("gm_overdriven_guitar").gain(0.32).attack(0.004).release(0.11).pan(0.86).hpf(480).lpf(3800).room(0.08),
+    // Track 13: Drumset
+    s(`<
+      -!3 [sd sd sd sd sd sd sd sd sd sd sd sd sd sd sd sd]!2>`).gain(0.46).room(0.12)
+  ).velocity(0.87),
+  groove: stack(
+    // Track 1: B♭ Trumpet (C:chromatic)
+    note(`<
+      -!7 [- - - - - - - - - - - - - - B4 B4]>`).sound("gm_trumpet").gain(0.52).attack(0.01).release(0.18).pan(0.58).hpf(220).lpf(3600).room(0.14).roomsize(0.32),
+    // Track 3: Alto Saxophone (D:major)
+    note(`<
+      -!4 [- - B4 B4 - - - - - - - - - - - -] - [- - B4 B4 - - - - - - - - - - - -]
+      ->`).sound("gm_alto_sax").gain(0.42).attack(0.003).release(0.09).pan(0.18).hpf(900).lpf(5400).room(0.08).dist(0.22),
+    // Track 11: Bass Guitar 1 (C:chromatic)
+    note(`<
+      [A1@2 A2@2 D2 D#2 F#2@2 A2@2 B1@2 E2@2 D#2 C#2] [B1@2 A2@2 D2 D#2 F#2@2 A2@2 B1@2 E2@2 D#2 C#2]!7>`).sound("gm_electric_bass_finger").gain(0.44).attack(0.002).release(0.06).lpf(900).dist(0.3),
+    // Track 13: Drumset
+    s(`<
+      [[cr,bd] hh [sd,hh] hh [bd,hh] hh [sd,hh] hh] [[bd,hh] hh [sd,hh] hh [bd,hh] hh [sd,hh] hh]!2 [[bd,hh] - hh - [sd,hh] - hh - [bd,hh] - hh - [sd,hh] sd hh -] [[bd,hh] hh [sd,hh] hh [bd,hh] hh [sd,hh] hh]!3
+      [[bd,sd] sd sd sd sd sd sd sd [bd,sd] sd sd sd sd sd sd sd]>`).gain(0.58).room(0.22)
+  ),
+  verse1: stack(
+    // Track 1: B♭ Trumpet (C:chromatic)
+    note(`<
+      [D5@2 B4@2 D5@4 -@6 B4 A4] [B4 B4 A4@2 -@4] - [- - - - - - - - - - - - - - B4 B4]
+      [D5@2 B4@2 D5@4 -@6 B4 A4] [B4 B4 A4@2 -@4] - [E5@2 D5@2 E5@2 D5@2 F#5@3 E5@2 D5 B4@2]>`).sound("gm_trumpet").gain(0.5).attack(0.01).release(0.18).pan(0.58).hpf(220).lpf(3600).room(0.14).roomsize(0.32),
+    // Track 4: Saw Synthesizer (C:chromatic)
+    note(`<
+      -!7 [-@7 B4]>`).sound("supersaw").gain(0.34).attack(0.003).release(0.1).pan(0.78).hpf(480).lpf(4800).chorus("0.3:0.35").room(0.1).dist(0.18),
+    // Track 10: Electric Guitar 2 (C:chromatic)
+    note(`<
+      [-@2 [B3,E3,E4,G#3] [A3,D3,D4,F#3]] [-@2 [A3,D3,D4] [A2,A3,E3]] [-@2 [B3,E3,E4,G#3] [A3,D3,D4,F#3]] [-@2 [A3,D3,D4] [A2,A3,E3]]
+      [-@2 [B3,E3,E4,G#3] [A3,D3,D4,F#3]] [-@2 [A3,D3,D4] [A2,A3,E3]] [-@2 [B3,E3,E4,G#3] [A3,D3,D4,F#3]] [-@2 [A3,D3,D4] [A2,A3,E3]]>`).sound("gm_overdriven_guitar").gain(0.32).attack(0.004).release(0.11).pan(0.86).hpf(480).lpf(3800).room(0.08),
+    // Track 11: Bass Guitar 1 (C:chromatic)
+    note(`<
+      [B1@2 A2@2 D2 D#2 F#2@2 A2@2 B1@2 E2@2 D#2 C#2]!3 [-@4 D2 D#2 F#2@2 A2@2 B1@2 E2@2 D#2 C#2] [B1@2 A2@2 D2 D#2 F#2@2 A2@2 B1@2 E2@2 D#2 C#2]!4>`).sound("gm_electric_bass_finger").gain(0.3).attack(0.002).release(0.05).lpf(900).dist(0.25),
+    // Track 13: Drumset
+    s(`<
+      [[bd,hh] hh [sd,hh] hh [bd,hh] hh [sd,hh] hh]!3 [- hh sd hh [bd,hh] hh [sd,hh] hh] [[bd,hh] hh [sd,hh] hh [bd,hh] hh [sd,hh] hh]!4>`).gain(0.46).room(0.12)
+  ),
+  chorus1: stack(
+    // Track 1: B♭ Trumpet (C:chromatic)
+    note(`<
+      -!4 [E5 - D5@2 E5 - D5@2 E5 - D5@2 E5 - D5@2]!3 [E5 - D5@2 E5 - D5@2 E5 - E5 - E5 - D5@2]>`).sound("gm_trumpet").gain(0.48).attack(0.01).release(0.18).pan(0.58).hpf(220).lpf(3600).room(0.14).roomsize(0.32),
+    // Track 4: Saw Synthesizer (C:chromatic)
+    note(`<
+      [D5@3 B4 -@2 D5@3 B4 -@2 D5@3 B4] [-@2 D5@3 B4 -@2 D5@3 B4 -@2 D5@3 B4 -@2 D5@3 B4 -@2 D5@3 B4 -@2]@2 [D5@3 B4 -@2 D5@3 B4 -@2 D5@3 B4] [-@2 [D5,F#5]@3 [B4,D5] -@2 [D5,F#5]@3 [B4,D5] -@2 [D5,F#5]@3 [B4,D5] -@2 [D5,F#5]@3 [B4,D5] -@2 [D5,F#5]@3 [B4,D5] -@2]@2
+      [[D5,F#5]@3 [B4,D5] -@2 [D5,F#5]@3 [B4,D5] -@2 [D5,F#5]@3 [B4,D5]] [-@2 [D5,F#5]@3 [B4,D5] -@2 B5@8]>`).sound("supersaw").gain(0.34).attack(0.003).release(0.1).pan(0.78).hpf(480).lpf(4800).chorus("0.3:0.35").room(0.1).dist(0.18),
+    // Track 10: Electric Guitar 2 (C:chromatic)
+    note(`<
+      [D4@3 B3 -@2 D4@3 B3 -@2 D4@3 B3] [-@2 D4@3 B3 -@2 D4@3 B3 -@2 D4@3 B3 -@2 D4@3 B3 -@2 D4@3 B3 -@2]@2 [D4@3 B3 -@2 D4@3 B3 -@2 D4@3 B3] [-@2 D4@3 B3 -@2 D4@3 B3 -@2 D4@3 B3 -@2 D4@3 B3 -@2 D4@3 B3 -@2]@2
+      [D4@3 B3 -@2 D4@3 B3 -@2 D4@3 B3] [-@2 D4@3 B3 -@2 B4 A4 F#4@2 E4@2 D4@2]>`).sound("gm_overdriven_guitar").gain(0.32).attack(0.004).release(0.11).pan(0.86).hpf(480).lpf(3800).room(0.08),
+    // Track 11: Bass Guitar 1 (C:chromatic)
+    note(`<
+      [B1 B2 B1 B2 B1 B2 B1 B2]!2 [A1 A2 A1 A2 A1 A2 A1 A2]!2 [G#1 G#2 G#1 G#2 G#1 G#2 G#1 G#2]!2 [G1 G2 G1 G2 G1 G2 G1 G2]!2>`).sound("gm_electric_bass_finger").gain(0.3).attack(0.002).release(0.05).lpf(900).dist(0.25),
+    // Track 13: Drumset
+    s(`<
+      [[cr,bd] hh [sd,hh] hh [bd,hh] hh [sd,hh] hh] [[bd,hh] hh [sd,hh] hh [bd,hh] hh [sd,hh] hh]!7>`).gain(0.46).room(0.12)
+  ).velocity(1.08),
+  verse2: stack(
+    // Track 1: B♭ Trumpet (C:chromatic)
+    note(`<
+      -!3 [- - - - - - - - - - - - - - B4 B4] [D5 D5 B4@2 D5@4 -@6 B4 A4] [B4 B4 A4@2 -@4]
+      - [[D5,F#4]@4 [C#5,E4]@4 [B4,D4]@4 [B3,G#4]@4 B4 B4] [D5 D5 B4@2 D5@4 -@6 B4 A4] [B4 B4 A4@2 -@4]
+      - [-@6 [D5,F#4]@4 [C#5,E4]@4 [B4,D4]@3]>`).sound("gm_trumpet").gain(0.32).attack(0.01).release(0.18).pan(0.58).hpf(220).lpf(3600).room(0.14).roomsize(0.32),
+    // Track 3: Alto Saxophone (D:major)
+    note(`<
+      [- - B4 B4 - - B4 B4 - - B4 B4 - - B4 B4]!4 -!8>`).sound("gm_alto_sax").gain(0.42).attack(0.003).release(0.09).pan(0.18).hpf(900).lpf(5400).room(0.08).dist(0.22),
+    // Track 10: Electric Guitar 2 (C:chromatic)
+    note(`<
+      [B3@24 B3 A3 F#3 F3 E3@2 B3 A3]@2 [F#3 F3 E3@2 D3@2 B2@2 B3 A3 F#3 F3 E3@2 B2@2] [B3 A3 F#3 F3 D3 B2 D3@2 B2@8] [-@2 [B3,E3,E4,G#3] [A3,D3,D4,F#3]]
+      [-@2 [A3,D3,D4] [A2,A3,E3]] [-@2 [B3,E3,E4,G#3] [A3,D3,D4,F#3]] [-@2 [A3,D3,D4] [A2,A3,E3]] [-@2 [B3,E3,E4,G#3] [A3,D3,D4,F#3]]
+      [-@2 [A3,D3,D4] [A2,A3,E3]] [-@2 [B3,E3,E4,G#3] [A3,D3,D4,F#3]] [-@2 [A3,D3,D4] [A2,A3,E3]]>`).sound("gm_overdriven_guitar").gain(0.32).attack(0.004).release(0.11).pan(0.86).hpf(480).lpf(3800).room(0.08),
+    // Track 11: Bass Guitar 1 (C:chromatic)
+    note(`<
+      [B1@2 A2@2 D2 D#2 F#2@2 A2@2 B1@2 E2@2 D#2 C#2]!9 [B1@2 A2@2 D2 D#2 F#2@2 -@4 E2@2 D#2 C#2] [B1@2 A2@2 D2 D#2 F#2@2 A2@2 B1@2 E2@2 D#2 C#2]!2>`).sound("gm_electric_bass_finger").gain(0.3).attack(0.002).release(0.05).lpf(900).dist(0.25),
+    // Track 13: Drumset
+    s(`<
+      [[bd,hh] hh [sd,hh] hh [bd,hh] hh [sd,hh] hh]!9 [[bd,hh] hh [sd,hh] hh bd bd [sd,hh] hh] [[bd,hh] hh [sd,hh] hh [bd,hh] hh [sd,hh] cr] [[bd,hh] hh [sd,hh] hh [bd,hh] hh [sd,hh] hh]>`).gain(0.46).room(0.12),
+    // Track 14: Drumset
+    s(`<
+      -!10 [- - - - - - [cr,lt] [cr,lt]] [- - - - [mt,tb] [mt,tb] [mt,tb] [mt,tb] [mt,tb] - - - cb cb [mt,cb] -]>`).gain(0.34).pan(0.8).room(0.16)
+  ),
+  chorus2: stack(
+    // Track 1: B♭ Trumpet (C:chromatic)
+    note(`<
+      [- E5 - D5@2 E5 - D5@2 E5 - D5@2 E5 - D5@2] [E5 - D5@2 E5 - D5@2 E5 - D5@2 E5 - D5@2]!2 [E5 - D5@2 E5 - D5@2 E5 - D5@2 E5@2 D5@2] [F#5@3 E5@2 D5 B4@2 F#5@3 E5@2 D5 B4@2]!3
+      [F#5@3 E5@2 D5 B4@2 [D5,F#4]@4 [C#5,E4]@4]>`).sound("gm_trumpet").gain(0.32).attack(0.01).release(0.18).pan(0.58).hpf(220).lpf(3600).room(0.14).roomsize(0.32),
+    // Track 4: Saw Synthesizer (C:chromatic)
+    note(`<
+      [D5@3 B4 -@2 D5@3 B4 -@2 D5@3 B4] [-@2 D5@3 B4 -@2 D5@3 B4 -@2 D5@3 B4 -@2 D5@3 B4 -@2 D5@3 B4 -@2]@2 [D5@3 B4 -@2 D5@3 B4 -@2 D5@3 B4] [-@2 [D5,F#5]@3 [B4,D5] -@2 [D5,F#5]@3 [B4,D5] -@2 [D5,F#5]@3 [B4,D5] -@2 [D5,F#5]@3 [B4,D5] -@2 [D5,F#5]@3 [B4,D5] -@2]@2
+      [[D5,F#5]@3 [B4,D5] -@2 [D5,F#5]@3 [B4,D5] -@2 [D5,F#5]@3 [B4,D5]] [-@2 [D5,F#5]@3 [B4,D5] -@10]>`).sound("supersaw").gain(0.34).attack(0.003).release(0.1).pan(0.78).hpf(480).lpf(4800).chorus("0.3:0.35").room(0.1).dist(0.18),
+    // Track 6: Saw Synthesizer (C:chromatic)
+    note(`<
+      [B1,B2]@2 [A1,A2]@2 [G#1,G#2]@2 [[G1,G2]@3 -]@2>`).sound("gm_pad_warm").gain(0.14).attack(0.08).release(1.0).pan(0.42).hpf(640).lpf(1400).room(0.32).roomsize(0.6),
+    // Track 7: Sine Synthesizer (F#:harmonic minor)
+    note(`<
+      [D5@3 B4 -@2 D5@3 B4 -@2 D5@3 B4] [-@2 D5@3 B4 -@2 D5@3 B4 -@2 D5@3 B4 -@2 D5@3 B4 -@2 D5@3 B4 -@2]@2 [D5@3 B4 -@2 D5@3 B4 -@2 D5@3 B4] [-@2 [D5,F#5]@3 [B4,D5] -@2 [D5,F#5]@3 [B4,D5] -@2 [D5,F#5]@3 [B4,D5] -@2 [D5,F#5]@3 [B4,D5] -@2 [D5,F#5]@3 [B4,D5] -@2]@2
+      [[D5,F#5]@3 [B4,D5] -@2 [D5,F#5]@3 [B4,D5] -@2 [D5,F#5]@3 [B4,D5]] [-@2 [D5,F#5]@3 [B4,D5] -@10]>`).sound("gm_xylophone").gain(0.24).attack(0.001).release(0.12).pan(0.16).hpf(800).room(0.1),
+    // Track 8: Sine Synthesizer (D:pentatonic)
+    note(`<
+      [B2 -@3] -!7>`).sound("gm_epiano1").gain(0.28).attack(0.003).release(0.22).pan(0.4).hpf(180).lpf(2200).room(0.12),
+    // Track 10: Electric Guitar 2 (C:chromatic)
+    note(`<
+      [D4@3 B3 -@2 D4@3 B3 -@2 D4@3 B3] [-@2 D4@3 B3 -@2 D4@3 B3 -@2 D4@3 B3 -@2 D4@3 B3 -@2 D4@3 B3 -@2]@2 [D4@3 B3 -@2 D4@3 B3 -@2 D4@3 B3] [-@2 D4@3 B3 -@2 D4@3 B3 -@2 D4@3 B3 -@2 D4@3 B3 -@2 D4@3 B3 -@2]@2
+      [D4@3 B3 -@2 D4@3 B3 -@2 D4@3 B3] [-@2 D4@3 B3 -@10]>`).sound("gm_overdriven_guitar").gain(0.32).attack(0.004).release(0.11).pan(0.86).hpf(480).lpf(3800).room(0.08),
+    // Track 11: Bass Guitar 1 (C:chromatic)
+    note(`<
+      [B1 B2 B1 B2 B1 B2 B1 B2]!2 [A1 A2 A1 A2 A1 A2 A1 A2]!2 [G#1 G#2 G#1 G#2 G#1 G#2 G#1 G#2]!2 [G1 G2 G1 G2 G1 G2 G1 G2]
+      [G1 G2 G1 G2 -@4]>`).sound("gm_electric_bass_finger").gain(0.3).attack(0.002).release(0.05).lpf(900).dist(0.25),
+    // Track 12: Bass Guitar 2 (C:chromatic)
+    note(`<
+      [[B1,B2]@3 - [B1,B2]@3 - [B1,B2]@3 - [B1,B2]@3 -]!2 [[A1,A2]@3 - [A1,A2]@3 - [A1,A2]@3 - [A1,A2]@3 -]!2 [[G#1,G#2]@3 - [G#1,G#2]@3 - [G#1,G#2]@3 - [G#1,G#2]@3 -]!2 [[G1,G2]@3 - [G1,G2]@3 - [G1,G2]@3 - [G1,G2]@3 -]
+      [[G1,G2]@3 - [G1,G2]@3 -@9]>`).sound("sine").gain(0.12).attack(0.001).release(0.04).lpf(140),
+    // Track 13: Drumset
+    s(`<
+      [[cr,bd] hh [sd,hh] hh [bd,hh] hh [sd,hh] hh] [[bd,hh] hh [sd,hh] hh [bd,hh] hh [sd,hh] hh]!6 [[bd,hh] - hh - [sd,hh] - hh - ht ht ht ht mt mt mt mt]>`).gain(0.46).room(0.12)
+  ),
+  afraid: stack(
+    // Track 1: B♭ Trumpet (C:chromatic)
+    note(`<
+      [[B4,D4,E5]@4 D5@2 E5 - D5@2 E5 - D5@2 E5 - D5@2] [E5 - D5@2 E5 - D5@2 [D5,E5,F#4]@4 D5@2 [C#5,E4,E5]@4 D5@2] [[B4,D4,E5]@4 D5@2 E5 - D5@2 E5 - D5@2 E5 - D5@2] [E5 - D5@2 E5 - D5@2 [D5,E5,F#4]@4 D5@2 [C#5,E4,E5]@4 D5@2]
+      [[B4,D4,F#5]@4 E5@2 D5 B4@2 F#5@3 E5@2 D5 B4@2] [F#5@3 E5@2 D5 B4@2 F#5@3 E5@2 D5 B4@2] [[B4,D4,F#5]@4 E5@2 D5 B4@2 F#5@3 E5@2 D5 B4@2] [F#5@3 E5@2 D5 B4@2 -@8]>`).sound("gm_trumpet").gain(0.28).attack(0.01).release(0.18).pan(0.58).hpf(220).lpf(3600).room(0.14).roomsize(0.32),
+    // Track 3: Alto Saxophone (D:major)
+    note(`<
+      -!7 [-@4 [A4,E4] [C#5,E4] [B3,B4,D4]@2]>`).sound("gm_alto_sax").gain(0.42).attack(0.003).release(0.09).pan(0.18).hpf(900).lpf(5400).room(0.08).dist(0.22),
+    // Track 4: Saw Synthesizer (C:chromatic)
+    note(`<
+      [B5 F5 B5 F5]!7 [B5 F5 -@2]>`).sound("supersaw").gain(0.34).attack(0.003).release(0.1).pan(0.78).hpf(480).lpf(4800).chorus("0.3:0.35").room(0.1).dist(0.18),
+    // Track 6: Saw Synthesizer (C:chromatic)
+    note(`<
+      [B1,B2]@2 [A1,A2]@2 [G#1,G#2]@2 [[G1,G2]@3 -]@2>`).sound("gm_pad_warm").gain(0.14).attack(0.08).release(1.0).pan(0.42).hpf(640).lpf(1400).room(0.32).roomsize(0.6),
+    // Track 7: Sine Synthesizer (F#:harmonic minor)
+    note(`<
+      [B5 F5 B5 F5]!7 [B5 F5 -@2]>`).sound("gm_xylophone").gain(0.24).attack(0.001).release(0.12).pan(0.16).hpf(800).room(0.1),
+    // Track 10: Electric Guitar 2 (C:chromatic)
+    note(`<
+      [D4@3 B3 -@2 D4@3 B3 -@2 D4@3 B3] [-@2 D4@3 B3 -@2 D4@3 B3 -@2 D4@3 B3 -@2 D4@3 B3 -@2 D4@3 B3 -@2]@2 [D4@3 B3 -@2 D4@3 B3 -@2 D4@3 B3] [-@2 [D4,F#4]@3 [B3,D4] -@2 [D4,F#4]@3 [B3,D4] -@2 [D4,F#4]@3 F#4 [B3,D4] -@2 [D4,F#4]@3 [B3,D4] -@2 [D4,F#4]@3 [B3,D4] -@2]@2
+      [[D4,F#4]@3 [B3,D4] -@2 [D4,F#4]@3 [B3,D4] -@2 [D4,F#4]@3 [B3,D4]] [-@2 [D4,F#4]@3 [B3,D4] -@10]>`).sound("gm_overdriven_guitar").gain(0.32).attack(0.004).release(0.11).pan(0.86).hpf(480).lpf(3800).room(0.08),
+    // Track 11: Bass Guitar 1 (C:chromatic)
+    note(`<
+      [B1 B2 B1 B2 B1 B2 B1 B2]!2 [A1 A2 A1 A2 A1 A2 A1 A2]!2 [G#1 G#2 G#1 G#2 G#1 G#2 G#1 G#2]!2 [G1 G2 G1 G2 G1 G2 G1 G2]
+      [G1 G2 G1 G2 -@4]>`).sound("gm_electric_bass_finger").gain(0.3).attack(0.002).release(0.05).lpf(900).dist(0.25),
+   
+    // Track 13: Drumset
+    s(`<
+      [[cr,bd] hh [sd,hh] hh [bd,hh] hh [sd,hh] hh] [[bd,hh] hh [sd,hh] hh [bd,hh] hh [sd,hh] hh]!6 [[bd,hh] hh [sd,hh] hh - - - -]>`).gain(0.46).room(0.12)
+  ),
+  breakdown: stack(
+    // Track 1: B♭ Trumpet (C:chromatic)
+    note(`<
+      - [-@2 D5@3 D5@2 D5@5 B4@2 A4@2] - [-@2 D5@3 D5@2 D5@5 D5@2 B4@2]
+      - [-@2 D5@3 D5@2 D5@3 B4 - B4@2 A4@2] - [- - - - - - - - - - - - - - B4 B4]>`).sound("gm_trumpet").gain(0.5).attack(0.01).release(0.18).pan(0.58).hpf(220).lpf(3600).room(0.14).roomsize(0.32),
+    // Track 3: Alto Saxophone (D:major)
+    note(`<
+      [-@4 [A3,A4,D4]@2 [B3,B4,E4]@2 [D4,D5,F#4]@2 [B3,B4,E4] [A3,A4,D4]@5] -!3 [-@4 [A3,A4,D4]@2 [B3,B4,E4]@2 [D4,D5,F#4]@2 [B3,B4,E4] [A3,A4,D4]@5] -!3>`).sound("gm_alto_sax").gain(0.42).attack(0.003).release(0.09).pan(0.18).hpf(900).lpf(5400).room(0.08).dist(0.22),
+    // Track 4: Saw Synthesizer (C:chromatic)
+    note(`<
+      [- D5 C#5 A4@5]@2 [- C#5 A4 B4@5]@2 [- D5 C#5 A4@5]@2 [- C#5 A4 B4]
+      B5>`).sound("supersaw").gain(0.34).attack(0.003).release(0.1).pan(0.78).hpf(480).lpf(4800).chorus("0.3:0.35").room(0.1).dist(0.18),
+    // Track 5: Saw Synthesizer (C:chromatic)
+    note(`<
+      [B1 A1@15]@2 [B1 A1@15]@2 [B1 A1@15]@2 [B1 A1@15]@2>`).sound("gm_epiano1").gain(0.24).attack(0.01).release(0.6).pan(0.36).hpf(320).lpf(1400).room(0.2).roomsize(0.45),
+    // Track 7: Sine Synthesizer (F#:harmonic minor)
+    note(`<
+      [- D5 C#5 A4@5]@2 [- C#5 A4 B4@5]@2 [- D5 C#5 A4@5]@2 [- C#5 A4 B4@5]@2>`).sound("gm_xylophone").gain(0.24).attack(0.001).release(0.12).pan(0.16).hpf(800).room(0.1),
+    // Track 10: Electric Guitar 2 (C:chromatic)
+    note(`<
+      [[B2,F#3] [A2,E3]@11 [B2,F#3]@2 -@2]@2 [[B2,F#3] [A2,E3]@11 [B2,F#3]@2 -@2]@2 [[B2,F#3] [A2,E3]@11 [B2,F#3]@2 -@2]@2 [[B2,F#3] [A2,E3]@15]@2>`).sound("gm_overdriven_guitar").gain(0.32).attack(0.004).release(0.11).pan(0.86).hpf(480).lpf(3800).room(0.08),
+    // Track 12: Bass Guitar 2 (C:chromatic)
+    note(`<
+      [B1 A1@15]@2 [B1 A1@15]@2 [B1 A1@15]@2 [B1 A1@15]@2>`).sound("sine").gain(0.28).attack(0.002).release(0.08).lpf(160),
+    // Track 13: Drumset
+    s(`<
+      [bd bd bd bd] [bd bd bd bd] [bd bd bd bd] [bd bd bd bd]
+      [bd bd bd bd] [bd bd bd bd] [bd bd bd bd] [bd bd bd bd]>`).gain(0.46).room(0.12),
+    // Track 14: Drumset
+    s(`<
+      -!7 [sd mt ht lt]>`).gain(0.34).pan(0.8).room(0.16)
+  ),
+  stabs: stack(
+    // Track 1: B♭ Trumpet (C:chromatic)
+    note(`<
+      [D5@2 B4@2 D5@6 -@4 B4 A4] [B4 A4 B4@2 A4@4 -@8] -!3 [B4@2 A4@2 E5@2 D5@2 F#5@3 E5@2 D5 B4@2]
+      -!2>`).sound("gm_trumpet").gain(0.5).attack(0.01).release(0.18).pan(0.58).hpf(220).lpf(3600).room(0.14).roomsize(0.32),
+    // Track 3: Alto Saxophone (D:major)
+    note(`<
+      [- - B4 B4 - - B4 B4 - - B4 B4 - - B4 B4] [- - B4 B4 - - B4 B4 - - B4 B4 - - B4 B4] [- - B4 B4 - - B4 B4 - - B4 B4 - - B4 B4] [- - B4 B4 - - B4 B4 - - B4 B4 - - B4 B4]
+      [- - B4 B4 - - B4 B4 - - B4 B4 - - B4 B4] [- - B4 B4 - - B4 B4 - - B4 B4 - - B4 B4] [- - B4 B4 - - B4 B4 - - B4 B4 - - B4 B4] [- - B4 B4 - - B4 B4 - - B4 B4 - - B4 B4]>`).sound("gm_alto_sax").gain(0.42).attack(0.003).release(0.09).pan(0.18).hpf(900).lpf(5400).room(0.08).dist(0.22),
+    // Track 10: Electric Guitar 2 (C:chromatic)
+    note(`<
+      -!4 [-@2 [B3,E3,E4,G#3] [A3,D3,D4,F#3]] [-@2 [A3,D3,D4] [A2,A3,E3]] [-@2 [B3,E3,E4,G#3] [A3,D3,D4,F#3]]
+      [-@2 [A3,D3,D4] [A2,A3,E3]]>`).sound("gm_overdriven_guitar").gain(0.32).attack(0.004).release(0.11).pan(0.86).hpf(480).lpf(3800).room(0.08),
+    // Track 11: Bass Guitar 1 (C:chromatic)
+    note(`<
+      [B1@2 A2@2 D2 D#2 F#2@2 A2@2 B1@2 E2@2 D#2 C#2] [B1@2 A2@2 D2 D#2 F#2@2 A2@2 B1@2 E2@2 D#2 C#2] [B1@2 A2@2 D2 D#2 F#2@2 A2@2 B1@2 E2@2 D#2 C#2] [B1@2 A2@2 D2 D#2 F#2@2 A2@2 B1@2 E2@2 D#2 C#2]
+      [B1@2 A2@2 D2 D#2 F#2@2 A2@2 B1@2 E2@2 D#2 C#2] [B1@2 A2@2 D2 D#2 F#2@2 A2@2 B1@2 E2@2 D#2 C#2] [B1@2 A2@2 D2 D#2 F#2@2 A2@2 B1@2 E2@2 D#2 C#2] [B1@2 A2@2 D2 D#2 F#2@2 A2@2 B1@2 E2@2 D#2 C#2]>`).sound("gm_electric_bass_finger").gain(0.3).attack(0.002).release(0.05).lpf(900).dist(0.25),
+    // Track 13: Drumset
+    s(`<
+      [[bd,hh] hh [sd,hh] hh [bd,hh] hh [sd,hh] hh] [[bd,hh] hh [sd,hh] hh [bd,hh] hh [sd,hh] hh] [[bd,hh] hh [sd,hh] hh [bd,hh] hh [sd,hh] hh] [[bd,hh] hh [sd,hh] hh [bd,hh] hh [sd,hh] hh]
+      [[bd,hh] hh [sd,hh] hh [bd,hh] hh [sd,hh] hh] [[bd,hh] hh [sd,hh] hh [bd,hh] hh [sd,hh] hh] [[bd,hh] hh [sd,hh] hh [bd,hh] hh [sd,hh] hh] [[bd,hh] hh [sd,hh] hh [bd,hh] hh [sd,hh] hh]>`).gain(0.46).room(0.12)
+  ),
+  verse3: stack(
+    // Track 1: B♭ Trumpet (C:chromatic)
+    note(`<
+      [-@4 B4 -@3] [-@4 G#4 -@3] - [- - - - - - - - - - - - - - B4 B4]
+      [D5 D5 B4@2 G#4@2 -@8 B4@2] [-@2 [D5,F#4]@3 [D5,F#4]@2 [D5,F#4]@3 -@2 G#4@4] [[D5,F#4] [C#5,E4] [B4,D4] [B3,D5,F#4,G#4]] [[C#5,E4] [B4,D4] [B3,D5,F#4,G#4] [C#5,E4]]>`).sound("gm_trumpet").gain(0.24).attack(0.01).release(0.18).pan(0.58).hpf(220).lpf(3600).room(0.14).roomsize(0.32),
+    // Track 3: Alto Saxophone (D:major)
+    note(`<
+      [- - B4 B4 - - B4 B4 - - B4 B4 - - B4 B4] [- - B4 B4 - - B4 B4 - - B4 B4 - - B4 B4] [- - B4 B4 - - B4 B4 - - B4 B4 - - B4 B4] [- - B4 B4 - - B4 B4 - - B4 B4 - - B4 B4]
+      [- - B4 B4 - - B4 B4 - - B4 B4 - - B4 B4] [- - B4 B4 - - B4 B4 - - B4 B4 - - B4 B4] [- - B4 B4 - - B4 B4 - - B4 B4 - - B4 B4] [- - B4 B4 - - B4 B4 - - B4 B4 - - B4 B4]>`).sound("gm_alto_sax").gain(0.42).attack(0.003).release(0.09).pan(0.18).hpf(900).lpf(5400).room(0.08).dist(0.22),
+    // Track 10: Electric Guitar 2 (C:chromatic)
+    note(`<
+      [-@2 [B3,E3,E4,G#3] [A3,D3,D4,F#3]] [-@2 [A3,D3,D4] [A2,A3,E3]] [-@2 [B3,E3,E4,G#3] [A3,D3,D4,F#3]] [-@2 [A3,D3,D4] [A2,A3,E3]]
+      [-@2 [B3,E3,E4,G#3] [A3,D3,D4,F#3]] [-@2 [A3,D3,D4] [A2,A3,E3]] [-@2 [B3,E3,E4,G#3] [A3,D3,D4,F#3]] [-@2 [A3,D3,D4] [A2,A3,E3]]>`).sound("gm_overdriven_guitar").gain(0.32).attack(0.004).release(0.11).pan(0.86).hpf(480).lpf(3800).room(0.08),
+    // Track 11: Bass Guitar 1 (C:chromatic)
+    note(`<
+      [B1@2 A2@2 D2 D#2 F#2@2 A2@2 B1@2 E2@2 D#2 C#2] [B1@2 A2@2 D2 D#2 F#2@2 A2@2 B1@2 E2@2 D#2 C#2] [B1@2 A2@2 D2 D#2 F#2@2 A2@2 B1@2 E2@2 D#2 C#2] [B1@2 A2@2 D2 D#2 F#2@2 A2@2 B1@2 E2@2 D#2 C#2]
+      [B1@2 A2@2 D2 D#2 F#2@2 A2@2 B1@2 E2@2 D#2 C#2] [B1@2 A2@2 D2 D#2 F#2@2 A2@2 B1@2 E2@2 D#2 C#2] [B1@2 A2@2 D2 D#2 F#2@2 A2@2 B1@2 E2@2 D#2 C#2] [B1@2 A2@2 D2 D#2 F#2@2 A2@2 B1@2 E2@2 D#2 C#2]>`).sound("gm_electric_bass_finger").gain(0.3).attack(0.002).release(0.05).lpf(900).dist(0.25),
+    // Track 13: Drumset
+    s(`<
+      [[bd,hh] hh [sd,hh] hh [bd,hh] hh [sd,hh] hh] [[bd,hh] hh [sd,hh] hh [bd,hh] hh [sd,hh] hh] [[bd,hh] hh [sd,hh] hh [bd,hh] hh [sd,hh] hh] [[bd,hh] hh [sd,hh] hh [bd,hh] hh [sd,hh] hh]
+      [[bd,hh] hh [sd,hh] hh [bd,hh] hh [sd,hh] hh] [[bd,hh] hh [sd,hh] hh [bd,hh] hh [sd,hh] hh] [[bd,hh] hh [sd,hh] hh [bd,hh] hh [sd,hh] hh] [[bd,hh] hh [sd,hh] hh [bd,hh] hh [sd,hh] hh]>`).gain(0.46).room(0.12),
+    // Track 14: Drumset
+    s(`<
+      -!7 [- - - - - - - - mt - mt mt - mt mt -]>`).gain(0.34).pan(0.8).room(0.16)
+  ).velocity(0.93),
+  break: stack(
+    // Track 1: B♭ Trumpet (C:chromatic)
+    note(`<
+      [[B4,D4,E5]@2 D5@2 E5 - D5@2 E5 - D5@2 E5 - D5@2] [E5 - D5@2 E5 - D5@2 E5 - D5@2 E5 - D5@2]!2 [E5 - D5@2 E5 - D5@2 E5 - D5@2 E5@2 D5@2] [F#5@3 E5@2 D5 B4@2 F#5@3 E5@2 D5 B4@2]!3
+      [F#5@3 E5@2 D5 B4@2 [D5,F#4]@4 [C#5,E4]@4]>`).sound("gm_trumpet").gain(0.28).attack(0.01).release(0.18).pan(0.58).hpf(220).lpf(3600).room(0.14).roomsize(0.32),
+    // Track 6: Saw Synthesizer (C:chromatic)
+    note(`<
+      [B1,B2]@2 [A1,A2]@2 [G#1,G#2]@2 [[G1,G2]@3 -]@2>`).sound("gm_pad_warm").gain(0.14).attack(0.08).release(1.0).pan(0.42).hpf(640).lpf(1400).room(0.32).roomsize(0.6),
+    // Track 11: Bass Guitar 1 (C:chromatic)
+    note(`<
+      [B1 B2 B1 B2 B1 B2 B1 B2]!2 [A1 A2 A1 A2 A1 A2 A1 A2]!2 [G#1 G#2 G#1 G#2 G#1 G#2 G#1 G#2]!2 [G1 G2 G1 G2 G1 G2 G1 G2]
+      [G1 G2 G1 G2 -@4]>`).sound("gm_electric_bass_finger").gain(0.3).attack(0.002).release(0.05).lpf(900).dist(0.25),
+    // Track 13: Drumset
+    s(`<
+      [bd bd bd bd] [bd bd bd bd] [bd bd bd bd] [bd bd bd bd]
+      [bd bd bd bd] [bd bd bd bd] [bd bd bd bd] [bd bd bd bd]>`).gain(0.5).room(0.1),
+    // Track 14: Drumset
+    s(`<
+      [[cr,lt] - [cr,lt] - - - - - [mt,tb] [mt,tb] [mt,tb] [mt,tb] [mt,tb] - - -] [cb cb [mt,cb] - - - - - lt lt lt lt lt - lt -] [[cr,lt] - [cr,lt] - - - - - [mt,tb] [mt,tb] [mt,tb] [mt,tb] [mt,tb] - - -] [cb cb [mt,cb] - - - - - lt lt lt lt lt - lt -]
+      [[cr,lt] - [cr,lt] - - - - - [mt,tb] [mt,tb] [mt,tb] [mt,tb] [mt,tb] - - -] [cb cb [mt,cb] - - - - - lt lt lt lt lt - lt -] [[cr,lt] - [cr,lt] - - - - - [mt,tb] [mt,tb] [mt,tb] [mt,tb] [mt,tb] - - -] [cb cb [mt,cb] - - - - - lt lt lt lt lt - lt -]>`).gain(0.48).pan(0.82).room(0.2)
+  ),
+  chorus3: stack(
+    // Track 1: B♭ Trumpet (C:chromatic)
+    note(`<
+      [[B4,D4,E5]@2 D5@2 E5 - D5@2 E5 - D5@2 E5 - D5@2] [E5 - D5@2 E5 - D5@2 E5 - D5@2 E5 - D5@2]!2 [E5 - D5@2 E5 - D5@2 E5 - D5@2 E5@2 D5@2] [F#5@3 E5@2 D5 B4@2 F#5@3 E5@2 D5 B4@2]!3
+      [E5 D5 E5 D5 E5 F#5@3]>`).sound("gm_trumpet").gain(0.28).attack(0.01).release(0.18).pan(0.58).hpf(220).lpf(3600).room(0.14).roomsize(0.32),
+    // Track 4: Saw Synthesizer (C:chromatic)
+    note(`<
+      [- D5 C#5 A4@5]@2 [- D5 C#5 A4@5]@2 [- D5 C#5 A4@5]@2 [- D5 C#5 A4]
+      ->`).sound("supersaw").gain(0.34).attack(0.003).release(0.1).pan(0.78).hpf(480).lpf(4800).chorus("0.3:0.35").room(0.1).dist(0.18),
+    // Track 6: Saw Synthesizer (C:chromatic)
+    note(`<
+      [B1,B2]@2 [A1,A2]@2 [G#1,G#2]@2 [G1,G2]
+      ->`).sound("gm_pad_warm").gain(0.14).attack(0.08).release(1.0).pan(0.42).hpf(640).lpf(1400).room(0.32).roomsize(0.6),
+    // Track 10: Electric Guitar 2 (C:chromatic)
+    note(`<
+      [D4@3 B3 -@2 D4@3 B3 -@2 D4@3 B3] [-@2 D4@3 B3 -@2 D4@3 B3 -@2 D4@3 B3 -@2 D4@3 B3 -@2 D4@3 B3 -@2]@2 [D4@3 B3 -@2 D4@3 B3 -@2 D4@3 B3] [-@2 D4@3 B3 -@2 D4@3 B3 -@2 D4@3 B3 -@2 D4@3 B3 -@2 D4@3 B3 -@2]@2
+      [D4@3 B3 -@2 D4@3 B3 -@2 D4@3 B3] ->`).sound("gm_overdriven_guitar").gain(0.32).attack(0.004).release(0.11).pan(0.86).hpf(480).lpf(3800).room(0.08),
+    // Track 11: Bass Guitar 1 (C:chromatic)
+    note(`<
+      [B1 B2 B1 B2 B1 B2 B1 B2]!2 [A1 A2 A1 A2 A1 A2 A1 A2]!2 [G#1 G#2 G#1 G#2 G#1 G#2 G#1 G#2]!2 [G1 G2 G1 G2 G1 G2 G1 G2]
+      ->`).sound("gm_electric_bass_finger").gain(0.3).attack(0.002).release(0.05).lpf(900).dist(0.25),
+    // Track 12: Bass Guitar 2 (C:chromatic)
+    note(`<
+      [[B1,B2]@3 - [B1,B2]@3 - [B1,B2]@3 - [B1,B2]@3 -]!2 [[A1,A2]@3 - [A1,A2]@3 - [A1,A2]@3 - [A1,A2]@3 -]!2 [[G#1,G#2]@3 - [G#1,G#2]@3 - [G#1,G#2]@3 - [G#1,G#2]@3 -]!2 [[G1,G2]@3 - [G1,G2]@3 - [G1,G2]@3 - [G1,G2]@3 -]
+      ->`).sound("sine").gain(0.12).attack(0.001).release(0.04).lpf(140),
+    // Track 13: Drumset
+    s(`<
+      [[bd,hh] hh [sd,hh] hh [bd,hh] hh [sd,hh] hh]!7 [[bd,hh] - hh - [sd,hh] - hh - ht ht ht ht mt mt mt mt]>`).gain(0.46).room(0.12)
+  ).velocity(1.08),
+  chorus4: stack(
+    // Track 1: B♭ Trumpet (C:chromatic)
+    note(`<
+      [E5 - D5@2 E5 - D5@2 E5 - D5@2 E5 - D5@2]!3 [E5 - D5@2 E5 - D5@2 E5 - D5@2 E5@2 D5@2] [F#5@3 E5@2 D5 B4@2 F#5@3 E5@2 D5 B4@2]!3 [E5 D5 E5 D5 E5 F#5@3]>`).sound("gm_trumpet").gain(0.48).attack(0.01).release(0.18).pan(0.58).hpf(220).lpf(3600).room(0.14).roomsize(0.32),
+    // Track 4: Saw Synthesizer (C:chromatic)
+    note(`<
+      [D5@3 B4 -@2 D5@3 B4 -@2 D5@3 B4] [-@2 D5@3 B4 -@2 D5@3 B4 -@2 D5@3 B4 -@2 D5@3 B4 -@2 D5@3 B4 -@2]@2 [D5@3 B4 -@2 D5@3 B4 -@2 D5@3 B4] [-@2 [D5,F#5]@3 [B4,D5] -@2 [D5,F#5]@3 [B4,D5] -@2 [D5,F#5]@3 [B4,D5] -@2 [D5,F#5]@3 [B4,D5] -@2 [D5,F#5]@3 [B4,D5] -@2]@2
+      [[D5,F#5]@3 [B4,D5] -@2 [D5,F#5]@3 [B4,D5] -@2 [D5,F#5]@3 [B4,D5]] ->`).sound("supersaw").gain(0.34).attack(0.003).release(0.1).pan(0.78).hpf(480).lpf(4800).chorus("0.3:0.35").room(0.1).dist(0.18),
+    // Track 6: Saw Synthesizer (C:chromatic)
+    note(`<
+      [B1,B2]@2 [A1,A2]@2 [G#1,G#2]@2 [G1,G2]
+      ->`).sound("gm_pad_warm").gain(0.14).attack(0.08).release(1.0).pan(0.42).hpf(640).lpf(1400).room(0.32).roomsize(0.6),
+    // Track 10: Electric Guitar 2 (C:chromatic)
+    note(`<
+      [D4@3 B3 -@2 D4@3 B3 -@2 D4@3 B3] [-@2 D4@3 B3 -@2 D4@3 B3 -@2 D4@3 B3 -@2 D4@3 B3 -@2 D4@3 B3 -@2]@2 [D4@3 B3 -@2 D4@3 B3 -@2 D4@3 B3] [-@2 D4@3 B3 -@2 D4@3 B3 -@2 D4@3 B3 -@2 D4@3 B3 -@2 D4@3 B3 -@2]@2
+      [D4@3 B3 -@2 D4@3 B3 -@2 D4@3 B3] ->`).sound("gm_overdriven_guitar").gain(0.32).attack(0.004).release(0.11).pan(0.86).hpf(480).lpf(3800).room(0.08),
+    // Track 11: Bass Guitar 1 (C:chromatic)
+    note(`<
+      [B1 B2 B1 B2 B1 B2 B1 B2]!2 [A1 A2 A1 A2 A1 A2 A1 A2]!2 [G#1 G#2 G#1 G#2 G#1 G#2 G#1 G#2]!2 [G1 G2 G1 G2 G1 G2 G1 G2]
+      ->`).sound("gm_electric_bass_finger").gain(0.3).attack(0.002).release(0.05).lpf(900).dist(0.25),
+    // Track 12: Bass Guitar 2 (C:chromatic)
+    note(`<
+      [[B1,B2]@3 - [B1,B2]@3 - [B1,B2]@3 - [B1,B2]@3 -]!2 [[A1,A2]@3 - [A1,A2]@3 - [A1,A2]@3 - [A1,A2]@3 -]!2 [[G#1,G#2]@3 - [G#1,G#2]@3 - [G#1,G#2]@3 - [G#1,G#2]@3 -]!2 [[G1,G2]@3 - [G1,G2]@3 - [G1,G2]@3 - [G1,G2]@3 -]
+      ->`).sound("sine").gain(0.12).attack(0.001).release(0.04).lpf(140),
+    // Track 13: Drumset
+    s(`<
+      [[cr,bd] hh [sd,hh] hh [bd,hh] hh [sd,hh] hh] [[bd,hh] hh [sd,hh] hh [bd,hh] hh [sd,hh] hh]!6 [[bd,hh] - hh - [sd,hh] - hh - ht ht ht ht mt mt mt mt]>`).gain(0.46).room(0.12)
+  ),
+  finale: stack(
+    // Track 1: B♭ Trumpet (C:chromatic)
+    note(`<
+      [E5 - D5@2 E5 - D5@2 E5 - D5@2 E5 - D5@2]!3 [E5 - D5@2 E5 - D5@2 E5 - D5@2 E5@2 D5@2] [F#5@3 E5@2 D5 B4@2 F#5@3 E5@2 D5 B4@2]!3 [E5 D5 E5 D5 F5@2 D#5@2]>`).sound("gm_trumpet").gain(0.48).attack(0.01).release(0.18).pan(0.58).hpf(220).lpf(3600).room(0.14).roomsize(0.32),
+    // Track 2: Alto Saxophone (D:major)
+    note(`<
+      [- D5 C#5 A4@5]@2 [- D5 C#5 A4@5]@2 [- D5 C#5 A4@5]@2 [- D5 C#5 A4]
+      ->`).sound("gm_alto_sax").gain(0.30).attack(0.02).release(0.5).pan(0.28).hpf(280).lpf(2800).room(0.2).roomsize(0.42),
+    // Track 4: Saw Synthesizer (C:chromatic)
+    note(`<
+      [B5 F5 B5 F5]!7 ->`).sound("supersaw").gain(0.34).attack(0.003).release(0.1).pan(0.78).hpf(480).lpf(4800).chorus("0.3:0.35").room(0.1).dist(0.18),
+    // Track 6: Saw Synthesizer (C:chromatic)
+    note(`<
+      [B1,B2]@2 [A1,A2]@2 [G#1,G#2]@2 [G1,G2]
+      ->`).sound("gm_pad_warm").gain(0.14).attack(0.08).release(1.0).pan(0.42).hpf(640).lpf(1400).room(0.32).roomsize(0.6),
+    // Track 10: Electric Guitar 2 (C:chromatic)
+    note(`<
+      [D4@3 B3 -@2 D4@3 B3 -@2 D4@3 B3] [-@2 D4@3 B3 -@2 D4@3 B3 -@2 D4@3 B3 -@2 D4@3 B3 -@2 D4@3 B3 -@2]@2 [D4@3 B3 -@2 D4@3 B3 -@2 D4@3 B3] [-@2 D4@3 B3 -@2 D4@3 B3 -@2 D4@3 B3 -@2 D4@3 B3 -@2 D4@3 B3 -@2]@2
+      [D4@3 B3 -@2 D4@3 B3 -@2 D4@3 B3] ->`).sound("gm_overdriven_guitar").gain(0.32).attack(0.004).release(0.11).pan(0.86).hpf(480).lpf(3800).room(0.08),
+    // Track 11: Bass Guitar 1 (C:chromatic)
+    note(`<
+      [B1 B2 B1 B2 B1 B2 B1 B2]!2 [A1 A2 A1 A2 A1 A2 A1 A2]!2 [G#1 G#2 G#1 G#2 G#1 G#2 G#1 G#2]!2 [G1 G2 G1 G2 G1 G2 G1 G2]
+      ->`).sound("gm_electric_bass_finger").gain(0.3).attack(0.002).release(0.05).lpf(900).dist(0.25),
+    // Track 12: Bass Guitar 2 (C:chromatic)
+    note(`<
+      [[B1,B2]@3 - [B1,B2]@3 - [B1,B2]@3 - [B1,B2]@3 -]!2 [[A1,A2]@3 - [A1,A2]@3 - [A1,A2]@3 - [A1,A2]@3 -]!2 [[G#1,G#2]@3 - [G#1,G#2]@3 - [G#1,G#2]@3 - [G#1,G#2]@3 -]!2 [[G1,G2]@3 - [G1,G2]@3 - [G1,G2]@3 - [G1,G2]@3 -]
+      ->`).sound("sine").gain(0.12).attack(0.001).release(0.04).lpf(140),
+    // Track 13: Drumset
+    s(`<
+      [[cr,bd] hh [sd,hh] hh [bd,hh] hh [sd,hh] hh] [[bd,hh] hh [sd,hh] hh [bd,hh] hh [sd,hh] hh]!6 ->`).gain(0.46).room(0.12),
+    // Track 14: Drumset
+    s(`<
+      [[cr,lt] - [cr,lt] - - - - - [mt,tb] [mt,tb] [mt,tb] [mt,tb] [mt,tb] - - -] [cb cb [mt,cb] - - - - - lt lt lt lt lt - lt -] [[cr,lt] - [cr,lt] - - - - - [mt,tb] [mt,tb] [mt,tb] [mt,tb] [mt,tb] - - -] [cb cb [mt,cb] - - - - - lt lt lt lt lt - lt -]
+      [[cr,lt] - [cr,lt] - - - - - [mt,tb] [mt,tb] [mt,tb] [mt,tb] [mt,tb] - - -] [cb cb [mt,cb] - - - - - lt lt lt lt lt - lt -] [- - - - - - - - [cr,cr] [cr,cr] [cr,cr] [cr,cr] [cr,cr] [cr,cr] [cr,cr] [cr,cr]] ->`).gain(0.34).pan(0.8).room(0.16)
+  ),
+  outro: stack(
+    // Track 1: B♭ Trumpet (C:chromatic)
+    note(`<
+      - [-@2 F5 D#5] - [-@2 F5 D#5]
+      - [-@2 F5 D#5] - [-@2 F5 D#5]
+      - [-@2 F5 D#5] - [-@2 F5 D#5]
+      - [-@2 F5 D#5] - [-@2 F5 D#5]
+      -!4>`).sound("gm_trumpet").gain(0.46).attack(0.01).release(0.18).pan(0.58).hpf(220).lpf(3600).room(0.14).roomsize(0.32),
+    // Track 10: Electric Guitar 2 (C:chromatic)
+    note(`<
+      [A#4 D#5 A#4 D#5 -@4] [-@3 C#5@2 C#5@2 B4] [A#4 B4 D#4@4 D#4 F4@4 D#4@4 -]@2 [A#4 D#5 A#4 D#5 -@4]
+      [-@3 C#5@2 C#5@2 B4] [A#4 B4 D#4@4 D#4 F4@4 D#4@4 -]@2 [A#4 D#5 A#4 D#5 -@4] [-@3 C#5@2 C#5@2 B4]
+      [A#4 B4 D#4@4 D#4 F4@4 D#4@4 -]@2 -!8>`).sound("gm_overdriven_guitar").gain(0.32).attack(0.004).release(0.11).pan(0.86).hpf(480).lpf(3800).room(0.08),
+    // Track 11: Bass Guitar 1 (C:chromatic)
+    note(`<
+      [D#2 -@2 D#2 F2 F#2 - B2] [- A#2@5 -@2] [G#2 -@2 G#2 B2 A#2 - F#2] [- D#2@5 -@2]
+      [D#2 -@2 D#2 F2 F#2 - B2] [- A#2@5 -@2] [G#2 -@2 G#2 B2 A#2 - F#2] [- D#2@2 D#3@5]
+      [D#2 -@2 D#2 F2 F#2 - B2] [- A#2@5 -@2] [G#2 -@2 G#2 B2 A#2 - F#2] [- D#2@5 -@2]
+      [D#2 -@2 D#2 F2 F#2 - B2] [- A#2@5 -@2] [G#2 -@2 G#2 B2 A#2 - F#2] [- D#2@2 D#3@5]
+      -!4>`).sound("gm_electric_bass_finger").gain(0.3).attack(0.002).release(0.05).lpf(900).dist(0.25),
+    // Track 13: Drumset
+    s(`<
+      [[bd,hh] hh [sd,hh] [bd,hh] hh [bd,hh] [sd,hh] hh]!12 [hh hh hh hh hh hh hh hh]!4 -!4>`).gain(0.46).room(0.12)
+  ).fast(1.25)
+})

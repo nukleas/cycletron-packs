@@ -1,0 +1,194 @@
+---
+name: "Deck the Halls"
+bpm: 124
+created: 2026-11-02
+tags: [christmas, carol, chiptune]
+---
+// Deck the Halls. Welsh tune "Nos Galan" (16th century), words Thomas Oliphant (1862). Public domain.
+// Original arrangement: the toy line at STN-02. A machine pulse in D minor, the fa-la-la as the
+// riff the line runs on, the tune in D minor on the first drop and in F major on the last.
+// Melody in scale degrees, one [bar] per slot. On D minor -1 is C; on F major it is E.
+//
+// FORM (124 BPM · 1 cycle = 1 bar · 96 bars ≈ 3:06):
+//   intro    8  e1  morse, the first line on glockenspiel over strings; bar 5 the press drops and the bass starts
+//   verse   16  e2  the riff alone on wt_pluck over the 808 press and 8th bass; up a third and rim ticks from bar 9
+//   build    8  e3  16th bass, half the riff, the tune's first bar on square; snare roll into the drop
+//   drop    16  e5  the whole tune on square in D minor, riff, 909 hats and clap, sub, bell answers
+//   break   16  e1  the line idles: a hum, choir, the whole tune on glockenspiel, tubular bells, morse
+//   build2   8  e4  the tune's first bar climbing a step every bar, klaxon, countdown tick
+//   final   16  e5  F major, overdrive: square riff, lead doubled an octave up, bells on every fa-la
+//   outro    8  e1  the belt stops: the bass slows and sinks, the riff thins out, one last tubular bell
+// hook: the fa-la-la riff, verse to final.
+
+setbpm(124);
+
+"<intro@2 verse@4 build@2 drop@4 break@4 build2@2 final@4 outro@2>".slow(4).pickRestart({
+  intro: stack(
+    // morse ping on bar 1
+    note("<[c7 c7 ~ c7 c7 c7 ~ ~] ~@7>").s("square").decay(0.03).sustain(0).hpf(2000).gain(0.08).pan(0.25),
+    // the first line, once, on glockenspiel
+    note("<[4@3 3 2@2 1@2] [0 1 2 0] [1 2 3 1 2@3 1] [0 -1 0@2] ~ ~ ~ ~>")
+      .scale("D5:minor").s("glockenspiel").room(0.5).gain(0.28).pan(0.62),
+    chord("<Dm Dm Bb [C Dm] Dm Dm Bb C>").voicing().s("wt_strings")
+      .attack(1).release(1.5).lpf(1000).room(0.6).gain(0.16),
+    // the press drops once, then the line starts
+    s("<~ ~ ~ ~ bd ~ ~ ~>").bank("RolandTR808").gain(0.8),
+    note("<~ ~ ~ ~ [d2 d3]*4 [d2 d3]*4 [bb1 bb2]*4 [c2 c3]*4>")
+      .s("sawtooth").lpf(saw.range(250, 800).slow(8)).lpenv(1.5).lpdecay(0.12).lpsustain(0)
+      .decay(0.15).sustain(0.3).gain(0.4),
+    s("<~ ~ ~ ~ [~ rim]*2 [~ rim]*2 [~ rim]*2 [~ rim]*2>").gain(0.12).pan(0.4),
+    // radio static on the last beat of the section
+    s("<~@7 [~ ~ ~ white]>").bpf(1800).bandq(6).coarse(6).decay(0.12).sustain(0).gain(0.12).pan(0.8)
+  ),
+  verse: stack(
+    // the press
+    s("bd*4").bank("RolandTR808").gain(0.8),
+    // octave bass, ducked off the kick
+    note("<[d2 d3]*4 [bb1 bb2]*4 [c2 c3]*4 [d2 d3]*4 [d2 d3]*4 [bb1 bb2]*4 [g1 g2]*4 [[c2 c3]*2 [d2 d3]*2]>")
+      .s("sawtooth").lpf(420).lpenv(2).lpdecay(0.1).lpsustain(0)
+      .decay(0.15).sustain(0.3).gain("[0.3 0.44]*4"),
+    // the riff: fa la la la la, la la la la; up a third at bar 9
+    note("<[1 2 3 1 2 ~ 2 1 0 -1 0 ~ 0 ~ ~ ~] [1 2 3 1 2 ~ 2 1 0 -1 0 ~ 4 ~ ~ ~] [1 2 3 1 2 ~ 2 1 0 -1 0 ~ 0 ~ ~ ~] [1 2 3 1 2 ~ 2 1 0 -1 0 ~ 4 ~ 5 ~] [1 2 3 1 2 ~ 2 1 0 -1 0 ~ 0 ~ ~ ~] [1 2 3 1 2 ~ 2 1 0 -1 0 ~ 4 ~ ~ ~] [1 2 3 1 2 ~ 2 1 0 -1 0 ~ 2 ~ 1 ~] [1 2 3 1 2 ~ 2 1 0 -1 0 ~ 4 ~ 5 ~] [3 4 5 3 4 ~ 4 3 2 1 2 ~ 2 ~ ~ ~] [3 4 5 3 4 ~ 4 3 2 1 2 ~ 4 ~ ~ ~] [3 4 5 3 4 ~ 4 3 2 1 2 ~ 2 ~ ~ ~] [3 4 5 3 4 ~ 4 3 2 1 2 ~ 4 ~ ~ ~] [1 2 3 1 2 ~ 2 1 0 -1 0 ~ 0 ~ ~ ~] [1 2 3 1 2 ~ 2 1 0 -1 0 ~ 4 ~ ~ ~] [1 2 3 1 2 ~ 2 1 0 -1 0 ~ 2 ~ 1 ~] [1 2 3 1 2 ~ 2 1 0 -1 0 ~ -1 ~ -3 ~]>")
+      .scale("D4:minor").s("wt_pluck").decay(0.1).sustain(0)
+      .delay(0.2).delaytime(0.363).gain(0.3).pan(0.4),
+    // rim ticks from bar 9
+    s("<~!8 [~ rim]*4!8>").gain(0.12).pan(0.65),
+    chord("<Dm Bb C Dm Dm Bb Gm [C Dm]>").voicing().s("wt_strings")
+      .attack(0.6).release(1).lpf(1100).room(0.5).gain(0.14),
+    // radio static on the last beat of the section
+    s("<~@15 [~ ~ ~ white]>").bpf(1800).bandq(6).coarse(6).decay(0.12).sustain(0).gain(0.12).pan(0.8)
+  ),
+  build: stack(
+    s("<bd*4 bd*4 bd*4 bd*4 bd*4 bd*4 bd*8 bd*8>").bank("RolandTR808").gain(0.8),
+    // 16th bass, the filter opening across the build
+    note("<[d2 d3]*8 [bb1 bb2]*8 [c2 c3]*8 [d2 d3]*8>")
+      .s("sawtooth").lpf(saw.range(400, 1100).slow(8)).lpenv(2).lpdecay(0.08).lpsustain(0)
+      .decay(0.12).sustain(0.25).gain("[0.22 0.34 0.4 0.34]*4"),
+    // half the riff
+    note("[1 2 3 1 2 ~ ~ ~]")
+      .scale("D4:minor").s("wt_pluck").decay(0.1).sustain(0)
+      .delay(0.2).delaytime(0.363).gain(0.3).pan(0.4),
+    // the tune's first bar, a fragment
+    note("<[4@3 3 2@2 1@2] ~ [4@3 3 2@2 1@2] ~ [4@3 3 2@2 1@2] [4@3 3 2@2 1@2] [4@3 3 2@2 1@2] [4 3 2 1]>")
+      .scale("D4:minor").s("square").decay(0.12).sustain(0.35).release(0.08).lpf(2200).gain(0.24).pan(0.55),
+    s("<~!4 [~ rim]*4!4>").gain(0.12).pan(0.65),
+    // snare roll into the drop
+    s("<~ ~ ~ ~ [~ sd]*2 [~ sd]*2 sd*8 sd*16>").bank("RolandTR909").gain(0.4).pan(0.5),
+    chord("<Dm Bb C Dm Dm Bb C C>").voicing().s("wt_strings")
+      .attack(0.4).release(0.8).lpf(saw.range(1000, 2400).slow(8)).room(0.5).gain(0.15),
+    // radio static on the last beat of the section
+    s("<~@7 [~ ~ ~ white]>").bpf(1800).bandq(6).coarse(6).decay(0.12).sustain(0).gain(0.12).pan(0.8)
+  ),
+  drop: stack(
+    s("bd*4").bank("RolandTR808").gain(0.85),
+    s("~ cp ~ cp").bank("RolandTR909").gain(0.42).pan(0.5),
+    s("hh*16").bank("RolandTR909").gain("[0.12 0.08 0.16 0.08]*4").pan(0.6),
+    s("<cr ~ ~ ~>").bank("RolandTR909").gain(0.3).pan(0.45),
+    note("<[d2 d3]*8 [bb1 bb2]*8 [c2 c3]*8 [d2 d3]*8 [d2 d3]*8 [bb1 bb2]*8 [c2 c3]*8 [d2 d3]*8 [c2 c3]*8 [f2 f3]*8 [bb1 bb2]*8 [a1 a2]*8 [d2 d3]*8 [bb1 bb2]*8 [g1 g2]*8 [[c2 c3]*4 [d2 d3]*4]>")
+      .s("sawtooth").lpf(600).lpenv(2).lpdecay(0.08).lpsustain(0)
+      .decay(0.12).sustain(0.25).gain("[0.22 0.34 0.4 0.34]*4"),
+    // sub under the drop
+    note("<d1 bb0 c1 d1 d1 bb0 c1 d1 c1 f1 bb0 a0 d1 bb0 g0 [c1 d1]>").s("sine").release(0.3).gain(0.3),
+    note("<[1 2 3 1 2 ~ 2 1 0 -1 0 ~ 0 ~ ~ ~] [1 2 3 1 2 ~ 2 1 0 -1 0 ~ 4 ~ ~ ~]>")
+      .scale("D4:minor").s("wt_pluck").decay(0.1).sustain(0)
+      .delay(0.2).delaytime(0.363).gain(0.28).pan(0.4),
+    // the whole tune on the line
+    note("<[4@3 3 2@2 1@2] [0 1 2 0] [1 2 3 1 2@3 1] [0 -1 0@2] [4@3 3 2@2 1@2] [0 1 2 0] [1 2 3 1 2@3 1] [0 -1 0@2] [1@3 2 3@2 1@2] [2@3 3 4@2 1@2] [[2 3] 4 [5 6] 7] [6 5 4@2] [4@3 3 2@2 1@2] [0 1 2 0] [5 5 5 5 4@3 3] [2 1 0@2]>")
+      .scale("D4:minor").s("square").decay(0.12).sustain(0.35).release(0.08).lpf(2600).gain(0.3).pan(0.55),
+    // bells on the fa la las
+    note("<~ ~ [1 2 3 1 2@3 1] [0 -1 0@2] ~ ~ [1 2 3 1 2@3 1] [0 -1 0@2] ~ ~ [[2 3] 4 [5 6] 7] [6 5 4@2] ~ ~ [5 5 5 5 4@3 3] [2 1 0@2]>")
+      .scale("D5:minor").s("wt_bell").release(0.4).delay(0.25).delaytime(0.363).gain(0.18).pan(0.7),
+    chord("<Dm Bb C Dm Dm Bb C Dm C F Bb Am Dm Bb Gm [C Dm]>").voicing().s("wt_strings")
+      .attack(0.3).release(0.8).lpf(1800).room(0.5).gain(0.15),
+    // radio static on the last beat of the section
+    s("<~@15 [~ ~ ~ white]>").bpf(1800).bandq(6).coarse(6).decay(0.12).sustain(0).gain(0.12).pan(0.8)
+  ),
+  break: stack(
+    // morse pings on bars 1 and 9
+    note("<[c7 c7 ~ c7 c7 c7 ~ ~] ~@7 [c7 c7 ~ c7 c7 c7 ~ ~] ~@7>").s("square").decay(0.03).sustain(0).hpf(2000).gain(0.08).pan(0.25),
+    // the line idling: a low hum and one tick a bar
+    note("d1").s("sine").attack(0.5).release(1.5).gain(0.3),
+    s("rim ~ ~ ~").gain(0.08).pan(0.65),
+    // the whole tune on glockenspiel
+    note("<[4@3 3 2@2 1@2] [0 1 2 0] [1 2 3 1 2@3 1] [0 -1 0@2] [4@3 3 2@2 1@2] [0 1 2 0] [1 2 3 1 2@3 1] [0 -1 0@2] [1@3 2 3@2 1@2] [2@3 3 4@2 1@2] [[2 3] 4 [5 6] 7] [6 5 4@2] [4@3 3 2@2 1@2] [0 1 2 0] [5 5 5 5 4@3 3] [2 1 0@2]>")
+      .scale("D5:minor").s("glockenspiel").room(0.6).delay(0.3).delaytime(0.363).gain(0.26).pan(0.62),
+    note("<d4 ~ ~ ~ d4 ~ ~ ~ c4 ~ ~ ~ d4 ~ bb3 a3>").s("tubularbells").room(0.7).gain(0.26).pan(0.45),
+    chord("<Dm Bb C Dm Dm Bb C Dm C F Bb Am Dm Bb Gm [C Dm]>").voicing().s("wt_choir")
+      .attack(0.8).release(1.4).lpf(1300).room(0.7).gain(0.17),
+    // radio static on the last beat of the section
+    s("<~@15 [~ ~ ~ white]>").bpf(1800).bandq(6).coarse(6).decay(0.12).sustain(0).gain(0.12).pan(0.8)
+  ),
+  build2: stack(
+    s("<bd*4 bd*4 bd*4 bd*4 bd*4 bd*4 bd*8 bd*8>").bank("RolandTR808").gain(0.8),
+    note("<[d2 d3]*8 [d2 d3]*8 [bb1 bb2]*8 [bb1 bb2]*8 [g1 g2]*8 [g1 g2]*8 [c2 c3]*8 [c2 c3]*8>")
+      .s("sawtooth").lpf(saw.range(450, 1300).slow(8)).lpenv(2).lpdecay(0.08).lpsustain(0)
+      .decay(0.12).sustain(0.25).gain("[0.22 0.34 0.4 0.34]*4"),
+    note("<[1 2 3 1 2 ~ ~ ~]!6 [1 2 3 1 2 ~ 2 1 0 -1 0 ~ 0 ~ ~ ~] [1 2 3 1 2 ~ 2 1 0 -1 0 ~ 4 ~ ~ ~]>")
+      .scale("D4:minor").s("wt_pluck").decay(0.1).sustain(0)
+      .delay(0.2).delaytime(0.363).gain(0.3).pan(0.4),
+    // the tune's first bar, a step higher every bar
+    note("<[4@3 3 2@2 1@2] [5@3 4 3@2 2@2] [6@3 5 4@2 3@2] [7@3 6 5@2 4@2] [8@3 7 6@2 5@2] [9@3 8 7@2 6@2] [10 9 8 7]*2 [11 10 9 8]*4>")
+      .scale("D4:minor").s("square").decay(0.12).sustain(0.35).release(0.08).lpf(2400).gain(0.24).pan(0.55),
+    s("<~ ~ [~ sd]*2 [~ sd]*2 sd*4 sd*4 sd*8 sd*16>").bank("RolandTR909").gain(0.4).pan(0.5),
+    chord("<Dm Dm Bb Bb Gm Gm C C>").voicing().s("wt_strings")
+      .attack(0.4).release(0.8).lpf(saw.range(1000, 2600).slow(8)).room(0.5).gain(0.15),
+    // klaxon: two detuned saws a fifth apart, swelling over the last two bars
+    note("<~@6 [c3,g3]@2>").s("sawtooth").superimpose(x => x.detune(0.12)).vib(5).vibmod(0.3)
+      .attack(1.5).sustain(1).release(0.4).lpf(400).lpenv(2.6).lpattack(3.6).lpsustain(1).gain(0.035).pan(0.3),
+    // countdown tick on every beat of the last bar, hard left
+    s("<~@7 rim*4>").coarse(8).gain(0.1).pan(0),
+    // radio static on the last beat of the section
+    s("<~@7 [~ ~ ~ white]>").bpf(1800).bandq(6).coarse(6).decay(0.12).sustain(0).gain(0.12).pan(0.8)
+  ),
+  final: stack(
+    s("bd*4").bank("RolandTR909").gain(0.85),
+    s("~ [sd,cp] ~ [sd,cp]").bank("RolandTR909").gain(0.4).pan(0.5),
+    s("hh*16").bank("RolandTR909").gain("[0.12 0.08 0.16 0.08]*4").pan(0.6),
+    s("[~ oh]*4").bank("RolandTR909").gain(0.1).pan(0.4),
+    s("<cr ~ ~ ~>").bank("RolandTR909").gain(0.3).pan(0.45),
+    // overdriven octave bass
+    note("<[f2 f3]*8 [d2 d3]*8 [[bb1 bb2]*4 [f2 f3]*4] [[c2 c3]*4 [f2 f3]*4] [f2 f3]*8 [d2 d3]*8 [[bb1 bb2]*4 [f2 f3]*4] [[c2 c3]*4 [f2 f3]*4] [c2 c3]*8 [f2 f3]*8 [[d2 d3]*4 [g1 g2]*4] [c2 c3]*8 [f2 f3]*8 [d2 d3]*8 [[bb1 bb2]*4 [f2 f3]*4] [[c2 c3]*4 [f2 f3]*4]>")
+      .s("sawtooth").lpf(750).lpenv(2).lpdecay(0.08).lpsustain(0).shape(0.3)
+      .decay(0.12).sustain(0.25).gain("[0.22 0.34 0.4 0.34]*4"),
+    note("<f1 d1 [bb0 f1] [c1 f1] f1 d1 [bb0 f1] [c1 f1] c1 f1 [d1 g0] c1 f1 d1 [bb0 f1] [c1 f1]>").s("sine").release(0.3).gain(0.3),
+    // the riff on square, wt_pluck an octave up
+    note("<[1 2 3 1 2 ~ 2 1 0 -1 0 ~ 0 ~ ~ ~] [1 2 3 1 2 ~ 2 1 0 -1 0 ~ 4 ~ ~ ~]>")
+      .scale("F3:major").s("square").decay(0.08).sustain(0.2).lpf(1800).gain(0.18).pan(0.35),
+    note("<[1 2 3 1 2 ~ 2 1 0 -1 0 ~ 0 ~ ~ ~] [1 2 3 1 2 ~ 2 1 0 -1 0 ~ 4 ~ ~ ~]>")
+      .scale("F4:major").s("wt_pluck").decay(0.1).sustain(0)
+      .delay(0.2).delaytime(0.363).gain(0.24).pan(0.65),
+    // the whole tune, doubled an octave up
+    note("<[4@3 3 2@2 1@2] [0 1 2 0] [1 2 3 1 2@3 1] [0 -1 0@2] [4@3 3 2@2 1@2] [0 1 2 0] [1 2 3 1 2@3 1] [0 -1 0@2] [1@3 2 3@2 1@2] [2@3 3 4@2 1@2] [[2 3] 4 [5 6] 7] [6 5 4@2] [4@3 3 2@2 1@2] [0 1 2 0] [5 5 5 5 4@3 3] [2 1 0@2]>")
+      .scale("F4:major").s("square").decay(0.12).sustain(0.35).release(0.08).lpf(3000).gain(0.28).pan(0.5)
+      .superimpose(x => x.add(12).gain(0.1).pan(0.6)),
+    // bells on every fa la la
+    note("<~ ~ [1 2 3 1 2@3 1] [0 -1 0@2] ~ ~ [1 2 3 1 2@3 1] [0 -1 0@2] ~ ~ [[2 3] 4 [5 6] 7] [6 5 4@2] ~ ~ [5 5 5 5 4@3 3] [2 1 0@2]>")
+      .scale("F5:major").s("glockenspiel").room(0.4).gain(0.24).pan(0.7),
+    note("<~ ~ [1 2 3 1 2@3 1] [0 -1 0@2] ~ ~ [1 2 3 1 2@3 1] [0 -1 0@2] ~ ~ [[2 3] 4 [5 6] 7] [6 5 4@2] ~ ~ [5 5 5 5 4@3 3] [2 1 0@2]>")
+      .scale("F5:major").s("wt_bell").release(0.4).delay(0.25).delaytime(0.363).gain(0.16).pan(0.3),
+    chord("<F Dm [Bb F] [C F] F Dm [Bb F] [C F] C F [Dm G] C F Dm [Bb F] [C F]>").voicing().s("gm_pad_warm")
+      .attack(0.3).release(0.8).lpf(2000).room(0.5).gain(0.2),
+    // radio static on the last beat of the section
+    s("<~@15 [~ ~ ~ white]>").bpf(1800).bandq(6).coarse(6).decay(0.12).sustain(0).gain(0.12).pan(0.8)
+  ),
+  outro: stack(
+    // the belt stopping: the bass halves its rate and sinks
+    note("<[d2 d3]*4 [d2 d3]*4 [d2 d3]*2 [c2 c3]*2 [bb1 ~] [a1 ~] [d1 ~] ~>")
+      .s("sawtooth").lpf(isaw.range(250, 600).slow(8)).lpenv(1.5).lpdecay(0.12).lpsustain(0)
+      .decay(0.2).sustain(0.3).gain(0.4),
+    // the riff thinning out
+    note("<[1 2 3 1] [2 ~ 2 1] [0 -1] [0 ~] ~ ~ ~ ~>")
+      .scale("D4:minor").s("wt_pluck").decay(0.15).sustain(0)
+      .delay(0.3).delaytime(0.363).gain(0.28).pan(0.4),
+    // the last fa la la, slow
+    note("<~ ~ [5 5 5 5] [4@3 3] [2 1] 0 ~ ~>")
+      .scale("D5:minor").s("glockenspiel").room(0.6).gain(0.24).pan(0.62),
+    // the press drops once more, with the last bell
+    s("<~@6 bd ~>").bank("RolandTR808").gain(0.7),
+    note("<~@6 d4 ~>").s("tubularbells").room(0.8).gain(0.3).pan(0.5),
+    chord("<Dm Dm C Bb Bb A Dm Dm>").voicing().s("wt_strings")
+      .attack(0.8).release(1.5).lpf(isaw.range(500, 1200).slow(8)).room(0.7).gain(0.15),
+    // morse sign-off on the last bar
+    note("<~@7 [c7 c7 ~ c7 c7 c7 ~ ~]>").s("square").decay(0.03).sustain(0).hpf(2000).gain(0.08).pan(0.25)
+  )
+})

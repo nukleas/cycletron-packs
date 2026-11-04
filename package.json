@@ -1,0 +1,16 @@
+{
+  "name": "cycletron-packs",
+  "private": true,
+  "description": "Cycletron packs: visualizer modes, songs and shows that travel together.",
+  "license": "AGPL-3.0-or-later",
+  "type": "module",
+  "bin": { "cycpack": "bin/cycpack.mjs" },
+  "scripts": {
+    "check": "node bin/cycpack.mjs check",
+    "build": "node bin/cycpack.mjs build",
+    "zip": "node bin/cycpack.mjs zip"
+  },
+  "devDependencies": {
+    "@cycletron/viz-sdk": "file:../cycletron/ui/packages/viz-sdk"
+  }
+}

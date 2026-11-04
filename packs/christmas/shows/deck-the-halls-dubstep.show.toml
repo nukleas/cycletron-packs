@@ -1,0 +1,94 @@
+# Deck the Halls (Dubstep), for the Christmas pack. Format: docs/SHOW_FILES.md.
+# Bars count from the section's start; the song is one bar per cycle at 140 BPM.
+# The ops room after hours: the house outside (christmas-house) is home, the rec room
+# (snowglobe) cuts in on the drops, the SAT FEED (snowfall) runs evergreen, builds ride the
+# sleigh road in amber, the last drop is blood.
+# Stations keep a still camera so the console stays in frame.
+
+[show]
+title = "Deck the Halls (Dubstep)"
+out = "../renders/deck-the-halls-dubstep.mp4"
+size = "1920x1080"
+fps = 60
+
+[defaults]
+code = "hide"
+titles = false
+camera = { move = "still", punch = 0, kick = 0.4 }
+palette = "norad"
+grain = 0.12
+
+[[song]]
+source = "../songs/06-deck-the-halls-dubstep.strudel"
+mode = "christmas-house"
+fade = { in = 1, out = 3 }
+
+# 0–16 · crackle, morse, the first line on bells. Outside, then the name.
+[song.sections.intro]
+mode = "snowfall"
+palette = "evergreen"
+text = [
+  { say = "> STN-04 SAT FEED ONLINE", at = 0, hold = 1.5, place = "top" },
+  { say = "DECK THE HALLS · DUBSTEP", at = 1, hold = 2, style = "card" },
+  { say = "> STN-05 REC ROOM · AFTER HOURS", at = 8, hold = 2, place = "top" },
+]
+
+# 16–24 · the roll and the riser, the riff climbing.
+[song.sections.build]
+mode = "sleigh-road"
+palette = "amber"
+letterbox = 2.39
+transition = "fade"
+camera = { move = "push", punch = 0.5, kick = 0.6 }
+text = [{ say = "> BASS AUTHORISED", at = 1, hold = 2, place = "top" }]
+
+# 24–40 · the drop: sub, wobble, growls, the first line on square from bar 9.
+[song.sections.drop1]
+shots = [{ mode = "christmas-house", palette = "evergreen" }, "snowglobe", { mode = "christmas-house", palette = "evergreen" }, "sleigh-road"]
+every = 4
+transition = "flash"
+camera = { move = "still", punch = 0, kick = 0.6 }
+
+# 40–48 · the switch-up: 1/16 wobble, triplets, fm growl.
+[song.sections.drop1b]
+mode = "christmas-house"
+palette = "evergreen"
+transition = "flash"
+camera = { move = "still", punch = 0, kick = 0.6 }
+
+# 48–60 · no kick, no sub. The tune on supersquare.
+[song.sections.break]
+shots = [{ mode = "christmas-house", palette = "ice", bars = 6 }, { mode = "snowfall", palette = "evergreen", bars = 6 }]
+transition = "fade"
+
+# 60–68 · double kick, the klaxon and the countdown.
+[song.sections.build2]
+mode = "sleigh-road"
+palette = "amber"
+letterbox = 2.39
+transition = "fade"
+camera = { move = "push", punch = 0.5, kick = 0.6 }
+text = [{ say = "> SLEIGHCON RISING · ALL STATIONS", at = 1, hold = 2, place = "top" }]
+
+# 68–84 · the whole tune over the bass, in red.
+[song.sections.drop2]
+shots = ["christmas-house", "snowglobe", "christmas-house", "sleigh-road"]
+every = 4
+palette = "blood"
+transition = "flash"
+strobe = { on = "snare", strength = 0.2 }
+camera = { move = "still", punch = 0, kick = 0.8 }
+
+# 84–92 · double time, the riff every bar, ratchet out.
+[song.sections.drop2b]
+mode = "christmas-house"
+palette = "blood"
+transition = "flash"
+strobe = { on = "snare", strength = 0.2 }
+camera = { move = "still", punch = 0, kick = 0.8 }
+
+# 92–104 · the filters close, one tubular bell, morse sign-off.
+[song.sections.outro]
+shots = [{ mode = "christmas-house", palette = "evergreen", bars = 6 }, { mode = "snowfall", palette = "evergreen", bars = 6 }]
+transition = "fade"
+text = [{ say = "> LIGHTS OUT · GOODNIGHT", at = 0, hold = 2, place = "top" }]
