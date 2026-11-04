@@ -7,7 +7,7 @@
 //   cycpack build <pack>            pack-build every viz folder (tsc + bundle to dist/)
 //   cycpack zip <pack>              build, then dist/<id>-<version>.zip for Install from Zip
 //   cycpack render <show> [args]    render-viz on a show file (args pass through)
-//   cycpack seam <pack>             the seam test on every viz folder's build
+//   cycpack seam <pack> [<pack>…]   the seam test on every viz folder's build
 //
 // <pack> is a folder name under packs/.
 
@@ -84,11 +84,13 @@ switch (cmd) {
         break;
     }
     case 'seam': {
-        const p = pack(arg);
+        // Every viz folder of the named packs in one run, so packs registering
+        // together is covered: cycpack seam christmas halloween
+        const packs = [arg, ...rest].map(pack);
         checkout();
-        for (const v of p.viz) {
-            run('node', ['--test', path.join(UI, 'scripts', 'render-viz.test.mjs')], {cwd: UI, env: {...process.env, VIZ_PACK: v}});
-        }
+        const dirs = packs.flatMap((p) => p.viz);
+        run('node', ['--test', '--test-force-exit', '--test-name-pattern=loaded from its built module', path.join(UI, 'scripts', 'render-viz.test.mjs')],
+            {cwd: UI, env: {...process.env, VIZ_PACK: dirs.join(path.delimiter)}});
         break;
     }
     default:
