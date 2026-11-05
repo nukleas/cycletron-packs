@@ -3,7 +3,8 @@
 // rendering and the seam test run in a Cycletron checkout, since they need
 // the engine and the render page. The checkout is $CYCLETRON or ../cycletron.
 //
-//   cycpack check <pack>            tsc and oxlint on every viz folder of the pack, and on bin/ and kit/
+//   cycpack check <pack>            tsc and oxlint on every viz folder of the pack, and on bin/, kit/ and the tests
+//   cycpack test <pack>             node --test on kit/test and every viz folder's test/
 //   cycpack build <pack>            pack-build every viz folder (tsc + bundle to dist/)
 //   cycpack zip <pack>              build, then dist/<id>-<version>.zip for Install from Zip
 //   cycpack render <show> [args]    build the show's pack, then render-viz on it (args pass through)
@@ -118,7 +119,16 @@ switch (cmd) {
         check(path.join(ROOT, 'bin'), path.join(ROOT, 'bin'));
         check(path.join(ROOT, 'kit'));
         for (const v of p.viz) check(v);
-        console.log(`${p.name}: bin, kit and ${p.viz.length} viz folder(s) type-check and lint clean`);
+        run(path.join(UI, 'node_modules', '.bin', 'tsc'), ['-p', path.join(ROOT, 'tsconfig.test.json'), '--pretty', 'false']);
+        console.log(`${p.name}: bin, kit, the tests and ${p.viz.length} viz folder(s) type-check and lint clean`);
+        break;
+    }
+    case 'test': {
+        // Node runs the .ts tests as is (type stripping), so a test imports src/
+        // by its .ts path and stays off the sdk, whose entry reads package.json.
+        const p = pack(arg);
+        const files = [path.join(ROOT, 'kit', 'test', '*.test.ts'), ...p.viz.map((v) => path.join(v, 'test', '*.test.ts'))];
+        run('node', ['--test', ...files]);
         break;
     }
     case 'build': {
@@ -136,10 +146,10 @@ switch (cmd) {
         const file = path.join(out, `${p.manifest.id}-${p.manifest.version}.zip`);
         rmSync(file, {force: true});
         // The zip holds the pack as one top-level folder named by its id, which is
-        // what Install from Zip expects. The app loads dist/, so the sources stay
-        // out (they import kit/, which isn't in the zip), as do the probe, renders,
-        // staging and the editor config.
-        run('zip', ['-qr', file, p.name, '-x', `${p.name}/renders/*`, `${p.name}/probe/*`, `${p.name}/*/_*`, `${p.name}/_*`, '*/src/*', '*/.DS_Store', '*/tsconfig.json'],
+        // what Install from Zip expects. The app loads dist/, so the sources and
+        // tests stay out (they import kit/, which isn't in the zip), as do the
+        // probe, renders, staging and the editor config.
+        run('zip', ['-qr', file, p.name, '-x', `${p.name}/renders/*`, `${p.name}/probe/*`, `${p.name}/*/_*`, `${p.name}/_*`, '*/src/*', '*/test/*', '*/.DS_Store', '*/tsconfig.json'],
             {cwd: path.join(ROOT, 'packs')});
         console.log(file);
         break;
@@ -230,5 +240,5 @@ switch (cmd) {
         break;
     }
     default:
-        fail('usage: cycpack check|build|zip|render|seam|probe|link|watch ... (see the header of bin/cycpack.ts)');
+        fail('usage: cycpack check|test|build|zip|render|seam|probe|link|watch ... (see the header of bin/cycpack.ts)');
 }

@@ -82,7 +82,7 @@
     },
     {
       "files": [
-        "kit/**"
+        "kit/src/**"
       ],
       "rules": {
         "no-restricted-imports": [

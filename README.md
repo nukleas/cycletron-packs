@@ -9,7 +9,7 @@ live here.
 ```
 packs/<id>/            one pack; <id> is its pack.json id
   pack.json            the library manifest
-  viz/<name>/          a visualizer pack: pack.json, src/, tsconfig.json
+  viz/<name>/          a visualizer pack: pack.json, src/, test/ (cycpack test), tsconfig.json
   songs/  shows/       the music and the show files
   probe/               probe.show.toml: every mode, two bars each (cycpack probe)
   README.md
@@ -53,6 +53,7 @@ set `CYCLETRON` if it lives somewhere else.
 npm install
 npm run lint                                # oxlint (with oxlint-anti-slop) on the whole repo
 npx cycpack check christmas                 # tsc + oxlint on the pack's viz folders, bin/ and kit/
+npx cycpack test halloween                  # node --test on kit/test and the pack's viz test/ folders
 npx cycpack build christmas                 # tsc + bundle each viz folder to dist/
 npx cycpack zip christmas                   # build, then dist/christmas-<version>.zip
 npx cycpack render packs/christmas/shows/jingle-bells.show.toml --size 960x540 --fps 24
@@ -83,7 +84,7 @@ song or show would not open. Installing the zip again replaces the links.
 
 Install a zip in the app: Samples panel, Install from Zip, Replace if the pack
 is already there; new visualizer code loads at the next launch. The zip
-carries the built `dist/` but not `src/`, which imports the kit.
+carries the built `dist/` but not `src/` or `test/`, which import the kit.
 
 Renders (`packs/*/renders/`), build output (`dist/`) and `_*` staging folders
 are not tracked. Pack code runs inside the app with the app's permissions, so
