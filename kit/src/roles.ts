@@ -18,7 +18,8 @@ export function isLong(begin: number, end: number): boolean {
 export function drumRole(n: string): Role {
     if (/^(bd|kick|808)/.test(n)) return 'kick';
     if (/^(sd|sn|cp|clap|rim)/.test(n)) return 'snare';
-    if (/^(cr|crash|ride|rd)/.test(n)) return 'crash';
+    // Whole names only: `cr` is a crash, `crackle` is not.
+    if (/^(crash|ride|cr|rd)(\d|$)/.test(n)) return 'crash';
     if (/^(lt|mt|ht|tom)/.test(n)) return 'tom';
     if (/^(hh|oh|hat|shaker|tb|tamb|cb|cow)/.test(n)) return 'hat';
     return 'perc';

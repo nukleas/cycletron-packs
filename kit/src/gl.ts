@@ -5,7 +5,8 @@
  * A mode renders its scene here, then draws the GL canvas onto the host's.
  */
 
-import {WebGLRenderer, type Camera, type Scene} from 'three';
+import type {Rgb} from '@cycletron/viz-sdk';
+import {SRGBColorSpace, WebGLRenderer, type Camera, type Color, type Scene} from 'three';
 
 let shared: WebGLRenderer | null = null;
 
@@ -22,4 +23,12 @@ export function drawScene(ctx: CanvasRenderingContext2D, scene: Scene, camera: C
     if (r.domElement.width !== w || r.domElement.height !== h) r.setSize(w, h, false);
     r.render(scene, camera);
     ctx.drawImage(r.domElement, 0, 0, width, height);
+}
+
+/**
+ * `c` set from a theme triple. Theme triples are sRGB bytes and three works
+ * in linear space, so a bare `setRGB` or `new Color(r, g, b)` washes them out.
+ */
+export function setRgb(c: Color, rgb: Readonly<Rgb>): Color {
+    return c.setRGB(rgb[0] / 255, rgb[1] / 255, rgb[2] / 255, SRGBColorSpace);
 }

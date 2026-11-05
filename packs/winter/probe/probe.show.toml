@@ -1,0 +1,21 @@
+# The probe: every mode of the pack for two bars each, small and with nothing
+# on top, for `cycpack probe winter`. Its frames hash to one digest, so a
+# refactor that should change nothing can prove it.
+
+[show]
+title = "Winter probe"
+out = "../renders/probe.mp4"
+size = "480x270"
+fps = 8
+
+[defaults]
+code = "hide"
+titles = false
+camera = { move = "still", punch = 0, kick = 0 }
+palette = "glacier"
+grain = 0
+
+[[song]]
+source = "../../christmas/songs/05-silver-bells-silent-night.strudel"
+shots = ["ice-cave", "frozen-lake", "aurora", "ski-jump"]
+every = 2

@@ -137,7 +137,9 @@ switch (cmd) {
         checkout();
         const p = packOfShow(arg);
         if (p) build(p);
-        run('node', [path.join(UI, 'scripts', 'render-viz.mjs'), path.resolve(arg), ...rest], {cwd: UI});
+        // The renderer runs in the checkout, so a relative --out is resolved here, against the caller's directory.
+        const flags = rest.map((v, i) => (rest[i - 1] === '--out' ? path.resolve(v) : v));
+        run('node', [path.join(UI, 'scripts', 'render-viz.mjs'), path.resolve(arg), ...flags], {cwd: UI});
         break;
     }
     case 'seam': {

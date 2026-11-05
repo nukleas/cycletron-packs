@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "id": "harvest",
+  "name": "Harvest",
+  "version": "0.1.0",
+  "authors": [
+    "NaderLabs"
+  ],
+  "license": "AGPL-3.0-or-later",
+  "description": "Thanksgiving and autumn: a low-poly forest, a parade, a cornfield and a harvest moon, in three.js.",
+  "viz": [
+    "viz/harvest-3d"
+  ],
+  "songs": [],
+  "shows": []
+}

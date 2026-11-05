@@ -33,8 +33,8 @@ imports it; one mode never imports from another mode's folder.
 `@naderlabs/kit/<module>` (an npm workspace; `npm install` links it).
 Today it holds `pen` (outlined rect figures), `drum-rig` (a seated drummer's
 kit flashes and arm strokes), `night` (stars, clouds, ridge, moon, dither),
-`roles` (hap roles by drum voice and register), `color`, and `gl`, the
-three.js bridge. Each pack's build
+`roles` (hap roles by drum voice and register), `color`, and `gl` (the
+three.js bridge and `setRgb`). Each pack's build
 bundles what it uses, so an installed pack still needs only the SDK. Code
 moves into the kit when it is the same in two packs; what makes a pack look
 like itself (sprites, colours, which sounds count as which drum) stays in the
@@ -50,11 +50,29 @@ mode would leak a GL context on every entry. The same rules hold as for 2D:
 drive every transform from `s.cycle` and the audio, never `THREE.Clock` or
 `performance.now()`, and seed randomness with the sdk's `SeededRandom`. Build
 geometry in the constructor or `layout()`, move it in `update()`, and only
-draw in `render()`. The renderer runs headless Chromium's WebGL (SwiftShader,
+draw in `render()`. Theme colours go in through `setRgb` (also in `kit/gl`):
+theme triples are sRGB, and a bare `setRGB` or `new Color(r, g, b)` reads them
+as linear and washes them out.
+
+Two three.js habits break the seam test, so avoid them:
+
+- **Two InstancedMeshes sharing one material.** It renders a level or few off
+  on edge pixels depending on where the render started, even with identical
+  scene state. Give each InstancedMesh its own material.
+- **Culling moving instances.** three computes an InstancedMesh's bounds once,
+  at its first draw, so instances that move later get culled against stale
+  bounds. Set `frustumCulled = false` on any InstancedMesh or Points whose
+  contents move.
+
+The renderer runs headless Chromium's WebGL (SwiftShader,
 a software rasterizer), so renders are exact and the seam test and probe work
 unchanged, though a busy scene renders slower than a 2D mode. Each three.js
 pack bundles its own copy of three (`three` is pinned to one minor in the
 root `package.json`).
+
+Not in the kit yet: the three.js packs each have their own sky dome, glow
+sprites and instance pools. They do similar jobs in different ways, so they
+stay in the packs until one version clearly serves all three.
 
 Everything here is TypeScript: the modes run in the app's web view, and
 `bin/cycpack.ts` runs on Node's type stripping (Node 22.18 or newer), no build.

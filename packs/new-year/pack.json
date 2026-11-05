@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "id": "new-year",
+  "name": "New Year's Eve",
+  "version": "0.1.0",
+  "authors": [
+    "NaderLabs"
+  ],
+  "license": "AGPL-3.0-or-later",
+  "description": "Midnight on New Year's Eve in 3D: fireworks over the harbour, the ball drop, a confetti storm and a champagne tower.",
+  "viz": [
+    "viz/new-year-3d"
+  ],
+  "songs": [],
+  "shows": []
+}

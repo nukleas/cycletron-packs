@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "id": "winter",
+  "name": "Winter",
+  "version": "0.1.0",
+  "authors": [
+    "NaderLabs"
+  ],
+  "license": "AGPL-3.0-or-later",
+  "description": "A 3D winter after the 8-bit Christmas pack: an ice cave, a frozen lake, the aurora over a snowy ridge and a floodlit ski jump, on the winter-3d visualizers.",
+  "viz": [
+    "viz/winter-3d"
+  ],
+  "songs": [],
+  "shows": []
+}

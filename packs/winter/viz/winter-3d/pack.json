@@ -1,0 +1,18 @@
+{
+  "id": "naderlabs/winter-3d",
+  "name": "Winter, 3D",
+  "version": "0.1.0",
+  "author": "NaderLabs",
+  "license": "AGPL-3.0-or-later",
+  "sdk": "^1.2",
+  "description": "A low-poly winter in three.js: crystals growing in an ice cave, cracks spreading over a frozen lake, the aurora over a snowy ridge and a ski jump under floodlights.",
+  "modes": [
+    "ice-cave",
+    "frozen-lake",
+    "aurora",
+    "ski-jump"
+  ],
+  "palettes": [
+    "glacier"
+  ]
+}

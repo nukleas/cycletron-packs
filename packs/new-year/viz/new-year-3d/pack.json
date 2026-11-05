@@ -1,0 +1,18 @@
+{
+  "id": "naderlabs/new-year-3d",
+  "name": "New Year's Eve, 3D",
+  "version": "0.1.0",
+  "author": "NaderLabs",
+  "license": "AGPL-3.0-or-later",
+  "sdk": "^1.2",
+  "description": "Midnight in three.js: fireworks that burst on their notes over a harbour skyline, a mirror ball counting down the bars on its tower, a confetti storm thrown by the hats and a champagne tower poured on the downbeats; the midnight palette.",
+  "modes": [
+    "fireworks",
+    "ball-drop",
+    "confetti",
+    "champagne"
+  ],
+  "palettes": [
+    "midnight"
+  ]
+}
