@@ -1,32 +1,53 @@
 /**
- * CHAMPAGNE — a tower of coupes, fourteen glasses on three tiers, and a
- * bottle above it. Every downbeat pours: the bottle tips for the first beat
- * of the bar and the top glass fills; a full glass spills into the glasses
- * under it, so the tower fills from the top over the first bars and then
- * cascades steadily onto the table.
+ * CHAMPAGNE — a tower of fourteen coupes on a round table, the guests around
+ * it each playing one voice, every hit landing on the frame its note sounds:
  *
- * Pitched notes clink a glass (low notes on the bottom tier, high on top):
- * its rim flashes in the track's colour and its surface sloshes. Hats and
- * the highs send up bubbles in the filled glasses, kicks light the
- * champagne from inside, snares and crashes splash the top glass.
+ * - The downbeat: the sommelier behind the tower. The bottle comes up an
+ *   eighth of a bar before each bar line and pours from the downbeat for a
+ *   quarter of the bar; a full glass spills into the four under it, so the
+ *   tower fills from the top and then cascades onto the table.
+ * - Kicks: the cork popper. Bottle raised and thumbs on the cork before the
+ *   kick; the cork flies on it.
+ * - Snares and claps: two toasters, splitting the hits by where in the bar
+ *   they fall. Glass forward before, raised high (a flash) on the hit.
+ * - Hats and other percussion: the guest tapping a coupe with a spoon,
+ *   spoon up between taps, on the glass on each one, sending up bubbles.
+ * - Crashes: the sabreur. Sabre overhead a quarter bar before, swept along
+ *   the neck on the crash; the neck flies and the bottle sprays.
+ * - Pitched notes: the tower's glasses are the keyboard (low notes on the
+ *   bottom tier, high on top): a note flashes its glass in the track colour.
+ * - The phrase: the clock on the wall shows the last sixteen minutes before
+ *   midnight, a minute a beat, through each four-bar phrase, and strikes
+ *   twelve on the downbeat. The camera cuts every two bars, wide for each
+ *   phrase's last two so the clock is seen.
+ *
+ * Poses are a few fixed stances switched by `stance()`.
  */
 
 import type {VizMode, VizModeDef, VizServices} from '@cycletron/viz-sdk';
 import {type FieldHap, type FieldTeam, HapField, hash32, rand01, TAU} from '@cycletron/viz-sdk';
 import {drawScene, setRgb} from '@naderlabs/kit/gl';
+import {type Role} from '@naderlabs/kit/roles';
+import {beatsLeft, BIG_HIT, HIT, lastOnset, LEAD, nextOnset, stance, type Stance, strike, windup} from '@naderlabs/kit/timing';
 import {
-    AdditiveBlending, CircleGeometry, Color, CylinderGeometry, DoubleSide, LatheGeometry, Mesh, NormalBlending,
-    PerspectiveCamera, PlaneGeometry, Scene, ShaderMaterial, Vector2,
+    AdditiveBlending, BoxGeometry, CircleGeometry, Color, CylinderGeometry, DirectionalLight, DoubleSide, HemisphereLight,
+    InstancedMesh, LatheGeometry, Matrix4, Mesh, MeshBasicMaterial, MeshLambertMaterial, NormalBlending, PerspectiveCamera,
+    PlaneGeometry, RingGeometry, Scene, ShaderMaterial, Vector2, Vector3,
 } from 'three';
+import {Figures} from '../../lib/figures.js';
 import {Glow} from '../../lib/glow.js';
 import {Ink} from '../../lib/ink.js';
 import {pitchPos, roleOf, secondsPerCycle} from '../../lib/roles.js';
 
-const LOOKAHEAD = 1;
-const MAX_HAPS = 160;
-const MAX_PER_TRACK = 48;
+const LOOKAHEAD = 2;
+const MAX_HAPS = 480;
+const MAX_PER_TRACK = 64;
 const IDLE_RATE = 0.35;
 const FOV = 42;
+/** Bars per phrase (the clock's count) and per camera shot. */
+const PHRASE = 4;
+const SHOT = 2;
+const CRASH_LEAD = 0.25;
 /** Coupe profile: stem top, bowl depth and radius. */
 const STEM = 3.3;
 const DEPTH = 2.0;
@@ -40,10 +61,67 @@ const POUR_VOLUME = 1.6;
 const SIP = 0.02;
 const MAX_BUBBLES = 900;
 const BUBBLE_LIFE = 1.4;
-const MAX_SPLASH = 48;
 const BOKEH = 40;
+/** The table: its top at y = 0, the floor below it. */
+const TABLE_R = 13;
+const FLOOR = -8;
+/** Guests are oversized against the tower, and stand around the table. */
+const SIZE = 13;
+const RING = 24;
+const POURER = 0;
+const CORK = 1;
+const SPOON = 2;
+const TOAST_A = 3;
+const TOAST_B = 4;
+const SABRE = 5;
+const GUESTS = 6;
+/** Where each guest stands around the far side of the table, by angle (the camera looks from +z): toasters outside. */
+const AT = [Math.PI * 1.5, Math.PI * 0.9, Math.PI * 1.3, Math.PI * 1.1, Math.PI * 1.9, Math.PI * 1.7];
+const POURER_Z = -15;
+const CLOCK = new Vector3(0, 41, -48);
+const CLOCK_R = 8;
+const HELD_COUPE = 0.8;
+const CORK_LIFE = 0.9;
+
+/** An arm: swing out from the side, and tip toward the table. */
+interface Swing {
+    angle: number;
+    fwd: number;
+}
+
+/** The sommelier's bottle arm, and where the bottle points (null: upright). */
+const POUR_ARM: Record<Stance, Swing> = {rest: {angle: 0.3, fwd: 0.35}, ready: {angle: 0.25, fwd: 1.55}, hit: {angle: 0.25, fwd: 1.55}};
+const POUR_AIM: Record<Stance, Vector3 | null> = {rest: null, ready: new Vector3(0.5, 27, 0), hit: new Vector3(0.5, 18, 0)};
+/** The cork popper: the bottle arm and the thumb arm. */
+const CORK_HOLD: Record<Stance, Swing> = {rest: {angle: -0.3, fwd: 0.9}, ready: {angle: -0.35, fwd: 1.7}, hit: {angle: -0.3, fwd: 2.2}};
+const CORK_THUMB: Record<Stance, Swing> = {rest: {angle: 0.3, fwd: 0.3}, ready: {angle: -0.5, fwd: 1.85}, hit: {angle: 1.7, fwd: 0.7}};
+/** A toaster's glass arm. */
+const TOAST: Record<Stance, Swing> = {rest: {angle: 0.25, fwd: 0.6}, ready: {angle: 0.15, fwd: 1.35}, hit: {angle: 0.35, fwd: 2.6}};
+/** The spoon arm; the glass arm stays put. */
+const SPOON_ARM: Record<Stance, Swing> = {rest: {angle: 0.35, fwd: 0.4}, ready: {angle: -0.3, fwd: 1.85}, hit: {angle: -0.55, fwd: 1.3}};
+const SPOON_GLASS: Swing = {angle: -0.55, fwd: 1.3};
+/** The sabre arm; the bottle arm stays put. */
+const SABRE_ARM: Record<Stance, Swing> = {rest: {angle: 0.3, fwd: 0.25}, ready: {angle: 2.9, fwd: 0.35}, hit: {angle: 0.75, fwd: 1.45}};
+const SABRE_BOTTLE: Swing = {angle: -0.25, fwd: 1.2};
+
+interface Shot {
+    pos: Vector3;
+    look: Vector3;
+}
+
+/** The tower close, wide, the guests on the left, wide from the right: the wide shots carry each phrase's count. */
+const SHOTS: Shot[] = [
+    {pos: new Vector3(10, 20, 42), look: new Vector3(0, 14, -8)},
+    {pos: new Vector3(3, 21, 68), look: new Vector3(0, 16, -10)},
+    {pos: new Vector3(-20, 17, 36), look: new Vector3(-14, 11, -8)},
+    {pos: new Vector3(26, 24, 62), look: new Vector3(0, 16, -10)},
+];
 
 interface Team extends FieldTeam {}
+
+interface Note extends FieldHap<Team> {
+    role: Role;
+}
 
 interface Glass {
     x: number;
@@ -54,9 +132,6 @@ interface Glass {
     below: number[];
     level: number;
     spill: number;
-    clink: number;
-    slosh: number;
-    rim: Color;
     liquid: ShaderMaterial;
     surface: Mesh;
 }
@@ -67,17 +142,31 @@ interface Bubble {
     seed: number;
 }
 
+/** A voice's pose this frame, and how hard its last hit still rings. */
+interface Play {
+    stance: Stance;
+    ring: number;
+}
+
+const REST: Play = {stance: 'rest', ring: 0};
+const UP = new Vector3(0, 1, 0);
+const isPitched = (r: Role): boolean => r === 'bass' || r === 'mid' || r === 'lead';
+const isCrash = (h: Note): boolean => h.role === 'crash';
+const isHat = (r: Role): boolean => r === 'hat' || r === 'perc' || r === 'tom';
+/** Which toaster takes a snare: by where in the bar it falls, so a note always goes to the same guest. */
+const toasterOf = (h: Note): number => Math.round(h.begin * 16) % 2;
+
 class ChampagneMode implements VizMode {
     private readonly scene = new Scene();
     private readonly camera = new PerspectiveCamera(FOV, 16 / 9, 0.3, 500);
     private readonly ink = new Ink();
-    private readonly field = new HapField<Team, FieldHap<Team>>({
+    private readonly field = new HapField<Team, Note>({
         lookahead: LOOKAHEAD,
         maxHaps: MAX_HAPS,
         maxPerTrack: MAX_PER_TRACK,
         idleRate: IDLE_RATE,
         team: (base) => base,
-        hap: (base) => base,
+        hap: (base) => ({...base, role: roleOf(base.team.name, base.note)}),
         keep: (h, cycle) => h.begin + 0.5 >= cycle,
     });
     private readonly glasses: Glass[] = [];
@@ -85,23 +174,60 @@ class ChampagneMode implements VizMode {
     private readonly liquidColor = new Color();
     private readonly liquidDeep = new Color();
     private readonly surfaceMat: ShaderMaterial;
-    private readonly bottle: Mesh;
     private readonly bottleMat: ShaderMaterial;
+    private readonly bottles: Mesh[] = [];
     private readonly stream: Mesh;
     private readonly streamMat: ShaderMaterial;
     private readonly tableMat: ShaderMaterial;
     private readonly glow = new Glow(MAX_BUBBLES + 900);
     private readonly bubbles: Bubble[] = [];
     private nextBubble = 0;
-    private readonly splash: Bubble[] = [];
-    private nextSplash = 0;
+    private readonly guests = new Figures(GUESTS, SIZE);
+    private readonly hemi = new HemisphereLight();
+    private readonly key = new DirectionalLight();
+    private readonly coupeMat = new MeshLambertMaterial({flatShading: true});
+    private readonly coupes: Mesh[] = [];
+    private readonly metalMat = new MeshLambertMaterial({flatShading: true});
+    private readonly spoon: Mesh;
+    private readonly sabre: Mesh;
+    private readonly cork: Mesh;
+    private readonly neck: Mesh;
+    private readonly clothMat = new MeshLambertMaterial();
+    private readonly floorMat = new MeshLambertMaterial();
+    private readonly faceMat = new MeshBasicMaterial();
+    private readonly rimMat = new MeshBasicMaterial({side: DoubleSide});
+    private readonly ticks: InstancedMesh;
+    private readonly minute: Mesh;
+    private readonly hour: Mesh;
     private time = 0;
     private spc = 2;
-    private inner = 0;
-    private fizz = 0;
     private puddle = 0;
+
+    // This frame's poses, and where the props' business ends are.
+    private pour: Stance = 'rest';
+    private kick: Play = REST;
+    private crash: Play = REST;
+    private hat: Play = REST;
+    private readonly toast: Play[] = [REST, REST];
+    private readonly mouth = new Vector3();
+    private readonly corkMouth = new Vector3();
+    private readonly corkDir = new Vector3();
+    private readonly corkFrom = new Vector3();
+    private readonly corkVel = new Vector3();
+    private corkAt = -1e9;
+    private readonly sabreMouth = new Vector3();
+    private readonly neckFrom = new Vector3();
+    private readonly neckVel = new Vector3();
+    private neckAt = -1e9;
+    private readonly toastAt = [new Vector3(), new Vector3()];
+    private readonly tapAt = new Vector3();
     private readonly tmp = new Color();
     private readonly white = new Color(1, 1, 1);
+    private readonly skin = new Color();
+    private readonly v = new Vector3();
+    private readonly dir = new Vector3();
+    private readonly facing = new Vector3();
+    private readonly m = new Matrix4();
 
     constructor() {
         this.glassMat = new ShaderMaterial({
@@ -135,15 +261,14 @@ class ChampagneMode implements VizMode {
                     const z = (j - (n - 1) / 2) * PITCH;
                     index.set(`${tier}:${i}:${j}`, this.glasses.length);
                     const liquid = new ShaderMaterial({
-                        uniforms: {uColor: {value: this.liquidColor}, uDeep: {value: this.liquidDeep}, uLevel: {value: 0}, uInner: {value: 0}},
+                        uniforms: {uColor: {value: new Color()}, uDeep: {value: this.liquidDeep}, uLevel: {value: 0}, uInner: {value: 0}},
                         vertexShader: LIQUID_VERT,
                         fragmentShader: LIQUID_FRAG,
                         transparent: true,
                         side: DoubleSide,
                     });
                     const surface = new Mesh(discGeo, this.surfaceMat);
-                    this.glasses.push({x, y: tier * RIM, z, tier, below: [], level: 0, spill: 0, clink: 0, slosh: 0,
-                        rim: new Color(), liquid, surface});
+                    this.glasses.push({x, y: tier * RIM, z, tier, below: [], level: 0, spill: 0, liquid, surface});
                 }
             }
         }
@@ -174,7 +299,9 @@ class ChampagneMode implements VizMode {
             vertexShader: FRESNEL_VERT,
             fragmentShader: BOTTLE_FRAG,
         });
-        this.bottle = new Mesh(new LatheGeometry(bottleProfile(), 32), this.bottleMat);
+        const bottleGeo = new LatheGeometry(bottleProfile(), 32);
+        // The sommelier's, the cork popper's and the sabreur's.
+        for (let i = 0; i < 3; i++) this.bottles.push(new Mesh(bottleGeo, this.bottleMat));
         this.streamMat = new ShaderMaterial({
             uniforms: {uColor: {value: this.liquidColor}, uFlow: {value: 0}, uTime: {value: 0}},
             vertexShader: STREAM_VERT,
@@ -183,23 +310,64 @@ class ChampagneMode implements VizMode {
             depthWrite: false,
             blending: AdditiveBlending,
         });
-        const streamGeo = new CylinderGeometry(0.22, 0.16, 1, 10, 8, true);
+        const streamGeo = new CylinderGeometry(0.26, 0.18, 1, 10, 8, true);
         streamGeo.translate(0, -0.5, 0);
         this.stream = new Mesh(streamGeo, this.streamMat);
         this.stream.renderOrder = 4;
+
+        // Coupes in the guests' hands: two toasters and the spoon tapper.
+        for (let i = 0; i < 3; i++) {
+            const coupe = new Mesh(glassGeo, this.coupeMat);
+            coupe.scale.setScalar(HELD_COUPE);
+            this.coupes.push(coupe);
+        }
+        const spoonGeo = new BoxGeometry(0.35, 3.2, 0.35);
+        spoonGeo.translate(0, 1.6, 0);
+        this.spoon = new Mesh(spoonGeo, this.metalMat);
+        const sabreGeo = new BoxGeometry(0.3, 8.5, 0.9);
+        sabreGeo.translate(0, 4.25, 0);
+        this.sabre = new Mesh(sabreGeo, this.metalMat);
+        this.cork = new Mesh(new CylinderGeometry(0.55, 0.5, 1.1, 10), this.coupeMat);
+        this.neck = new Mesh(new CylinderGeometry(0.5, 0.55, 2.2, 10), this.bottleMat);
 
         this.tableMat = new ShaderMaterial({
             uniforms: {uColor: {value: new Color()}, uGlow: {value: new Color()}, uPuddle: {value: 0}, uInner: {value: 0}},
             vertexShader: TABLE_VERT,
             fragmentShader: TABLE_FRAG,
         });
-        const table = new Mesh(new PlaneGeometry(160, 100), this.tableMat);
-        table.rotation.x = -Math.PI / 2;
+        const top = new Mesh(new CircleGeometry(TABLE_R, 48), this.tableMat);
+        top.rotation.x = -Math.PI / 2;
+        const skirt = new Mesh(new CylinderGeometry(TABLE_R, TABLE_R + 0.6, -FLOOR, 48, 1, true), this.clothMat);
+        skirt.position.y = FLOOR / 2;
+        const floor = new Mesh(new PlaneGeometry(400, 300), this.floorMat);
+        floor.rotation.x = -Math.PI / 2;
+        floor.position.y = FLOOR;
+        // The sommelier's step, behind the table.
+        const step = new Mesh(new BoxGeometry(10, -FLOOR, 8), this.clothMat);
+        step.position.set(0, FLOOR / 2, POURER_Z);
+
+        // The clock on the back wall.
+        const face = new Mesh(new CircleGeometry(CLOCK_R, 48), this.faceMat);
+        face.position.copy(CLOCK);
+        const rim = new Mesh(new RingGeometry(CLOCK_R, CLOCK_R + 0.9, 48), this.rimMat);
+        rim.position.copy(CLOCK);
+        this.ticks = new InstancedMesh(new BoxGeometry(0.5, 1.6, 0.2), this.rimMat, 12);
+        for (let i = 0; i < 12; i++) {
+            const a = (i / 12) * TAU;
+            this.m.makeRotationZ(-a).setPosition(CLOCK.x + Math.sin(a) * (CLOCK_R - 1.3), CLOCK.y + Math.cos(a) * (CLOCK_R - 1.3), CLOCK.z + 0.1);
+            this.ticks.setMatrixAt(i, this.m);
+        }
+        this.minute = new Mesh(handGeo(CLOCK_R - 1.2, 0.55), this.rimMat);
+        this.hour = new Mesh(handGeo(CLOCK_R * 0.55, 0.9), this.rimMat);
+        this.minute.position.set(CLOCK.x, CLOCK.y, CLOCK.z + 0.3);
+        this.hour.position.set(CLOCK.x, CLOCK.y, CLOCK.z + 0.2);
+
+        this.key.position.set(20, 40, 50);
         this.glow.group.renderOrder = 5;
-        this.scene.add(table, this.bottle, this.stream, this.glow.group);
+        this.scene.add(top, skirt, floor, step, face, rim, this.ticks, this.minute, this.hour, ...this.bottles, this.stream,
+            ...this.coupes, this.spoon, this.sabre, this.cork, this.neck, this.guests.group, this.glow.group, this.hemi, this.key);
 
         for (let i = 0; i < MAX_BUBBLES; i++) this.bubbles.push({t0: -1e9, glass: 0, seed: 0});
-        for (let i = 0; i < MAX_SPLASH; i++) this.splash.push({t0: -1e9, glass: 0, seed: 0});
     }
 
     layout(s: VizServices): void {
@@ -215,9 +383,25 @@ class ChampagneMode implements VizMode {
         const label: Color = this.bottleMat.uniforms.uLabel.value;
         label.copy(ink.neon);
         const table: Color = this.tableMat.uniforms.uColor.value;
-        table.copy(ink.bg).lerp(ink.violet, 0.3);
+        table.copy(ink.active).lerp(ink.violet, 0.5).multiplyScalar(0.5);
         const glow: Color = this.tableMat.uniforms.uGlow.value;
         glow.copy(this.liquidColor);
+        this.clothMat.color.copy(ink.active).lerp(ink.violet, 0.55).multiplyScalar(0.55);
+        this.floorMat.color.copy(ink.bg).lerp(ink.violet, 0.3);
+        this.faceMat.color.copy(ink.bg).lerp(ink.violet, 0.5);
+        this.rimMat.color.copy(ink.neon);
+        this.coupeMat.color.copy(this.liquidColor);
+        this.metalMat.color.copy(ink.active).lerp(ink.second, 0.2);
+        this.hemi.color.copy(ink.violet).lerp(this.white, 0.45);
+        this.hemi.groundColor.copy(ink.bg);
+        this.hemi.intensity = 1.6;
+        this.key.color.copy(ink.active);
+        this.key.intensity = 1.5;
+        this.skin.copy(ink.active).lerp(ink.red, 0.25);
+        for (let i = 0; i < GUESTS; i++) {
+            this.tmp.copy(ink.accent(i + 1)).lerp(ink.active, 0.15).lerp(ink.bg, 0.3);
+            this.guests.dress(i, this.tmp, this.skin, ink.accent(i + 3));
+        }
         this.camera.aspect = s.width / Math.max(1, s.height);
         this.camera.updateProjectionMatrix();
         this.glow.view(s.height * s.dpr, FOV);
@@ -227,65 +411,137 @@ class ChampagneMode implements VizMode {
     update(dt: number, s: VizServices): void {
         const field = this.field;
         field.update(dt, s);
+        const cycle = field.cycle;
         this.spc = secondsPerCycle(s.bpm);
         if (field.restarted) {
             for (const g of this.glasses) {
                 g.level = 0;
                 g.spill = 0;
-                g.clink = 0;
-                g.slosh = 0;
             }
             for (const b of this.bubbles) b.t0 = -1e9;
-            for (const b of this.splash) b.t0 = -1e9;
-            this.inner = 0;
             this.puddle = 0;
+            this.corkAt = -1e9;
+            this.neckAt = -1e9;
         }
-        this.time = field.cycle * this.spc;
+        this.time = cycle * this.spc;
+
+        // The pour: from each downbeat for a quarter bar, the bottle up an eighth before.
+        const inBar = cycle - Math.floor(cycle);
+        this.pour = inBar < POUR ? 'hit' : windup(cycle, Math.ceil(cycle)) > 0 ? 'ready' : 'rest';
+        this.kick = this.play(cycle, (h) => h.role === 'kick', LEAD);
+        const crashRing = strike(cycle, lastOnset(field.haps, cycle, isCrash), BIG_HIT);
+        this.crash = {stance: stance(crashRing, windup(cycle, nextOnset(field.haps, cycle, isCrash), CRASH_LEAD)), ring: crashRing};
+        this.hat = this.play(cycle, (h) => isHat(h.role), LEAD);
+        for (let k = 0; k < 2; k++) this.toast[k] = this.play(cycle, (h) => h.role === 'snare' && toasterOf(h) === k, LEAD);
+        this.pose();
+
         for (const h of field.haps) {
             if (!field.crossed(h)) continue;
             h.done = true;
             h.team.activity = 1;
-            this.hit(h);
+            if (h.role === 'kick') {
+                this.corkAt = this.time;
+                this.corkFrom.copy(this.corkMouth);
+                this.corkVel.copy(this.corkDir).multiplyScalar(26);
+            } else if (h.role === 'crash') {
+                this.neckAt = this.time;
+                this.neckFrom.copy(this.sabreMouth);
+                this.neckVel.copy(this.facing).multiplyScalar(-6).add(this.v.set(0, 16, 0));
+            } else if (isHat(h.role)) {
+                for (let n = 0; n < 4; n++) this.bubble(hash32(h.seed, n + 1));
+            }
         }
-        this.flow(dt, field.cycle);
-        // The fizz: the highs keep a steady stream of bubbles going.
-        this.fizz += dt * (2 + s.high * 40);
-        while (this.fizz >= 1) {
-            this.fizz -= 1;
-            this.bubble(hash32(Math.floor(this.time * 997), this.nextBubble));
+        if (!field.restarted && Math.floor(field.prevCycle * 4) !== Math.floor(cycle * 4)) {
+            this.bubble(hash32(Math.floor(cycle * 4), 991));
         }
-        const k = Math.exp(-dt * 3);
-        for (const g of this.glasses) {
-            g.clink *= k;
-            g.slosh *= Math.exp(-dt * 1.8);
-        }
-        this.inner *= Math.exp(-dt * 5);
+        this.flow(dt, cycle);
         this.puddle *= Math.exp(-dt * 0.4);
     }
 
-    private hit(h: FieldHap<Team>): void {
-        if (Number.isFinite(h.note)) {
-            const g = this.glasses[glassForPitch(pitchPos(h.note), h.seed)];
-            g.clink = 1;
-            g.slosh = Math.min(1.5, g.slosh + 0.6);
-            setRgb(g.rim, h.team.rgb);
-            return;
+    /** The pose of the voice `pick` selects, from its last hit and its next. */
+    private play(cycle: number, pick: (h: Note) => boolean, lead: number): Play {
+        const ring = strike(cycle, lastOnset(this.field.haps, cycle, pick));
+        return {stance: stance(ring, windup(cycle, nextOnset(this.field.haps, cycle, pick), lead)), ring};
+    }
+
+    /** Stands every guest and puts each prop in its hand. */
+    private pose(): void {
+        const g = this.guests;
+        g.stand(POURER, 0, 0, POURER_Z, 0, 0);
+        for (let i = 1; i < GUESTS; i++) {
+            const a = AT[i];
+            const x = Math.cos(a) * RING;
+            const z = Math.sin(a) * RING;
+            g.stand(i, x, FLOOR, z, Math.atan2(-x, -z), 0);
         }
-        switch (roleOf(h.team.name, h.note)) {
-            case 'kick':
-                this.inner = 1;
-                break;
-            case 'hat':
-            case 'perc':
-                for (let n = 0; n < 4; n++) this.bubble(hash32(h.seed, n + 1));
-                break;
-            case 'snare':
-            case 'crash':
-                this.splashTop(h.seed, roleOf(h.team.name, h.note) === 'crash' ? 18 : 8);
-                break;
-            default:
-                break;
+
+        // The sommelier.
+        g.arm(POURER, -1, 0.3, 0.2);
+        const pa = POUR_ARM[this.pour];
+        g.arm(POURER, 1, pa.angle, pa.fwd);
+        const aim = POUR_AIM[this.pour];
+        if (aim) this.dir.copy(aim).sub(g.hand).normalize();
+        else this.dir.copy(UP);
+        this.hold(this.bottles[0], g.hand, this.dir, 3);
+        this.mouth.copy(g.hand).addScaledVector(this.dir, 6.4);
+
+        // The cork popper.
+        this.face(CORK);
+        const hold = CORK_HOLD[this.kick.stance];
+        g.arm(CORK, 1, hold.angle, hold.fwd);
+        this.dir.copy(UP).addScaledVector(this.facing, this.kick.stance === 'rest' ? 0.15 : 0.55).normalize();
+        this.hold(this.bottles[1], g.hand, this.dir, 3);
+        this.corkMouth.copy(g.hand).addScaledVector(this.dir, 6.4);
+        this.corkDir.copy(this.dir);
+        const thumb = CORK_THUMB[this.kick.stance];
+        g.arm(CORK, -1, thumb.angle, thumb.fwd);
+
+        // The spoon tapper: glass steady, spoon up between taps and on the glass on each.
+        g.arm(SPOON, -1, SPOON_GLASS.angle, SPOON_GLASS.fwd);
+        this.holdCoupe(this.coupes[2], g.hand);
+        this.tapAt.copy(g.hand).add(this.v.set(0, (STEM + DEPTH * 0.6) * HELD_COUPE, 0));
+        const sp = SPOON_ARM[this.hat.stance];
+        g.arm(SPOON, 1, sp.angle, sp.fwd);
+        this.hold(this.spoon, g.hand, this.v.copy(g.reach).negate().lerp(UP, 0.5).normalize(), 0);
+
+        // The toasters.
+        for (let k = 0; k < 2; k++) {
+            const who = k === 0 ? TOAST_A : TOAST_B;
+            const t = TOAST[this.toast[k].stance];
+            g.arm(who, -1, 0.3, 0.3);
+            g.arm(who, 1, t.angle, t.fwd);
+            this.holdCoupe(this.coupes[k], g.hand);
+            this.toastAt[k].copy(g.hand).add(this.v.set(0, RIM * HELD_COUPE, 0));
         }
+
+        // The sabreur: bottle out at arm's length, the sabre overhead and then along the neck.
+        this.face(SABRE);
+        g.arm(SABRE, -1, SABRE_BOTTLE.angle, SABRE_BOTTLE.fwd);
+        this.dir.copy(UP).addScaledVector(this.facing, 0.8).normalize();
+        this.hold(this.bottles[2], g.hand, this.dir, 3);
+        this.sabreMouth.copy(g.hand).addScaledVector(this.dir, 6.4);
+        const sa = SABRE_ARM[this.crash.stance];
+        g.arm(SABRE, 1, sa.angle, sa.fwd);
+        this.hold(this.sabre, g.hand, this.v.copy(g.reach), 0);
+        g.commit();
+    }
+
+    /** The way guest `i` faces, into `facing`. */
+    private face(i: number): void {
+        const a = AT[i];
+        this.facing.set(-Math.cos(a), 0, -Math.sin(a));
+    }
+
+    /** `mesh` (modelled along +y) held at `hand` pointing along `dir`, gripped `grip` up from its base. */
+    private hold(mesh: Mesh, hand: Vector3, dir: Vector3, grip: number): void {
+        mesh.quaternion.setFromUnitVectors(UP, dir);
+        mesh.position.copy(hand).addScaledVector(dir, -grip);
+    }
+
+    /** A coupe held upright by the stem. */
+    private holdCoupe(mesh: Mesh, hand: Vector3): void {
+        mesh.quaternion.identity();
+        mesh.position.copy(hand).add(this.v.set(0, -STEM * 0.5 * HELD_COUPE, 0));
     }
 
     /** The pour, then each tier's overflow into the next, top down. */
@@ -293,10 +549,9 @@ class ChampagneMode implements VizMode {
         const inBar = cycle - Math.floor(cycle);
         const top = this.glasses[this.glasses.length - 1];
         const rate = POUR_VOLUME / (POUR * this.spc);
-        const pouring = inBar < POUR;
         const order = this.glasses;
         for (const g of order) g.spill = 0;
-        if (pouring) top.level += rate * dt;
+        if (inBar < POUR) top.level += rate * dt;
         for (let n = order.length - 1; n >= 0; n--) {
             const g = order[n];
             g.level = Math.max(0, g.level - SIP * dt);
@@ -323,84 +578,110 @@ class ChampagneMode implements VizMode {
         b.seed = seed;
     }
 
-    private splashTop(seed: number, count: number): void {
-        for (let n = 0; n < count; n++) {
-            const b = this.splash[this.nextSplash];
-            this.nextSplash = (this.nextSplash + 1) % MAX_SPLASH;
-            b.t0 = this.time;
-            b.glass = this.glasses.length - 1;
-            b.seed = hash32(seed, n + 1);
-        }
-    }
-
     render(ctx: CanvasRenderingContext2D, s: VizServices): void {
         const cycle = this.field.cycle;
         const cam = this.camera;
-        const orbit = Math.sin(cycle * 0.05) * 0.5 + 0.35;
-        cam.position.set(Math.sin(orbit) * 44, 13 + Math.sin(cycle * 0.04) * 1.5, Math.cos(orbit) * 44);
-        cam.lookAt(2.5, 11.5, 0);
+        const shot = SHOTS[Math.floor(cycle / SHOT) % SHOTS.length];
+        cam.position.copy(shot.pos);
+        cam.lookAt(shot.look);
 
+        const inner = this.kick.ring;
         for (const g of this.glasses) {
             const level = g.level;
             const surfaceY = STEM + DEPTH * level;
             g.liquid.uniforms.uLevel.value = surfaceY;
-            g.liquid.uniforms.uInner.value = this.inner * 0.6 + g.clink * 0.3;
+            g.liquid.uniforms.uInner.value = inner * 0.4;
+            const c: Color = g.liquid.uniforms.uColor.value;
+            c.copy(this.liquidColor);
             g.surface.visible = level > 0.02;
             const r = RADIUS * Math.sqrt(level) * 0.98;
             g.surface.position.set(g.x, g.y + surfaceY, g.z);
             g.surface.scale.set(r, 1, r);
-            const wob = g.slosh * 0.12;
-            g.surface.rotation.set(Math.sin(this.time * 9 + g.x) * wob, 0, Math.cos(this.time * 8 + g.z) * wob);
         }
-        this.surfaceMat.uniforms.uInner.value = this.inner;
+        // A note lights its glass in the track's colour.
+        for (const h of this.field.haps) {
+            if (!isPitched(h.role)) continue;
+            const k = strike(cycle, h.begin, 1 / 16) * h.fade;
+            if (k < 0.05) continue;
+            const g = this.glasses[glassForPitch(pitchPos(h.note))];
+            const c: Color = g.liquid.uniforms.uColor.value;
+            c.lerp(setRgb(this.tmp, h.team.rgb), Math.min(1, k));
+            g.liquid.uniforms.uInner.value = Math.max(g.liquid.uniforms.uInner.value, k * 1.2);
+        }
+        this.surfaceMat.uniforms.uInner.value = inner;
         this.tableMat.uniforms.uPuddle.value = this.puddle;
-        this.tableMat.uniforms.uInner.value = this.inner;
-        this.placeBottle(cycle);
-        this.drawGlints();
+        this.tableMat.uniforms.uInner.value = inner;
+        this.coupeMat.emissive.copy(this.liquidColor).multiplyScalar(0.25);
+        this.placeStream();
+        this.placeFlying();
+        this.setClock(cycle);
+        this.drawGlints(cycle);
         drawScene(ctx, this.scene, cam, s.width, s.height, s.dpr);
     }
 
-    /** The bottle tips in for the pour and back out, the stream falling from its mouth. */
-    private placeBottle(cycle: number): void {
-        const inBar = cycle - Math.floor(cycle);
+    /** The stream from the sommelier's bottle to the top glass, while pouring. */
+    private placeStream(): void {
         const top = this.glasses[this.glasses.length - 1];
-        const pour = pourCurve(inBar);
-        const tilt = 0.85 + pour * 0.75;
-        const bx = top.x + 10.9;
-        const by = top.y + RIM + 3.3;
-        this.bottle.position.set(bx, by, top.z);
-        this.bottle.rotation.set(0, 0, tilt);
-        // The mouth is the top of the neck, 9.4 up the bottle's axis.
-        const mx = bx - Math.sin(tilt) * 9.4;
-        const my = by + Math.cos(tilt) * 9.4;
-        const flow = pour > 0.6 ? (pour - 0.6) / 0.4 : 0;
-        this.stream.visible = flow > 0.01;
+        const pouring = this.pour === 'hit';
+        this.stream.visible = pouring;
+        if (!pouring) return;
+        const m = this.mouth;
         const targetY = top.y + STEM + DEPTH * Math.max(0.2, top.level);
-        this.stream.position.set(mx, my, top.z);
-        const dx = top.x + 0.3 - mx;
-        const dy = my - targetY;
-        this.stream.scale.set(flow, Math.max(0.01, Math.hypot(dx, dy)), flow);
-        this.stream.rotation.set(0, 0, Math.atan2(dx, dy));
-        this.streamMat.uniforms.uFlow.value = flow;
+        this.dir.set(top.x - m.x, targetY - m.y, top.z - m.z);
+        const len = Math.max(0.01, this.dir.length());
+        this.stream.position.copy(m);
+        // The stream geometry hangs down -y from its origin.
+        this.stream.quaternion.setFromUnitVectors(this.v.set(0, -1, 0), this.dir.normalize());
+        this.stream.scale.set(1, len, 1);
+        this.streamMat.uniforms.uFlow.value = 1;
         this.streamMat.uniforms.uTime.value = this.time;
     }
 
-    private drawGlints(): void {
+    /** The cork off the last kick and the neck off the last crash, in flight. */
+    private placeFlying(): void {
+        const fly = (mesh: Mesh, from: Vector3, vel: Vector3, t: number): void => {
+            mesh.visible = t >= 0 && t < CORK_LIFE;
+            if (!mesh.visible) return;
+            mesh.position.copy(from).addScaledVector(vel, t).add(this.v.set(0, -14 * t * t, 0));
+            mesh.rotation.set(t * 14, 0, t * 9);
+        };
+        fly(this.cork, this.corkFrom, this.corkVel, this.time - this.corkAt);
+        fly(this.neck, this.neckFrom, this.neckVel, this.time - this.neckAt);
+    }
+
+    /** The last sixteen minutes to midnight, a minute a beat; twelve on the phrase's downbeat. */
+    private setClock(cycle: number): void {
+        const down = strike(cycle, Math.floor(cycle / PHRASE) * PHRASE, 1 / 16);
+        const minutes = down > HIT ? 60 : 60 - beatsLeft(cycle, PHRASE);
+        this.minute.rotation.z = -(minutes / 60) * TAU;
+        this.hour.rotation.z = -((11 + minutes / 60) / 12) * TAU;
+        this.faceMat.color.copy(this.ink.bg).lerp(this.ink.violet, 0.5).lerp(this.white, down > HIT ? 0.6 : 0);
+    }
+
+    private drawGlints(cycle: number): void {
         const gl = this.glow;
         const ink = this.ink;
         gl.begin();
-        // Party lights out of focus far behind the table, brighter on the kicks.
+        // Party lights out of focus far behind the table.
         for (let i = 0; i < BOKEH; i++) {
             const a = rand01(hash32(i, 41)) * TAU;
-            const d = 70 + rand01(hash32(i, 42)) * 30;
-            gl.add(Math.cos(a) * d, 6 + rand01(hash32(i, 43)) * 34, Math.sin(a) * d, ink.accent(i), 0.1 + this.inner * 0.08, 16);
+            const d = 80 + rand01(hash32(i, 42)) * 30;
+            gl.add(Math.cos(a) * d, 6 + rand01(hash32(i, 43)) * 34, Math.sin(a) * d, ink.accent(i), 0.1, 16);
         }
+        const down = strike(cycle, Math.floor(cycle / PHRASE) * PHRASE, 1 / 16);
+        if (down > 0.1) gl.add(CLOCK.x, CLOCK.y, CLOCK.z + 1, ink.active, down * 1.4, 26);
         for (const g of this.glasses) {
-            // A glint on the rim; a clink flashes it in the note's colour.
-            const c = g.clink > 0.05 ? this.tmp.copy(ink.active).lerp(g.rim, Math.min(1, g.clink * 1.4)) : ink.active;
-            gl.add(g.x - RADIUS * 0.55, g.y + RIM, g.z + RADIUS * 0.8, c, 0.18 + g.clink * 1.2, 0.9 + g.clink * 2.2);
-            if (g.spill > 0.01) this.drawSpill(g);
+            gl.add(g.x - RADIUS * 0.55, g.y + RIM, g.z + RADIUS * 0.8, ink.active, 0.18, 0.9);
+            if (g.spill > 0.01) this.drawSpill(g, cycle);
         }
+        // The hits: a toast's flash, the tap on the glass, the cork's foam, the sabre's spray.
+        for (let k = 0; k < 2; k++) {
+            const ring = this.toast[k].ring;
+            if (ring > 0.1) gl.add(this.toastAt[k].x, this.toastAt[k].y, this.toastAt[k].z, ink.active, ring * 1.3, 5);
+        }
+        if (this.hat.ring > 0.1) gl.add(this.tapAt.x, this.tapAt.y, this.tapAt.z, this.white, this.hat.ring, 2.5);
+        this.spray(this.corkFrom, this.corkVel, this.time - this.corkAt, 0.6);
+        this.spray(this.neckFrom, this.neckVel, this.time - this.neckAt, 1);
         for (const b of this.bubbles) {
             const t = this.time - b.t0;
             if (t < 0 || t > BUBBLE_LIFE) continue;
@@ -411,23 +692,27 @@ class ChampagneMode implements VizMode {
             const rad = RADIUS * Math.sqrt(g.level) * 0.75 * Math.sqrt(r);
             const y = STEM + 0.15 + t * 1.6 * (0.7 + r * 0.6);
             if (y > top) continue;
-            gl.add(g.x + Math.cos(a) * rad + Math.sin(t * 9 + a) * 0.06, g.y + y, g.z + Math.sin(a) * rad, this.white, 0.45, 0.32);
-        }
-        for (const b of this.splash) {
-            const t = this.time - b.t0;
-            if (t < 0 || t > 1.2) continue;
-            const g = this.glasses[b.glass];
-            const a = rand01(hash32(b.seed, 1)) * TAU;
-            const v = 3 + rand01(hash32(b.seed, 2)) * 5;
-            const up = 5 + rand01(hash32(b.seed, 3)) * 6;
-            gl.add(g.x + Math.cos(a) * (RADIUS * 0.5 + v * t), g.y + RIM + up * t - 9 * t * t, g.z + Math.sin(a) * (RADIUS * 0.5 + v * t),
-                this.liquidColor, (1 - t / 1.2) * 0.9, 0.5);
+            gl.add(g.x + Math.cos(a) * rad, g.y + y, g.z + Math.sin(a) * rad, this.white, 0.45, 0.32);
         }
         gl.commit();
     }
 
-    /** Droplets sheeting over the rim toward each glass below, or to the table. */
-    private drawSpill(g: Glass): void {
+    /** Foam thrown off a bottle mouth along `vel`, for a moment after it opens. */
+    private spray(from: Vector3, vel: Vector3, t: number, k: number): void {
+        if (t < 0 || t > 0.6) return;
+        const seed = Math.floor(from.x * 7 + from.z * 13);
+        for (let n = 0; n < 24; n++) {
+            const h = hash32(seed, n);
+            const s = 0.3 + rand01(h) * 0.7;
+            const jx = (rand01(hash32(h, 1)) - 0.5) * 8;
+            const jz = (rand01(hash32(h, 2)) - 0.5) * 8;
+            this.glow.add(from.x + (vel.x * 0.5 + jx) * t * s, from.y + vel.y * 0.5 * t * s - 10 * t * t, from.z + (vel.z * 0.5 + jz) * t * s,
+                this.liquidColor, (1 - t / 0.6) * k, 0.8);
+        }
+    }
+
+    /** Droplets sheeting over the rim toward each glass below, or to the table; a sheet a beat. */
+    private drawSpill(g: Glass, cycle: number): void {
         const gl = this.glow;
         const k = Math.min(1, g.spill * 0.8);
         const targets = g.below.length > 0 ? g.below.length : 4;
@@ -440,25 +725,25 @@ class ChampagneMode implements VizMode {
             const ez = g.z + (dz / len) * RADIUS;
             const drop = below ? RIM - (below.y + STEM + DEPTH * below.level - g.y) : RIM + g.y;
             for (let j = 0; j < 7; j++) {
-                const u = (this.time * 1.8 + j / 7 + n * 0.13) % 1;
+                const u = (cycle * 4 + j / 7 + n * 0.13) % 1;
                 gl.add(ex + (dx / len) * u * 0.6, g.y + RIM - drop * u * u, ez + (dz / len) * u * 0.6, this.liquidColor, k * 0.5, 0.45);
             }
         }
     }
 }
 
-/** 0 → 1 → 0 over the bar: tip in, hold while pouring, tip back. */
-function pourCurve(inBar: number): number {
-    if (inBar < POUR) return Math.min(1, inBar / 0.06);
-    const back = (inBar - POUR) / 0.12;
-    return back >= 1 ? 0 : 1 - back;
+/** A clock hand of length `len` and width `w`, pivoting near its foot. */
+function handGeo(len: number, w: number): BoxGeometry {
+    const g = new BoxGeometry(w, len, 0.3);
+    g.translate(0, len / 2 - 0.6, 0);
+    return g;
 }
 
-/** A glass for a pitch: low notes on the bottom tier, high on top; the seed picks among a tier's glasses. */
-function glassForPitch(p: number, seed: number): number {
+/** A glass for a pitch, always the same one: low notes on the bottom tier, high on top. */
+function glassForPitch(p: number): number {
     if (p > 0.72) return 13;
-    if (p > 0.45) return 9 + (seed % 4);
-    return seed % 9;
+    if (p > 0.45) return 9 + Math.min(3, Math.floor(((p - 0.45) / 0.27) * 4));
+    return Math.min(8, Math.floor((p / 0.45) * 9));
 }
 
 function glassProfile(): Vector2[] {

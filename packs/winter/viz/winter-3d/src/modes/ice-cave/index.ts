@@ -1,12 +1,24 @@
 /**
- * ICE CAVE — a slow flight down a tunnel of ice, where distance is musical
- * time. Every note is a crystal on the cave wall, placed at its onset three
- * bars ahead as a bud: pitch is how high up the wall it sits (bass on the
- * floor, leads on the ceiling), length is its size, so held chords grow the
- * big crystals. A crystal shoots to full size as it reaches the ring of
- * light that marks now, glows in its track's colour while the note sounds,
- * then cools as it drifts past. Kicks flash the ring and its light, snares
- * shake shards loose from the ceiling, hats glint on the walls.
+ * ICE CAVE — a band in an ice cavern, every voice with a player you can
+ * watch, every hit on the frame its note sounds:
+ *
+ * - A yeti plays a two-octave marimba of crystals, low on the left, one
+ *   crystal a semitone (pitch class over two octaves). Every pitched note
+ *   lights its crystal in the track's colour on the onset, and a held note
+ *   keeps it lit. The yeti's mallets play the mid and lead notes: the left
+ *   one the lower octave, the right one the upper. A mallet is raised over
+ *   its next crystal an eighth of a bar before the note and is on it on the
+ *   onset.
+ * - The kicks are the yeti's stomp: the foot lifts before the kick, comes
+ *   down on it, and the icicles on the roof shake.
+ * - The bass lights the two great crystal pillars at the sides.
+ * - A penguin plays the snares on an ice-block drum with one flipper and
+ *   the hats and other percussion on a rack of icicle chimes with the other.
+ * - A drop of meltwater counts each four-bar phrase: it swells on the
+ *   stalactite a step a beat through the last bar, falls through the last
+ *   beat and splashes into the pool on the downbeat, lighting the cave.
+ * - The camera cuts on every bar line: front, the yeti, the penguin, and
+ *   wide for the last bar so the drop is seen.
  */
 
 import type {VizMode, VizModeDef, VizServices} from '@cycletron/viz-sdk';
@@ -14,144 +26,190 @@ import {type FieldHap, type FieldTeam, HapField} from '@cycletron/viz-sdk';
 import {clamp01, hash32, rand01, TAU} from '@cycletron/viz-sdk';
 import {drawScene, setRgb} from '@naderlabs/kit/gl';
 import {type Role} from '@naderlabs/kit/roles';
+import {beatIndex, beatPhase, held, lastOnset, nextOnset, type Stance, stance, strike, windup} from '@naderlabs/kit/timing';
 import {
-    AdditiveBlending, AmbientLight, BackSide, BufferAttribute, BufferGeometry, Color, CylinderGeometry, Fog,
-    InstancedMesh, LatheGeometry, Mesh, MeshBasicMaterial, MeshStandardMaterial, Object3D, OctahedronGeometry,
-    PerspectiveCamera, PointLight, Points, PointsMaterial, Scene, TorusGeometry, Vector2, Vector3,
+    AdditiveBlending, AmbientLight, BackSide, BoxGeometry, BufferAttribute, type BufferGeometry, CircleGeometry,
+    Color, ConeGeometry, Fog, HemisphereLight, InstancedMesh, LatheGeometry,
+    Mesh, MeshBasicMaterial, MeshLambertMaterial, MeshStandardMaterial, Object3D, PerspectiveCamera, PointLight,
+    RingGeometry, Scene, SphereGeometry, Vector2, Vector3,
 } from 'three';
-import {dotTexture} from '../../lib/dot.js';
 import {Ink} from '../../lib/ink.js';
 import {winterRole} from '../../lib/roles.js';
+import {Penguin, REACH, Yeti} from './figures.js';
 
-/** World units per bar along the tunnel. */
-const D = 9;
-/** The camera sits this far behind the ring that marks now. */
-const BACK = 6.5;
-const LOOKAHEAD = 3;
-const R = 4.6;
-const FLOOR = -0.62 * R;
-const SEG_RINGS = 6;
-const SEG_SIDES = 13;
-const SEG_VARIANTS = 3;
-const SEGS_BEHIND = 1;
-const SEGS_AHEAD = 4;
-const DECOR_PER_SEG = 9;
-const MAX_GHOSTS = 200;
-const MAX_CRYSTALS = MAX_GHOSTS + (SEGS_BEHIND + SEGS_AHEAD + 1) * DECOR_PER_SEG;
-const MAX_PER_TRACK = 40;
-const DRUM_CAP = 16;
+const LOOKAHEAD = 2;
+const MAX_HAPS = 600;
+const MAX_PER_TRACK = 64;
+const DRUM_CAP = 48;
 const IDLE_RATE = 0.25;
-const MAX_SHARDS = 24;
-const MAX_GLINTS = 48;
-const GLINT_LIFE = 0.4;
-const GROW = 0.07;
+const KEEP = 0.4;
+const KEYS = 24;
+const ARC = 2.9;
+const YETI_Z = -3.6;
+const PENGUIN = new Vector3(4.6, 0, -1.4);
+const PILLARS = [new Vector3(-6.2, 0, -5.5), new Vector3(6.2, 0, -5.5)];
+const DOME = 13;
+const PHRASE = 4;
+const DRIP = new Vector3(-2.6, 6.2, 1.6);
+const ICICLES = 46;
+const MALLET_HALF = 1 / 32;
 
-interface Team extends FieldTeam {}
+interface Team extends FieldTeam {
+    color: Color;
+}
 
-interface Crystal extends FieldHap<Team> {
+interface Note extends FieldHap<Team> {
     role: Role;
-    theta: number;
-    tiltA: number;
-    tiltB: number;
-    spin: number;
-    size: number;
+    crystal: number;
 }
-
-interface Shard {
-    x: number;
-    y: number;
-    z: number;
-    vy: number;
-    spin: number;
-    age: number;
-}
-
-interface Glint {
-    x: number;
-    y: number;
-    z: number;
-    age: number;
-}
-
-const UP = new Vector3(0, 1, 0);
 
 class IceCaveMode implements VizMode {
     private readonly ink = new Ink();
     private readonly scene = new Scene();
-    private readonly camera = new PerspectiveCamera(62, 16 / 9, 0.1, 60);
-    private readonly fog = new Fog(0x000000, 7, 34);
+    private readonly camera = new PerspectiveCamera(50, 16 / 9, 0.1, 200);
     private readonly air = new Color();
-    private readonly field = new HapField<Team, Crystal>({
+    private readonly fog = new Fog(0x000000, 14, 40);
+    private readonly field = new HapField<Team, Note>({
         lookahead: LOOKAHEAD,
-        maxHaps: MAX_GHOSTS,
+        maxHaps: MAX_HAPS,
         maxPerTrack: MAX_PER_TRACK,
         idleRate: IDLE_RATE,
-        team: (base) => base,
-        hap: (base) => makeCrystal(base),
+        team: (base) => ({...base, color: new Color()}),
+        hap: (base) => ({...base, role: winterRole(base.team.name, base.note), crystal: keyOf(base.note)}),
         cap: (_team, note) => (Number.isFinite(note) ? Infinity : DRUM_CAP),
-        keep: (h, cycle) => (h.begin - cycle) * D < BACK + 2,
+        keep: (h, cycle) => h.end + KEEP >= cycle,
     });
 
-    private readonly walls: Mesh[] = [];
-    private readonly wallGeos: BufferGeometry[] = [];
-    private readonly wallMat = new MeshStandardMaterial({flatShading: true, side: BackSide, vertexColors: true, roughness: 0.9});
-    private readonly bodies: InstancedMesh;
+    private readonly domeMat = new MeshStandardMaterial({flatShading: true, side: BackSide, vertexColors: true, roughness: 0.9});
+    private readonly dome: Mesh;
+    private readonly floorMat = new MeshLambertMaterial();
+    private readonly ledgeMat = new MeshStandardMaterial({flatShading: true, roughness: 0.6});
+    private readonly keys: InstancedMesh;
+    private readonly keyMat = new MeshStandardMaterial({flatShading: true, roughness: 0.3});
     private readonly shells: InstancedMesh;
-    private readonly bodyMat = new MeshStandardMaterial({flatShading: true, roughness: 0.3, metalness: 0.05});
     private readonly shellMat = new MeshBasicMaterial({blending: AdditiveBlending, transparent: true, depthWrite: false});
-    private readonly ring: Mesh;
-    private readonly ringMat = new MeshBasicMaterial({blending: AdditiveBlending, transparent: true, depthWrite: false});
-    private readonly shards: InstancedMesh;
-    private readonly shardMat = new MeshStandardMaterial({flatShading: true, roughness: 0.2});
-    private readonly glints: Points;
-    private readonly glintPos = new Float32Array(MAX_GLINTS * 3);
-    private readonly glintCol = new Float32Array(MAX_GLINTS * 3);
-    private readonly ambient = new AmbientLight(0xffffff, 1);
-    private readonly lamp = new PointLight(0xffffff, 30, 0, 1.6);
-    private readonly nowLight = new PointLight(0xffffff, 20, 0, 1.6);
+    private readonly keyPos: Vector3[] = [];
+    private readonly keyTop: Vector3[] = [];
+    private readonly keyH: number[] = [];
+    private readonly keyGlow = new Float32Array(KEYS);
+    private readonly keyColor: Color[] = [];
+    private readonly pillars: Mesh[] = [];
+    private readonly pillarMats: MeshStandardMaterial[] = [];
+    private readonly icicles: InstancedMesh;
+    private readonly icicleMat = new MeshStandardMaterial({flatShading: true, roughness: 0.25});
+    private readonly icicleSpots: Vector3[] = [];
 
-    private readonly shardList: Shard[] = [];
-    private readonly glintList: Glint[] = [];
+    private readonly furMat = new MeshLambertMaterial({flatShading: true});
+    private readonly faceMat = new MeshLambertMaterial({flatShading: true});
+    private readonly eyeMat = new MeshLambertMaterial();
+    private readonly malletMat = new MeshLambertMaterial({flatShading: true});
+    private readonly stickMat = new MeshLambertMaterial({flatShading: true});
+    private readonly coatMat = new MeshLambertMaterial({flatShading: true});
+    private readonly bellyMat = new MeshLambertMaterial({flatShading: true});
+    private readonly beakMat = new MeshLambertMaterial({flatShading: true});
+    private readonly drumMat = new MeshStandardMaterial({flatShading: true, roughness: 0.3});
+    private readonly chimeMat = new MeshStandardMaterial({flatShading: true, roughness: 0.2});
+    private readonly yeti: Yeti;
+    private readonly penguin: Penguin;
+    private readonly chimes: Mesh[] = [];
+
+    private readonly drop: Mesh;
+    private readonly dropMat = new MeshStandardMaterial({flatShading: true, roughness: 0.1});
+    private readonly ripple: Mesh;
+    private readonly rippleMat = new MeshBasicMaterial({blending: AdditiveBlending, transparent: true, depthWrite: false});
+
+    private readonly ambient = new AmbientLight(0xffffff, 0.6);
+    private readonly hemi = new HemisphereLight(0xffffff, 0x000000, 0.6);
+    private readonly glow = new PointLight(0xffffff, 0, 0, 1.5);
+    private readonly splash = new PointLight(0xffffff, 0, 0, 1.5);
     private readonly dummy = new Object3D();
-    private readonly dir = new Vector3();
     private readonly tint = new Color();
-    private readonly tint2 = new Color();
-    private kick = 0;
-    private snap = 0;
+    private readonly aimAt = new Vector3();
 
     constructor() {
         const {scene} = this;
-        scene.fog = this.fog;
         scene.background = this.air;
-        for (let v = 0; v < SEG_VARIANTS; v++) this.wallGeos.push(wallGeometry(v));
-        for (let i = 0; i < SEGS_BEHIND + SEGS_AHEAD + 1; i++) {
-            const m = new Mesh(this.wallGeos[0], this.wallMat);
-            this.walls.push(m);
+        scene.fog = this.fog;
+        this.dome = new Mesh(domeGeometry(), this.domeMat);
+        this.dome.position.z = -2;
+        const floor = new Mesh(new CircleGeometry(DOME + 1, 24).rotateX(-Math.PI / 2), this.floorMat);
+        scene.add(this.dome, floor);
+
+
+        const crystal = new LatheGeometry([new Vector2(0, 0), new Vector2(0.2, 0), new Vector2(0.22, 0.82), new Vector2(0, 1)], 6);
+        this.keys = new InstancedMesh(crystal, this.keyMat, KEYS);
+        this.shells = new InstancedMesh(crystal, this.shellMat, KEYS);
+        this.keys.frustumCulled = false;
+        this.shells.frustumCulled = false;
+        this.shells.renderOrder = 2;
+        for (let k = 0; k < KEYS; k++) {
+            const a = -1.3 + 2.6 * (k / (KEYS - 1));
+            const h = 2.5 - 1 * (k / (KEYS - 1));
+            const p = new Vector3(Math.sin(a) * ARC, 0, YETI_Z + Math.cos(a) * ARC);
+            this.keyPos.push(p);
+            this.keyH.push(h);
+            this.keyTop.push(new Vector3(p.x, p.y + h, p.z));
+            this.keyColor.push(new Color());
+            this.keys.setColorAt(k, this.tint.setRGB(1, 1, 1));
+            this.shells.setColorAt(k, this.tint.setRGB(0, 0, 0));
+        }
+        scene.add(this.keys, this.shells);
+
+        for (let i = 0; i < 2; i++) {
+            const mat = new MeshStandardMaterial({flatShading: true, roughness: 0.3});
+            const m = new Mesh(new LatheGeometry([new Vector2(0, 0), new Vector2(0.9, 0), new Vector2(1, 4.2), new Vector2(0, 6)], 6), mat);
+            m.position.copy(PILLARS[i]);
+            m.rotation.z = (i === 0 ? 1 : -1) * 0.12;
+            this.pillars.push(m);
+            this.pillarMats.push(mat);
             scene.add(m);
         }
-        const crystal = new LatheGeometry([new Vector2(0, -0.25), new Vector2(0.3, 0), new Vector2(0.33, 0.7), new Vector2(0, 1)], 6);
-        this.bodies = instanced(crystal, this.bodyMat, MAX_CRYSTALS);
-        this.shells = instanced(crystal, this.shellMat, MAX_CRYSTALS);
-        this.shells.renderOrder = 2;
-        scene.add(this.bodies, this.shells);
 
-        this.ring = new Mesh(new TorusGeometry(R * 0.86, 0.035, 4, 48), this.ringMat);
-        this.ring.renderOrder = 3;
-        scene.add(this.ring);
+        this.icicles = new InstancedMesh(new ConeGeometry(0.22, 1, 5).rotateX(Math.PI), this.icicleMat, ICICLES);
+        this.icicles.frustumCulled = false;
+        for (let i = 0; i < ICICLES; i++) {
+            const r = (n: number) => rand01(hash32(i, 50 + n));
+            const a = r(1) * TAU;
+            const d = 2 + r(2) * 8;
+            const x = Math.cos(a) * d;
+            const z = -2 + Math.sin(a) * d * 0.8;
+            const y = Math.sqrt(Math.max(0, DOME * DOME - x * x - (z + 2) * (z + 2))) * 0.82;
+            this.icicleSpots.push(new Vector3(x, y, z));
+        }
+        scene.add(this.icicles);
 
-        this.shards = instanced(new OctahedronGeometry(0.16, 0), this.shardMat, MAX_SHARDS);
-        scene.add(this.shards);
+        this.yeti = new Yeti(this.furMat, this.faceMat, this.eyeMat, this.malletMat, this.stickMat);
+        this.yeti.root.position.set(0, 0, YETI_Z);
+        scene.add(this.yeti.root);
 
-        const g = new BufferGeometry();
-        g.setAttribute('position', new BufferAttribute(this.glintPos, 3));
-        g.setAttribute('color', new BufferAttribute(this.glintCol, 3));
-        this.glints = new Points(g, new PointsMaterial({size: 0.5, map: dotTexture(0.3), vertexColors: true,
-            blending: AdditiveBlending, transparent: true, depthWrite: false}));
-        this.glints.frustumCulled = false;
-        this.glints.renderOrder = 4;
-        scene.add(this.glints);
+        this.penguin = new Penguin(this.coatMat, this.bellyMat, this.beakMat, this.eyeMat);
+        this.penguin.root.position.copy(PENGUIN);
+        this.penguin.root.rotation.y = -0.6;
+        const drum = new Mesh(new BoxGeometry(0.9, 0.9, 0.9), this.drumMat);
+        drum.position.set(-1.35, 0.45, 0.25);
+        const rack = new Mesh(new BoxGeometry(1.3, 0.1, 0.2), this.stickMat);
+        rack.position.set(1.4, 2.5, 0.2);
+        this.penguin.root.add(drum, rack);
+        for (let i = 0; i < 5; i++) {
+            const c = new Mesh(new ConeGeometry(0.08, 0.5 + i * 0.12, 5).rotateX(Math.PI).translate(0, -(0.25 + i * 0.06), 0), this.chimeMat);
+            c.position.set(0.9 + i * 0.25, 2.45, 0.2);
+            this.chimes.push(c);
+            this.penguin.root.add(c);
+        }
+        scene.add(this.penguin.root);
 
-        scene.add(this.ambient, this.lamp, this.nowLight);
+        const stalactite = new Mesh(new ConeGeometry(0.35, 1.6, 6).rotateX(Math.PI), this.icicleMat);
+        stalactite.position.set(DRIP.x, DRIP.y + 0.8, DRIP.z);
+        this.drop = new Mesh(new SphereGeometry(0.22, 8, 6), this.dropMat);
+        const pool = new Mesh(new CircleGeometry(1.2, 18).rotateX(-Math.PI / 2), this.ledgeMat);
+        pool.position.set(DRIP.x, 0.02, DRIP.z);
+        this.ripple = new Mesh(new RingGeometry(0.85, 1, 32).rotateX(-Math.PI / 2), this.rippleMat);
+        this.ripple.position.set(DRIP.x, 0.04, DRIP.z);
+        scene.add(stalactite, this.drop, pool, this.ripple);
+
+        this.glow.position.set(0, 1.4, YETI_Z + 4);
+        this.splash.position.set(DRIP.x, 1.2, DRIP.z);
+        scene.add(this.ambient, this.hemi, this.glow, this.splash);
     }
 
     layout(s: VizServices): void {
@@ -159,15 +217,29 @@ class IceCaveMode implements VizMode {
         ink.bake(s.theme);
         this.air.copy(ink.bg).lerp(ink.deep, 0.3);
         this.fog.color.copy(this.air);
-        for (const g of this.wallGeos) paintWall(g, ink);
-        this.bodyMat.emissive.copy(ink.deep).multiplyScalar(0.25);
-        this.shardMat.color.copy(ink.snow);
-        this.shardMat.emissive.copy(ink.ice).multiplyScalar(0.3);
-        this.ambient.color.copy(ink.deep).lerp(ink.ice, 0.3);
-        this.ambient.intensity = 0.7;
-        this.lamp.color.copy(ink.snow);
-        this.nowLight.color.copy(ink.ice);
-        this.ringMat.color.copy(ink.ice);
+        paintDome(this.dome.geometry, ink);
+        this.floorMat.color.copy(ink.snow).multiplyScalar(0.55);
+        this.ledgeMat.color.copy(ink.deep).lerp(ink.ice, 0.25);
+        this.keyMat.emissive.copy(ink.deep).multiplyScalar(0.3);
+        this.icicleMat.color.copy(ink.frost).lerp(ink.ice, 0.3);
+        this.icicleMat.emissive.copy(ink.deep).multiplyScalar(0.25);
+        this.furMat.color.copy(ink.snow).lerp(ink.frost, 0.25);
+        this.faceMat.color.copy(ink.deep).lerp(ink.frost, 0.3);
+        this.eyeMat.color.copy(ink.bg);
+        this.malletMat.color.copy(ink.rose);
+        this.stickMat.color.copy(ink.warm).multiplyScalar(0.45);
+        this.coatMat.color.copy(ink.bg).lerp(ink.deep, 0.5);
+        this.bellyMat.color.copy(ink.snow);
+        this.beakMat.color.copy(ink.warm);
+        this.drumMat.color.copy(ink.ice).lerp(ink.snow, 0.4);
+        this.chimeMat.color.copy(ink.frost);
+        this.dropMat.color.copy(ink.ice);
+        this.dropMat.emissive.copy(ink.ice).multiplyScalar(0.4);
+        this.rippleMat.color.copy(ink.ice);
+        this.ambient.color.copy(ink.deep).lerp(ink.ice, 0.35);
+        this.hemi.color.copy(ink.frost);
+        this.hemi.groundColor.copy(ink.deep).multiplyScalar(0.5);
+        this.splash.color.copy(ink.ice);
         this.camera.aspect = s.width / Math.max(1, s.height);
         this.camera.updateProjectionMatrix();
         this.field.invalidate();
@@ -176,267 +248,225 @@ class IceCaveMode implements VizMode {
     update(dt: number, s: VizServices): void {
         const field = this.field;
         field.update(dt, s);
-        if (field.restarted) {
-            this.shardList.length = 0;
-            this.glintList.length = 0;
-            this.kick = 0;
-            this.snap = 0;
-        }
+        for (const t of field.teams) setRgb(t.color, t.rgb);
         const now = field.cycle;
-        let hats = 0;
-        for (const h of field.haps) {
-            if (!field.crossed(h)) continue;
-            h.done = true;
-            h.team.activity = 1;
-            switch (h.role) {
-                case 'kick':
-                    this.kick = 1;
-                    break;
-                case 'snare':
-                case 'crash':
-                case 'tom':
-                    this.snap = 1;
-                    this.spawnShard(h.seed, now);
-                    break;
-                case 'hat':
-                case 'perc':
-                    if (hats++ < 2) this.spawnGlint(h.seed, now);
-                    break;
-                default:
-                    break;
-            }
-        }
-        this.kick *= Math.exp(-dt * 7);
-        this.snap *= Math.exp(-dt * 6);
+        const haps = field.haps;
+        const drums = field.locked ? haps : null;
 
-        for (let i = this.shardList.length - 1; i >= 0; i--) {
-            const sh = this.shardList[i];
-            sh.age += dt;
-            sh.vy -= 22 * dt;
-            sh.y += sh.vy * dt;
-            if (sh.y < FLOOR + 0.1) this.shardList.splice(i, 1);
-        }
-        for (let i = this.glintList.length - 1; i >= 0; i--) {
-            this.glintList[i].age += dt;
-            if (this.glintList[i].age >= GLINT_LIFE) this.glintList.splice(i, 1);
-        }
+        this.lightKeys(now);
+        this.playMallets(now);
 
+        const kick = drums ? strike(now, lastOnset(drums, now, isKick), 1 / 24) : 0;
+        const kickNext = drums ? windup(now, nextOnset(drums, now, isKick)) : 0;
+        const stompPose = stance(kick, kickNext);
+        this.yeti.stomp(stompPose === 'ready' && kickNext > 0 ? 1 : 0);
+        this.shakeIcicles(now, kick);
+
+        const bass = this.bassLevel(now);
+        for (const m of this.pillarMats) m.emissive.copy(this.ink.glow).multiplyScalar(0.08 + 0.9 * bass);
+
+        const snare = drums ? this.voice(now, drums, isSnare) : 'rest';
+        const hat = drums ? this.voice(now, drums, isChime) : 'rest';
+        this.penguin.pose(snare, hat);
+        const ring = drums ? strike(now, lastOnset(drums, now, isChime), 1 / 24) : 0;
+        for (let i = 0; i < this.chimes.length; i++) this.chimes[i].rotation.z = ring * 0.35 * (i % 2 === 0 ? 1 : -1);
+
+        this.countDrop(now);
         this.placeCamera(now);
-        this.placeWalls(now);
-        this.placeCrystals(now);
-        this.placeShards();
-        this.placeGlints();
     }
 
     render(ctx: CanvasRenderingContext2D, s: VizServices): void {
         drawScene(ctx, this.scene, this.camera, s.width, s.height, s.dpr);
     }
 
-    private spawnShard(seed: number, now: number): void {
-        if (this.shardList.length >= MAX_SHARDS) return;
-        const r = (n: number) => rand01(hash32(seed, n));
-        const a = Math.PI / 2 + (r(1) - 0.5) * 1.2;
-        this.shardList.push({x: Math.cos(a) * R * 0.8, y: Math.sin(a) * R * 0.8, z: -now * D - 1 - r(2) * 4,
-            vy: 0, spin: r(3) * TAU, age: 0});
+    private voice(now: number, haps: readonly Note[], pick: (h: Note) => boolean): Stance {
+        return stance(strike(now, lastOnset(haps, now, pick)), windup(now, nextOnset(haps, now, pick)));
     }
 
-    private spawnGlint(seed: number, now: number): void {
-        if (this.glintList.length >= MAX_GLINTS) return;
-        const r = (n: number) => rand01(hash32(seed, n));
-        const a = r(1) * TAU;
-        const rad = R * 0.86;
-        this.glintList.push({x: Math.cos(a) * rad, y: Math.max(FLOOR + 0.2, Math.sin(a) * rad), z: -now * D - r(2) * 6, age: 0});
+    /** Each crystal: bright on the onset of a note at its pitch, lit while it is held. */
+    private lightKeys(now: number): void {
+        const {keyGlow, keyColor, ink, dummy, tint} = this;
+        keyGlow.fill(0);
+        for (const k of keyColor) k.copy(ink.ice);
+        let peak = 0;
+        for (const h of this.field.haps) {
+            if (h.crystal < 0) continue;
+            const hit = strike(now, h.begin, 1 / 24);
+            const v = Math.max(hit, 0.45 * held(now, h.begin, h.end)) * clamp01(h.fade);
+            if (v > keyGlow[h.crystal]) {
+                keyGlow[h.crystal] = v;
+                keyColor[h.crystal].copy(h.team.color);
+            }
+            peak = Math.max(peak, hit);
+        }
+        for (let k = 0; k < KEYS; k++) {
+            const g = keyGlow[k];
+            const p = this.keyPos[k];
+            dummy.position.copy(p);
+            dummy.rotation.set(0, 0, 0);
+            dummy.scale.set(1, this.keyH[k], 1);
+            dummy.updateMatrix();
+            this.keys.setMatrixAt(k, dummy.matrix);
+            this.keys.setColorAt(k, tint.copy(ink.deep).lerp(keyColor[k], 0.35 + 0.65 * Math.min(1, g * 1.5)));
+            dummy.scale.set(1.25, this.keyH[k] * 1.08, 1.25);
+            dummy.updateMatrix();
+            this.shells.setMatrixAt(k, dummy.matrix);
+            this.shells.setColorAt(k, tint.copy(keyColor[k]).multiplyScalar(0.04 + 0.85 * g));
+        }
+        this.keys.instanceMatrix.needsUpdate = true;
+        this.shells.instanceMatrix.needsUpdate = true;
+        if (this.keys.instanceColor) this.keys.instanceColor.needsUpdate = true;
+        if (this.shells.instanceColor) this.shells.instanceColor.needsUpdate = true;
+        this.glow.intensity = 14 * peak;
+        this.glow.color.copy(ink.ice);
+    }
+
+    /** The yeti's mallets: the left takes the lower octave, the right the upper. */
+    private playMallets(now: number): void {
+        const haps = this.field.haps;
+        for (let i = 0; i < 2; i++) {
+            const pick = (h: Note) => isMelody(h) && (h.crystal < KEYS / 2) === (i === 0);
+            const last = lastOnset(haps, now, pick);
+            const next = nextOnset(haps, now, pick);
+            const pose = stance(strike(now, last, MALLET_HALF), windup(now, next));
+            const {aimAt} = this;
+            if (pose === 'hit') {
+                aimAt.copy(this.keyTop[this.keyAt(last, pick)]);
+            } else if (pose === 'ready' && Number.isFinite(next)) {
+                aimAt.copy(this.keyTop[this.keyAt(next, pick)]);
+                aimAt.y += 1.6;
+                aimAt.z -= 0.6;
+            } else {
+                aimAt.set(i === 0 ? -1.6 : 1.6, 1.9, YETI_Z + 1.2);
+            }
+            // Into the yeti's frame; on a hit the arm reaches exactly to the crystal.
+            aimAt.sub(this.yeti.root.position);
+            const d = aimAt.distanceTo(this.yeti.shoulders[i]);
+            this.yeti.aim(i, aimAt, pose === 'hit' ? d / REACH : 1);
+        }
+    }
+
+    /** The crystal of the note `pick` accepts at onset `at`. */
+    private keyAt(at: number, pick: (h: Note) => boolean): number {
+        for (const h of this.field.haps) if (h.begin === at && pick(h)) return h.crystal;
+        return 0;
+    }
+
+    private bassLevel(now: number): number {
+        let v = 0;
+        for (const h of this.field.haps) {
+            if (h.role !== 'bass') continue;
+            v = Math.max(v, strike(now, h.begin, 1 / 24), 0.3 * held(now, h.begin, h.end));
+        }
+        return v;
+    }
+
+    private shakeIcicles(now: number, kick: number): void {
+        const {dummy} = this;
+        for (let i = 0; i < ICICLES; i++) {
+            const p = this.icicleSpots[i];
+            const r = rand01(hash32(i, 9));
+            const len = 0.8 + r * 1.6;
+            const jig = kick * 0.12 * ((hash32(i, Math.floor(now * 16)) & 1) === 0 ? 1 : -1);
+            dummy.position.set(p.x + jig, p.y - len / 2, p.z);
+            dummy.rotation.set(0, 0, jig);
+            dummy.scale.set(1, len, 1);
+            dummy.updateMatrix();
+            this.icicles.setMatrixAt(i, dummy.matrix);
+        }
+        this.icicles.instanceMatrix.needsUpdate = true;
+    }
+
+    /** The phrase's drop: a step a beat in the last bar, a fall through its last beat, a splash on the downbeat. */
+    private countDrop(now: number): void {
+        const start = Math.floor(now / PHRASE) * PHRASE;
+        const bar = Math.floor(now) - start;
+        const beat = beatIndex(now);
+        const last = bar === PHRASE - 1;
+        const size = last ? 0.45 + 0.25 * beat : 0.3;
+        const fall = last && beat === 3 ? beatPhase(now) : 0;
+        this.drop.scale.setScalar(size);
+        this.drop.position.set(DRIP.x, DRIP.y - 0.1 - (DRIP.y - 0.2) * fall * fall, DRIP.z);
+        const hit = strike(now, start, 1 / 16);
+        this.ripple.scale.setScalar(0.3 + 2.4 * (1 - hit));
+        this.rippleMat.opacity = hit;
+        this.splash.intensity = 60 * hit;
     }
 
     private placeCamera(now: number): void {
-        const z = -now * D + BACK;
-        const sway = Math.sin(now * TAU / 8) * 0.6;
-        const bob = Math.sin(now * TAU / 5) * 0.25 - this.kick * 0.08;
-        this.camera.position.set(sway, bob - 0.3, z);
-        this.camera.lookAt(sway * 0.4, -0.1, z - 20);
-        this.camera.rotateZ(Math.sin(now * TAU / 11) * 0.05);
-        this.lamp.position.set(sway, 0.6, z - 1);
-        this.nowLight.position.set(0, 0.4, -now * D);
-        this.nowLight.intensity = 10 + 70 * this.kick + 25 * this.snap;
-        this.ring.position.set(0, 0, -now * D);
-        this.ring.scale.setScalar(1 + this.kick * 0.04);
-        this.ringMat.opacity = 0.25 + 0.75 * this.kick;
-    }
-
-    private placeWalls(now: number): void {
-        const first = Math.floor(now) - SEGS_BEHIND;
-        for (let i = 0; i < this.walls.length; i++) {
-            const bar = first + i;
-            const w = this.walls[i];
-            w.geometry = this.wallGeos[hash32(bar, 7) % SEG_VARIANTS];
-            w.position.set(0, 0, -(bar + 0.5) * D);
+        const bar = ((Math.floor(now) % PHRASE) + PHRASE) % PHRASE;
+        const cam = this.camera;
+        switch (bar) {
+            case 0:
+                cam.position.set(0, 3.4, 6.5);
+                cam.lookAt(0, 2.2, YETI_Z);
+                break;
+            case 1:
+                cam.position.set(-3.6, 4, 1.8);
+                cam.lookAt(0.6, 2.4, YETI_Z - 0.6);
+                break;
+            case 2:
+                cam.position.set(PENGUIN.x - 1.6, 2.4, PENGUIN.z + 4.6);
+                cam.lookAt(PENGUIN.x - 0.2, 1.3, PENGUIN.z);
+                break;
+            default:
+                cam.position.set(0.8, 4.6, 10);
+                cam.lookAt(-0.6, 2.8, -1.5);
+                break;
         }
-    }
-
-    private placeCrystals(now: number): void {
-        const {bodies, shells, dummy, tint, tint2, ink} = this;
-        let n = 0;
-        // The décor: dim crystals every bar of wall, there with or without music.
-        const first = Math.floor(now) - SEGS_BEHIND;
-        for (let b = first; b <= first + SEGS_BEHIND + SEGS_AHEAD; b++) {
-            for (let k = 0; k < DECOR_PER_SEG; k++) {
-                const seed = hash32(b * 31 + k, 101);
-                const r = (m: number) => rand01(hash32(seed, m));
-                const z = -(b + r(1)) * D;
-                const size = 0.35 + r(2) * r(2) * 1.3;
-                this.aim(r(3) * TAU, r(4) - 0.5, r(5) - 0.5, r(6) * TAU, z, size);
-                bodies.setMatrixAt(n, dummy.matrix);
-                bodies.setColorAt(n, tint.copy(ink.deep).lerp(ink.ice, 0.25 + 0.3 * r(7)));
-                dummy.scale.multiplyScalar(1.12);
-                dummy.updateMatrix();
-                shells.setMatrixAt(n, dummy.matrix);
-                const shimmer = 0.04 + 0.05 * Math.max(0, Math.sin(now * 3 + r(8) * TAU));
-                shells.setColorAt(n, tint.copy(ink.ice).multiplyScalar(shimmer));
-                n++;
-            }
-        }
-        for (const h of this.field.haps) {
-            if (h.role !== 'bass' && h.role !== 'mid' && h.role !== 'lead') continue;
-            if (n >= MAX_CRYSTALS) break;
-            const t = now - h.begin;
-            const dur = h.end - h.begin;
-            const grow = t < 0 ? 0.16 : t < GROW ? 0.16 + 0.98 * easeOut(t / GROW) : 1 + 0.14 * Math.exp(-(t - GROW) * 10);
-            const glow = t < 0 ? 0.12 * clamp01(1 + t) : t < dur ? 1 - 0.3 * (t / Math.max(dur, 0.01)) : 0.7 * Math.exp(-(t - dur) * 2.5);
-            const fade = clamp01(h.fade);
-            this.aim(h.theta, h.tiltA, h.tiltB, h.spin, -h.begin * D, h.size * grow * fade);
-            bodies.setMatrixAt(n, dummy.matrix);
-            setRgb(tint2, h.team.rgb);
-            bodies.setColorAt(n, tint.copy(ink.deep).lerp(tint2, 0.3 + 0.55 * glow).multiplyScalar(0.7 + 0.3 * glow));
-            dummy.scale.multiplyScalar(1.15 + 0.1 * glow);
-            dummy.updateMatrix();
-            shells.setMatrixAt(n, dummy.matrix);
-            shells.setColorAt(n, tint.copy(tint2).multiplyScalar(0.05 + 0.4 * glow));
-            n++;
-        }
-        bodies.count = n;
-        shells.count = n;
-        flush(bodies);
-        flush(shells);
-    }
-
-    /** Set `dummy` to a crystal rooted on the wall at angle `theta`, pointing inward. */
-    private aim(theta: number, tiltA: number, tiltB: number, spin: number, z: number, size: number): void {
-        const c = Math.cos(theta);
-        const sn = Math.sin(theta);
-        const base = sn < -0.2 ? Math.min(R * 0.9, -FLOOR / -sn) : R * 0.9;
-        const {dummy, dir} = this;
-        dummy.position.set(c * base, sn * base, z);
-        dir.set(-c + tiltA * 0.8 * -sn, -sn + tiltA * 0.8 * c, tiltB * 0.9).normalize();
-        dummy.quaternion.setFromUnitVectors(UP, dir);
-        dummy.rotateY(spin);
-        dummy.scale.set(size, size * 1.8, size);
-        dummy.updateMatrix();
-    }
-
-    private placeShards(): void {
-        const {shards, dummy} = this;
-        let n = 0;
-        for (const sh of this.shardList) {
-            dummy.position.set(sh.x, sh.y, sh.z);
-            dummy.rotation.set(sh.spin + sh.age * 7, sh.age * 5, 0);
-            dummy.scale.set(1, 1.8, 1);
-            dummy.updateMatrix();
-            shards.setMatrixAt(n++, dummy.matrix);
-        }
-        shards.count = n;
-        flush(shards);
-    }
-
-    private placeGlints(): void {
-        const {glintPos, glintCol, ink} = this;
-        let n = 0;
-        for (const g of this.glintList) {
-            const t = g.age / GLINT_LIFE;
-            const a = t < 0.2 ? t / 0.2 : 1 - (t - 0.2) / 0.8;
-            glintPos[n * 3] = g.x;
-            glintPos[n * 3 + 1] = g.y;
-            glintPos[n * 3 + 2] = g.z;
-            glintCol[n * 3] = ink.snow.r * a;
-            glintCol[n * 3 + 1] = ink.snow.g * a;
-            glintCol[n * 3 + 2] = ink.snow.b * a;
-            n++;
-        }
-        const geo = this.glints.geometry;
-        geo.setDrawRange(0, n);
-        geo.attributes.position.needsUpdate = true;
-        geo.attributes.color.needsUpdate = true;
     }
 }
 
-function instanced(geo: BufferGeometry, mat: MeshStandardMaterial | MeshBasicMaterial, max: number): InstancedMesh {
-    const m = new InstancedMesh(geo, mat, max);
-    const black = new Color(0, 0, 0);
-    for (let i = 0; i < max; i++) m.setColorAt(i, black);
-    m.count = 0;
-    m.frustumCulled = false;
-    return m;
+/** Two octaves of crystals, by pitch class and octave parity; -1 for an unpitched hap. */
+function keyOf(note: number): number {
+    if (!Number.isFinite(note)) return -1;
+    const n = Math.round(note);
+    return ((n % KEYS) + KEYS) % KEYS;
 }
 
-function flush(m: InstancedMesh): void {
-    m.instanceMatrix.needsUpdate = true;
-    if (m.instanceColor) m.instanceColor.needsUpdate = true;
+function isKick(h: Note): boolean {
+    return h.role === 'kick';
 }
 
-function easeOut(t: number): number {
-    const u = 1 - t;
-    return 1 - u * u * u;
+function isSnare(h: Note): boolean {
+    return h.role === 'snare' || h.role === 'tom';
 }
 
-/** One bar of cave wall: a rough tube along z with a flat floor, its end rings shared by every variant. */
-function wallGeometry(variant: number): BufferGeometry {
-    const g = new CylinderGeometry(R, R, D, SEG_SIDES, SEG_RINGS, true);
-    g.rotateX(Math.PI / 2);
+function isChime(h: Note): boolean {
+    return h.role === 'hat' || h.role === 'crash' || h.role === 'perc';
+}
+
+function isMelody(h: Note): boolean {
+    return h.role === 'mid' || h.role === 'lead';
+}
+
+/** The cavern: a rough dome, its seam and rim shared so it closes. */
+function domeGeometry(): BufferGeometry {
+    const g = new SphereGeometry(DOME, 22, 10, 0, TAU, 0, Math.PI / 2);
     const pos = g.attributes.position;
     for (let i = 0; i < pos.count; i++) {
         const x = pos.getX(i);
         const y = pos.getY(i);
         const z = pos.getZ(i);
-        const side = Math.round(((Math.atan2(y, x) + TAU) % TAU) / (TAU / SEG_SIDES)) % SEG_SIDES;
-        const ring = Math.round((z + D / 2) / (D / SEG_RINGS));
-        const v = ring === 0 || ring === SEG_RINGS ? 0 : variant + 1;
-        const k = 1 + (rand01(hash32(side * 17 + ring, v * 7919 + 3)) - 0.5) * 0.34;
-        pos.setXYZ(i, x * k, Math.max(FLOOR, y * k), z);
+        const key = hash32(Math.round(x * 3) * 977 + Math.round(z * 3), Math.round(y * 3));
+        const k = y < 0.01 ? 1 : 1 + (rand01(key) - 0.5) * 0.18;
+        pos.setXYZ(i, x * k, y * k * 0.85, z * k);
     }
     g.setAttribute('color', new BufferAttribute(new Float32Array(pos.count * 3), 3));
     g.computeVertexNormals();
     return g;
 }
 
-/** Wall colour by height: snow on the floor, deep ice up the walls, frost on the roof. */
-function paintWall(g: BufferGeometry, ink: Ink): void {
+function paintDome(g: BufferGeometry, ink: Ink): void {
     const pos = g.attributes.position;
     const col = g.attributes.color;
     const c = new Color();
     for (let i = 0; i < pos.count; i++) {
-        const y = pos.getY(i);
-        const h = clamp01((y - FLOOR) / (R - FLOOR));
-        if (y <= FLOOR + 0.01) c.copy(ink.snow).multiplyScalar(0.4);
-        else c.copy(ink.deep).lerp(ink.frost, 0.1 + 0.25 * h).multiplyScalar(0.55);
+        const h = clamp01(pos.getY(i) / DOME);
+        c.copy(ink.deep).lerp(ink.frost, 0.12 + 0.3 * h).multiplyScalar(0.6 + 0.2 * rand01(hash32(i, 2)));
         col.setXYZ(i, c.r, c.g, c.b);
     }
     col.needsUpdate = true;
-}
-
-function makeCrystal(base: FieldHap<Team>): Crystal {
-    const r = (n: number) => rand01(hash32(base.seed, n));
-    const pitched = Number.isFinite(base.note);
-    const u = pitched ? clamp01((base.note - 30) / 66) : 0;
-    const side = (base.seed & 1) === 0 ? 1 : -1;
-    const dur = base.end - base.begin;
-    return {
-        ...base,
-        role: winterRole(base.team.name, base.note),
-        theta: -Math.PI / 2 + side * (0.12 + 0.88 * u) * Math.PI + (r(1) - 0.5) * 0.16,
-        tiltA: (r(2) - 0.5) * 0.7,
-        tiltB: 0.15 + r(3) * 0.35,
-        spin: r(4) * TAU,
-        size: 0.32 + 0.7 * Math.sqrt(Math.min(dur, 4)),
-    };
 }
 
 export const iceCaveDef: VizModeDef = {

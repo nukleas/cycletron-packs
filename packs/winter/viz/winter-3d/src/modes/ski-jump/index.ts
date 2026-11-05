@@ -17,6 +17,7 @@ import {type FieldHap, type FieldTeam, HapField} from '@cycletron/viz-sdk';
 import {clamp01, hash32, rand01, TAU} from '@cycletron/viz-sdk';
 import {drawScene, setRgb} from '@naderlabs/kit/gl';
 import {isLong, type Role} from '@naderlabs/kit/roles';
+import {type Stance, stance, strike, windup} from '@naderlabs/kit/timing';
 import {
     AdditiveBlending, AmbientLight, BoxGeometry, BufferAttribute, BufferGeometry, Color, ConeGeometry,
     CylinderGeometry, DirectionalLight, Fog, HemisphereLight, InstancedMesh, Mesh, MeshBasicMaterial,
@@ -50,6 +51,16 @@ const FLASHES = 14;
 const FLASH_LIFE = 0.18;
 const OUTRUN_END = 150;
 const SKY_RADIUS = 220;
+
+/** Skier poses (crouch, lean, vee, arms), switched on the lip at beat three and the landing on the downbeat. */
+type Pose = [number, number, number, number];
+const POSE_HALF = 1 / 16;
+/** The tuck down the in-run; ready is the deeper load just before the lip. */
+const INRUN: Record<Stance, Pose> = {rest: [1, 0.15, 0, 0], ready: [1, 0.45, 0, 0.2], hit: [1, 0.45, 0, 0.2]};
+/** The pop off the lip, the V in the air, and the brace for the landing. */
+const FLIGHT: Record<Stance, Pose> = {rest: [0, 1.5, 0.34, 0], ready: [0.2, 0.5, 0.12, 0.9], hit: [0, 0.2, 0, 1]};
+/** The telemark on the downbeat, settling, then gliding out. */
+const OUTRUN: Record<Stance, Pose> = {rest: [0.1, 0.05, 0, 0.6], ready: [0.25, -0.1, 0, 1], hit: [0.4, -0.3, 0, 1.2]};
 
 interface Team extends FieldTeam {
     color: Color;
@@ -392,7 +403,7 @@ class SkiJumpMode implements VizMode {
                 const x = LIP_X * Math.pow(t / 0.5, 1.35);
                 root.position.set(x, inrunY(x), 0);
                 root.rotation.set(0, 0, Math.atan(slope(inrunY, x)));
-                sk.pose(1, 0.15, 0, 0);
+                sk.pose(...INRUN[stance(0, windup(now, b + 0.5))]);
             } else if (t < 1) {
                 const p = (t - 0.5) / 0.5;
                 const x = LIP_X + j.dist * p;
@@ -401,13 +412,12 @@ class SkiJumpMode implements VizMode {
                 root.position.set(x, y, 0);
                 const dy = (j.landY - LIP_Y) / j.dist + arc * 4 * (1 - 2 * p) / j.dist;
                 root.rotation.set(0, 0, Math.atan(dy) * 0.6 + 0.12);
-                sk.pose(0, 1.5, 0.32, 0);
+                sk.pose(...FLIGHT[stance(strike(now, b + 0.5, POSE_HALF), windup(now, b + 1))]);
             } else {
                 const x = outrunX(j, t);
                 root.position.set(x, landY(x), 0);
                 root.rotation.set(0, 0, Math.atan(slope(landY, x)));
-                const settle = clamp01((t - 1) / 0.15);
-                sk.pose(0.55 * (1 - settle) + 0.15, 0.1, 0, 1);
+                sk.pose(...OUTRUN[stance(strike(now, b + 1, POSE_HALF), 0)]);
             }
         }
     }
@@ -552,7 +562,8 @@ class SkiJumpMode implements VizMode {
 
 function outrunX(j: Jump, t: number): number {
     const q = clamp01((t - 1) / 0.5);
-    return j.landX + (OUTRUN_END - j.landX) * (1 - (1 - q) * (1 - q));
+    // Out of the landing at the speed of the flight, slowing to a stop.
+    return j.landX + j.dist * 0.5 * (1 - (1 - q) * (1 - q));
 }
 
 function slope(profile: (x: number) => number, x: number): number {

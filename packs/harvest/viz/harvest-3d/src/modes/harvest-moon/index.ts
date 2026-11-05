@@ -5,7 +5,8 @@
  * the track colour for as long as it is held, then the glow dies away. Kicks
  * pulse the moon's halo, hats spark fireflies over the patch, snares and
  * crashes send a shooting star across the sky, and the bass level lights the
- * barn's loft window. The moon climbs over the first bars and then hangs.
+ * barn's loft window. The moon climbs over the first bars and then hangs;
+ * the camera cuts between four places every two bars.
  */
 
 import type {VizMode, VizModeDef, VizServices} from '@cycletron/viz-sdk';
@@ -37,6 +38,8 @@ const STAR_LIFE = 0.9;
 const STREAK = 12;
 const MOON_Z = -170;
 const MOON_R = 20;
+/** Where the camera stands, one place per two-bar shot. */
+const SHOT_X = [0, -0.7, 0.6, -0.3];
 
 interface Team extends FieldTeam {}
 
@@ -328,8 +331,8 @@ class HarvestMoonMode implements VizMode {
         const c = this.colors;
         if (!c) return;
         const cam = this.stage.camera;
-        const drift = Math.sin(cycle * TAU / 32);
-        cam.position.set(drift * 4, 8.5 + Math.sin(cycle * TAU / 24) * 0.4, 24);
+        const drift = SHOT_X[Math.floor(cycle / 2) % SHOT_X.length];
+        cam.position.set(drift * 4, 8.5, 24);
         cam.lookAt(drift * 1.5, 1.2, -30);
 
         const rise = 1 - Math.exp(-Math.max(0, cycle) / 8);

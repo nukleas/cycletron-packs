@@ -262,7 +262,6 @@ class BallDropMode implements VizMode {
         for (let i = 0; i < BOARDS; i++) this.boardLevel[i] *= kb;
         this.flash *= Math.exp(-dt * 3);
         this.twinkle *= Math.exp(-dt * 5);
-        this.twinkle = Math.max(this.twinkle, s.high * 0.4);
         this.beam *= Math.exp(-dt * 2);
         this.tick = Math.floor(field.cycle * 16);
     }
@@ -276,11 +275,10 @@ class BallDropMode implements VizMode {
         const fall = (inPhrase - 0.25) / (PHRASE - 0.25);
         const ballY = inPhrase < 0.25 ? MAST_LOW + (MAST_TOP - MAST_LOW) * easeInOut(climb) : MAST_TOP - (MAST_TOP - MAST_LOW) * Math.max(0, fall);
         this.ball.position.set(0, ballY, 0);
-        this.ball.rotation.y = cycle * 0.9;
+        this.ball.rotation.y = Math.floor(cycle * 4) * 0.4;
 
         const cam = this.camera;
-        const orbit = Math.sin(cycle * 0.06) * 0.35;
-        cam.position.set(Math.sin(orbit) * 96, 34 + Math.sin(cycle * 0.04) * 4, Math.cos(orbit) * 96);
+        cam.position.set(0, 34, 96);
         cam.lookAt(0, 62 + (ballY - 90) * 0.3, 0);
 
         const u = this.ballMat.uniforms;
@@ -297,7 +295,7 @@ class BallDropMode implements VizMode {
         this.beamMat.uniforms.uLevel.value = 0.08 + this.beam * 0.22;
         for (let i = 0; i < BEAMS; i++) {
             const b = this.beams[i];
-            const a = cycle * (0.35 + i * 0.07) + i * 1.9;
+            const a = Math.floor(cycle * 4) * (0.6 + i * 0.13) + i * 1.9;
             b.rotation.set(Math.sin(a) * 0.38, 0, Math.cos(a * 1.3) * 0.4 + (i - 1.5) * 0.12);
         }
 

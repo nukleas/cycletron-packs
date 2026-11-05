@@ -46,7 +46,7 @@ export class Skier {
         this.torso.position.y = 0.85;
         this.legs.add(this.torso);
         this.root.add(this.skiL, this.skiR, this.legs);
-        this.root.scale.setScalar(1.5);
+        this.root.scale.setScalar(2.2);
     }
 
     paint(suit: Color, helmet: Color, ski: Color): void {

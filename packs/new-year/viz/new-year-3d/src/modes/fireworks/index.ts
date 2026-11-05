@@ -172,7 +172,6 @@ class FireworksMode implements VizMode {
         this.light.multiplyScalar(Math.exp(-dt * 2.2));
         this.crackle *= Math.exp(-dt * 7);
         this.thump *= Math.exp(-dt * 5);
-        this.crackle = Math.max(this.crackle, s.high * 0.5);
     }
 
     private fire(h: Note): void {
@@ -246,8 +245,8 @@ class FireworksMode implements VizMode {
     render(ctx: CanvasRenderingContext2D, s: VizServices): void {
         const cycle = this.field.cycle;
         const cam = this.camera;
-        cam.position.set(Math.sin(cycle * 0.045) * 10, 7 + Math.sin(cycle * 0.031) * 1.5, 92);
-        cam.lookAt(Math.sin(cycle * 0.045) * 4, 31, 0);
+        cam.position.set(0, 7, 92);
+        cam.lookAt(0, 31, 0);
 
         this.sky.glow.copy(this.light).multiplyScalar(0.22);
         this.city.uniforms.uFlash.value.copy(this.light).multiplyScalar(0.3);

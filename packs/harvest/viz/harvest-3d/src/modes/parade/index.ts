@@ -1,26 +1,38 @@
 /**
- * PARADE — a Thanksgiving parade down Main Street, seen from the curb. Floats
- * and marching bands take turns going by, one block of street per bar, and
- * the band steps on every beat. Pitched notes are the band playing: pitch
- * picks the file across the band, low on the left of the march and high on
- * the right, and that player lifts their horn and it flares in the track
- * colour while the note holds. Kicks hit the bass drum at the front, which
- * flashes, and the whole band stomps. Snares and crashes throw confetti from
- * the rooftops, hats bounce the crowd on the far kerb, and the bass level
- * lifts the balloons on their ropes.
+ * PARADE — a Thanksgiving marching band halted at the reviewing stand, seen
+ * from the kerb. Everyone in it plays one voice, and every hit lands on the
+ * frame its note sounds:
+ *
+ * - The drum line. The bass drummer plays the kicks, two snare drummers
+ *   split the snares hit by hit, the cymbal player the crashes. Each pair of
+ *   sticks has three poses: at rest, cocked over the head an eighth of a bar
+ *   before the next hit, and on the head on the onset.
+ * - The horns, three ranks of four. Each pitched track has its own player
+ *   (by track slot), who brings the horn up half a bar before their line
+ *   starts, kicks the bell up and flares it in the track colour on each
+ *   note, and holds it while the note holds.
+ * - The drum major counts the phrase: the mace keeps time, climbs a step on
+ *   each beat of the last bar of every four, and is thrust forward on the
+ *   downbeat.
+ * - The whole band marks time on the beat. The camera cuts every two bars,
+ *   and is wide for each phrase's last two bars so the count is seen. One
+ *   balloon float crosses behind the band per phrase, dipping on the beat.
+ *   Snares and crashes also throw confetti off the roofs; hats bounce the
+ *   crowd.
  */
 
 import type {VizMode, VizModeDef, VizServices} from '@cycletron/viz-sdk';
 import {type FieldHap, type FieldTeam, HapField} from '@cycletron/viz-sdk';
-import {clamp01, hash32, rand01, SeededRandom, TAU} from '@cycletron/viz-sdk';
+import {clamp01, hash32, rand01, SeededRandom} from '@cycletron/viz-sdk';
 import {
     BoxGeometry, BufferGeometry, Color, ConeGeometry, CylinderGeometry, DoubleSide, DynamicDrawUsage, Float32BufferAttribute,
     InstancedMesh, LineBasicMaterial, LineSegments, Mesh, MeshBasicMaterial, MeshLambertMaterial, Object3D,
-    PlaneGeometry, SphereGeometry,
+    PlaneGeometry, SphereGeometry, Vector3,
 } from 'three';
 import {type Role} from '@naderlabs/kit/roles';
-import {bakeHarvest, type Harvest} from '../../lib/colors.js';
+import {beatIndex, beatPhase, beatsLeft, held, HIT, lastOnset, nextOnset, type Stance, stance, strike, windup} from '@naderlabs/kit/timing';
 import {setRgb} from '@naderlabs/kit/gl';
+import {bakeHarvest, type Harvest} from '../../lib/colors.js';
 import {GLOW_QUAD, glowMaterial} from '../../lib/glow.js';
 import {age, hide, markDirty} from '../../lib/instances.js';
 import {harvestRole} from '../../lib/roles.js';
@@ -28,18 +40,32 @@ import {SkyDome} from '../../lib/sky.js';
 import {Stage} from '../../lib/stage.js';
 import {acorn, type Balloon, type BalloonMats, pumpkinFloat, turkey} from './balloons.js';
 
-const LOOKAHEAD = 1;
-/** Street travelled per bar, and the gap between parade units. */
-const SPEED = 7;
-const UNIT = 24;
-const VIEW = 42;
-/** The band: files across the march, ranks along it. */
-const FILES = 3;
-const RANKS = 5;
-const PLAYERS = FILES * RANKS;
-const MAX_BANDS = 3;
-const MAX_PEOPLE = MAX_BANDS * PLAYERS + 3 * 4;
-/** The crowd: a row on the far kerb, then a few heads in front of the camera. */
+/** Two bars, so a note on the next downbeat is in view for its wind-up. */
+const LOOKAHEAD = 2;
+/** Bars per phrase: the drum major's count, and one balloon crossing. */
+const PHRASE = 4;
+/** Bars per camera shot. */
+const SHOT = 2;
+/** A horn comes up this long before its line starts. */
+const HORN_LEAD = 0.5;
+/** Files across the march (depth), and where each stands. */
+const FILE_Z = [-1.6, -0.3, 1.0, 2.3];
+const HORN_RANKS = [1.2, -0.8, -2.8];
+const HORNS = HORN_RANKS.length * FILE_Z.length;
+const DRUM_X = 3.2;
+const MAJOR_X = 5.6;
+const MAJOR_Z = 0.6;
+/** The drum line, far file to near: the bass drum, two snares, the cymbals. */
+const BASS = 0;
+const CYMBAL = 3;
+const SNARES = [1, 2];
+/** Drum major, drum line, horns, and the four handlers of the one balloon. */
+const MAX_PEOPLE = 1 + FILE_Z.length + HORNS + 4;
+const HORN_ARMS = 2 * FILE_Z.length;
+const MAJOR_ARM = HORN_ARMS + HORNS;
+const STICKS = 2 * FILE_Z.length;
+/** Two arms for each drummer, one for each horn player and the drum major. */
+const ARMS = 2 * FILE_Z.length + HORNS + 1;
 const FAR = 46;
 const NEAR = 12;
 const CROWD = FAR + NEAR;
@@ -48,6 +74,41 @@ const CONFETTI_LIFE = 3.2;
 const TAIL = 0.4;
 const KERB = -7.4;
 const FACADE = -10;
+const BALLOON_Z = -4.6;
+const BALLOON_Y = 6.3;
+
+/**
+ * Each player's pose as arm and stick angles about z. An arm hangs from the
+ * shoulder: 0 is straight down, π/2 straight forward along +x, π overhead.
+ * A stick (or mallet) is a world angle from +x, held at the hand.
+ */
+interface Grip {
+    arm: number;
+    stick: number;
+}
+
+const SNARE_GRIP: Record<Stance, Grip> = {rest: {arm: 0.7, stick: 0.05}, ready: {arm: 2.4, stick: 1.35}, hit: {arm: 0.9, stick: -0.6}};
+const BASS_GRIP: Record<Stance, Grip> = {rest: {arm: 0.5, stick: -1.3}, ready: {arm: 2.6, stick: 2.0}, hit: {arm: 1.15, stick: 2.75}};
+/** The cymbals clap vertically: the upper plate's arm and the lower's. */
+const CYMBAL_ARMS: Record<Stance, [number, number]> = {rest: [0.6, 0.35], ready: [2.5, 0.35], hit: [1.4, 1.25]};
+/** The direction a horn's bell points: down at the chest at rest, level to play, kicked up on a note. */
+const HORN_TILT: Record<Stance, number> = {rest: -1.1, ready: 0, hit: 0.35};
+const HORN_ARM: Record<Stance, number> = {rest: 0.25, ready: 1.45, hit: 1.6};
+const ARM = 0.62;
+const SHOULDER = 0.88;
+
+interface Shot {
+    pos: Vector3;
+    look: Vector3;
+}
+
+/** Drum line close, wide, horns close, wide: the wide shots carry each phrase's count. */
+const SHOTS: Shot[] = [
+    {pos: new Vector3(6.4, 2.1, 6.4), look: new Vector3(3.4, 1.4, 0.2)},
+    {pos: new Vector3(2.0, 5.6, 14.5), look: new Vector3(2.0, 1.6, -1)},
+    {pos: new Vector3(0.9, 2.2, 6.4), look: new Vector3(-0.9, 1.5, 0)},
+    {pos: new Vector3(2.0, 5.6, 14.5), look: new Vector3(2.0, 1.6, -1)},
+];
 
 interface Team extends FieldTeam {}
 
@@ -72,13 +133,21 @@ interface Building {
     tint: number;
 }
 
+/** A drum voice's pose this frame: the stance, and how hard the last hit still rings. */
+interface Play {
+    stance: Stance;
+    ring: number;
+}
+
+const isPitched = (r: Role): boolean => r === 'bass' || r === 'mid' || r === 'lead';
+
 class ParadeMode implements VizMode {
     private readonly stage = new Stage(46, 0.3, 500, 40, 160);
     private readonly sky = new SkyDome(350);
     private readonly field = new HapField<Team, Note>({
         lookahead: LOOKAHEAD,
-        maxHaps: 200,
-        maxPerTrack: 40,
+        maxHaps: 400,
+        maxPerTrack: 80,
         idleRate: 0.25,
         team: (base) => base,
         hap: (base) => ({...base, role: harvestRole(base.team.name, base.note)}),
@@ -89,14 +158,18 @@ class ParadeMode implements VizMode {
     private readonly hot = new Color();
     private readonly confetti: Bit[] = [];
     private readonly crowdHop = new Float32Array(CROWD);
-    /** Per band slot and player: how lit the horn is and in which colour. */
-    private readonly horn = new Float32Array(MAX_BANDS * PLAYERS);
-    private readonly hornJump = new Float32Array(MAX_BANDS * PLAYERS);
-    private readonly hornRgb = new Float32Array(MAX_BANDS * PLAYERS * 3);
     private readonly buildings: Building[] = [];
     private colors: Harvest | null = null;
-    private bass = 0;
-    private drum = 0;
+
+    /** Per horn player: pose, how lit the bell is, and in which colour. */
+    private readonly hornPose: Stance[] = Array.from({length: HORNS}, (): Stance => 'rest');
+    private readonly hornLit = new Float32Array(HORNS);
+    private readonly hornRgb = new Float32Array(HORNS * 3);
+    private readonly hornStruck = new Float32Array(HORNS);
+    private readonly hornWound = new Float32Array(HORNS);
+    private readonly kick: Play = {stance: 'rest', ring: 0};
+    private readonly crash: Play = {stance: 'rest', ring: 0};
+    private readonly snare: Play[] = SNARES.map((): Play => ({stance: 'rest', ring: 0}));
 
     private readonly uniformMat = new MeshLambertMaterial({flatShading: true});
     private readonly legs: InstancedMesh;
@@ -105,8 +178,17 @@ class ParadeMode implements VizMode {
     private readonly hats: InstancedMesh;
     private readonly plumes: InstancedMesh;
     private readonly horns: InstancedMesh;
-    private readonly hornGlow: InstancedMesh;
-    private readonly drums: InstancedMesh;
+    private readonly glows: InstancedMesh;
+    private readonly sticks: InstancedMesh;
+    private readonly arms: InstancedMesh;
+    /** The hand `arm()` last placed. */
+    private handX = 0;
+    private handY = 0;
+    private readonly snareDrums: InstancedMesh;
+    private readonly bassDrum: Mesh;
+    private readonly cymbals: InstancedMesh;
+    private readonly mace: Mesh;
+    private readonly maceHead: Mesh;
     private readonly crowdBodies: InstancedMesh;
     private readonly crowdHeads: InstancedMesh;
     private readonly bits: InstancedMesh;
@@ -122,6 +204,8 @@ class ParadeMode implements VizMode {
     private readonly walkMat = new MeshLambertMaterial();
     private readonly lineMat = new MeshBasicMaterial();
     private readonly windowMat = new MeshBasicMaterial();
+    private readonly drumMat = lambert();
+    private readonly maceMat = lambert();
     private readonly mats: BalloonMats = {
         body: lambert(), tail: [lambert(), lambert(), lambert(), lambert(), lambert()], beak: lambert(), wattle: lambert(),
         pumpkin: lambert(), stem: lambert(), nut: lambert(), cap: lambert(),
@@ -138,13 +222,33 @@ class ParadeMode implements VizMode {
         this.heads = new InstancedMesh(new SphereGeometry(0.24, 7, 5), lambert(), MAX_PEOPLE);
         this.hats = new InstancedMesh(new CylinderGeometry(0.22, 0.2, 0.5, 6), lambert(), MAX_PEOPLE);
         this.plumes = new InstancedMesh(new ConeGeometry(0.09, 0.4, 5), lambert(), MAX_PEOPLE);
-        const hornGeo = new ConeGeometry(0.2, 0.6, 7, 1, true);
-        this.horns = new InstancedMesh(hornGeo, new MeshLambertMaterial({flatShading: true, side: DoubleSide}), MAX_PEOPLE);
-        this.hornGlow = new InstancedMesh(GLOW_QUAD, glowMaterial(), MAX_BANDS * PLAYERS);
-        const drumGeo = new CylinderGeometry(0.7, 0.7, 0.5, 12);
-        drumGeo.rotateX(Math.PI / 2);
-        this.drums = new InstancedMesh(drumGeo, lambert(), MAX_BANDS);
-        scene.add(this.legs, this.torsos, this.heads, this.hats, this.plumes, this.horns, this.hornGlow, this.drums);
+        // A horn: the narrow end at the player's mouth, the bell out along +x.
+        const hornGeo = new ConeGeometry(0.22, 0.7, 8, 1, true);
+        hornGeo.rotateZ(Math.PI / 2);
+        hornGeo.translate(0.35, 0, 0);
+        this.horns = new InstancedMesh(hornGeo, new MeshLambertMaterial({flatShading: true, side: DoubleSide}), HORNS);
+        this.glows = new InstancedMesh(GLOW_QUAD, glowMaterial(), HORNS + 3);
+        // A stick pivots at the hand and reaches out along +x.
+        const stickGeo = new BoxGeometry(0.7, 0.08, 0.08);
+        stickGeo.translate(0.35, 0, 0);
+        this.sticks = new InstancedMesh(stickGeo, lambert(), STICKS);
+        const armGeo = new BoxGeometry(0.15, ARM, 0.15);
+        armGeo.translate(0, -ARM / 2, 0);
+        this.arms = new InstancedMesh(armGeo, lambert(), ARMS);
+        this.snareDrums = new InstancedMesh(new CylinderGeometry(0.34, 0.34, 0.26, 12), lambert(), SNARES.length);
+        const bassGeo = new CylinderGeometry(0.62, 0.62, 0.42, 14);
+        bassGeo.rotateX(Math.PI / 2);
+        this.bassDrum = new Mesh(bassGeo, this.drumMat);
+        const cymbalGeo = new CylinderGeometry(0.36, 0.36, 0.04, 14);
+        this.cymbals = new InstancedMesh(cymbalGeo, lambert(), 2);
+        const maceGeo = new BoxGeometry(0.06, 1.5, 0.06);
+        maceGeo.translate(0, 0.55, 0);
+        this.mace = new Mesh(maceGeo, this.maceMat);
+        this.maceHead = new Mesh(new SphereGeometry(0.16, 8, 6), this.maceMat);
+        this.mace.add(this.maceHead);
+        this.maceHead.position.set(0, 1.3, 0);
+        scene.add(this.legs, this.torsos, this.heads, this.hats, this.plumes, this.horns, this.glows, this.sticks,
+            this.arms, this.snareDrums, this.bassDrum, this.cymbals, this.mace);
 
         this.crowdBodies = new InstancedMesh(new CylinderGeometry(0.3, 0.38, 1.3, 6), lambert(), CROWD);
         this.crowdHeads = new InstancedMesh(new SphereGeometry(0.25, 7, 5), lambert(), CROWD);
@@ -162,7 +266,7 @@ class ParadeMode implements VizMode {
         const walkNear = plane(200, 10, this.walkMat);
         walkNear.position.set(0, 0.12, 12.5);
         const stripe = plane(200, 0.18, this.lineMat);
-        stripe.position.set(0, 0.02, 2.2);
+        stripe.position.set(0, 0.02, 4.2);
         scene.add(road, walkFar, walkNear, stripe);
 
         const rnd = new SeededRandom(5);
@@ -210,7 +314,7 @@ class ParadeMode implements VizMode {
             b.group.scale.setScalar(1.3);
             scene.add(b.group);
         }
-        this.ropePos = new Float32BufferAttribute(new Float32Array(this.balloons.length * 4 * 2 * 3), 3);
+        this.ropePos = new Float32BufferAttribute(new Float32Array(4 * 2 * 3), 3);
         this.ropePos.setUsage(DynamicDrawUsage);
         const ropeGeo = new BufferGeometry();
         ropeGeo.setAttribute('position', this.ropePos);
@@ -218,9 +322,6 @@ class ParadeMode implements VizMode {
         this.ropes.frustumCulled = false;
         scene.add(this.ropes);
 
-        const cam = this.stage.camera;
-        cam.position.set(0, 4.4, 20);
-        cam.lookAt(0, 5.1, -4);
         this.stage.sun.position.set(-20, 30, 25);
         this.stage.uncull();
     }
@@ -249,6 +350,7 @@ class ParadeMode implements VizMode {
         this.windowMat.color.copy(c.cream).lerp(c.leaves[2], 0.35).multiplyScalar(0.9);
         this.ropeMat.color.copy(c.cream).multiplyScalar(0.8);
         this.uniformMat.color.copy(c.cream).multiplyScalar(0.95);
+        this.maceMat.color.copy(c.leaves[2]).lerp(c.cream, 0.3);
         const m = this.mats;
         m.body.color.copy(c.bark).lerp(c.leaves[3], 0.3);
         m.tail.forEach((mat, i) => mat.color.copy(c.leaves[i % c.leaves.length]));
@@ -273,7 +375,15 @@ class ParadeMode implements VizMode {
         }
         for (let i = 0; i < 120; i++) this.pennants.setColorAt(i, c.leaves[i % 3 === 2 ? 2 : i % 3]);
         for (let i = 0; i < MAX_CONFETTI; i++) this.bits.setColorAt(i, i % 4 === 3 ? c.cream : c.leaves[i % c.leaves.length]);
-        for (const mesh of [this.blocks, this.cornices, this.crowdBodies, this.crowdHeads, this.pennants, this.bits]) markDirty(mesh);
+        this.tint.copy(c.cream).multiplyScalar(0.85);
+        for (let i = 0; i < STICKS; i++) this.sticks.setColorAt(i, this.tint);
+        for (let i = 0; i < ARMS; i++) this.arms.setColorAt(i, c.leaves[i === ARMS - 1 ? 3 : 1]);
+        this.tint.copy(c.cream).lerp(c.leaves[1], 0.25);
+        for (let i = 0; i < SNARES.length; i++) this.snareDrums.setColorAt(i, this.tint);
+        this.tint.copy(c.leaves[2]).lerp(c.cream, 0.35);
+        for (let i = 0; i < 2; i++) this.cymbals.setColorAt(i, this.tint);
+        for (const mesh of [this.blocks, this.cornices, this.crowdBodies, this.crowdHeads, this.pennants, this.bits,
+            this.sticks, this.arms, this.snareDrums, this.cymbals]) markDirty(mesh);
         this.field.invalidate();
     }
 
@@ -288,28 +398,14 @@ class ParadeMode implements VizMode {
         if (field.restarted) {
             this.confetti.length = 0;
             this.crowdHop.fill(0);
-            this.drum = 0;
         }
         for (const h of field.haps) {
             if (!field.crossed(h)) continue;
             h.done = true;
             h.team.activity = 1;
-            switch (h.role) {
-                case 'kick':
-                    this.drum = 1;
-                    break;
-                case 'snare':
-                    this.throwConfetti(h.seed, 10);
-                    break;
-                case 'crash':
-                    this.throwConfetti(h.seed, 26);
-                    break;
-                case 'hat':
-                    for (let k = 0; k < 4; k++) this.crowdHop[hash32(h.seed, k) % CROWD] = 1;
-                    break;
-                default:
-                    break;
-            }
+            if (h.role === 'snare') this.throwConfetti(h.seed, 10);
+            else if (h.role === 'crash') this.throwConfetti(h.seed, 26);
+            else if (h.role === 'hat') for (let k = 0; k < 4; k++) this.crowdHop[hash32(h.seed, k) % CROWD] = 1;
         }
         for (const b of this.confetti) {
             b.vx *= Math.exp(-dt * 1.2);
@@ -321,11 +417,46 @@ class ParadeMode implements VizMode {
         age(this.confetti, dt, CONFETTI_LIFE);
         const k = Math.exp(-dt * 7);
         for (let i = 0; i < CROWD; i++) this.crowdHop[i] *= k;
-        this.drum *= Math.exp(-dt * 6);
-        this.bass += (s.low - this.bass) * (1 - Math.exp(-dt * 5));
 
-        this.lightHorns(cycle);
+        this.play(this.kick, cycle, (h) => h.role === 'kick');
+        this.play(this.crash, cycle, (h) => h.role === 'crash');
+        // The snares go hit by hit to the two drummers, by where in the bar each falls.
+        for (let i = 0; i < this.snare.length; i++) {
+            this.play(this.snare[i], cycle, (h) => h.role === 'snare' && sixteenth(h.begin) % 2 === i);
+        }
+        this.playHorns(cycle);
         this.pose(cycle);
+    }
+
+    /** Pose the voice `pick` selects from its last hit and its next. */
+    private play(out: Play, cycle: number, pick: (h: Note) => boolean): void {
+        out.ring = strike(cycle, lastOnset(this.field.haps, cycle, pick));
+        out.stance = stance(out.ring, windup(cycle, nextOnset(this.field.haps, cycle, pick)));
+    }
+
+    /** Each horn player's pose and bell from the pitched notes of the tracks they play. */
+    private playHorns(cycle: number): void {
+        const struck = this.hornStruck.fill(0);
+        const wound = this.hornWound.fill(0);
+        this.hornLit.fill(0);
+        for (const h of this.field.haps) {
+            if (!isPitched(h.role)) continue;
+            const i = h.team.slot % HORNS;
+            struck[i] = Math.max(struck[i], strike(cycle, h.begin));
+            wound[i] = Math.max(wound[i], windup(cycle, h.begin, HORN_LEAD));
+            const lit = held(cycle, h.begin, h.end, TAIL) * h.fade;
+            if (lit <= this.hornLit[i]) continue;
+            this.hornLit[i] = lit;
+            setRgb(this.tint, h.team.rgb);
+            this.hornRgb[i * 3] = this.tint.r;
+            this.hornRgb[i * 3 + 1] = this.tint.g;
+            this.hornRgb[i * 3 + 2] = this.tint.b;
+        }
+        for (let i = 0; i < HORNS; i++) {
+            const pose = stance(struck[i], wound[i]);
+            // A held note keeps the horn up between hits.
+            this.hornPose[i] = pose === 'rest' && this.hornLit[i] > 0 ? 'ready' : pose;
+        }
     }
 
     private throwConfetti(seed: number, n: number): void {
@@ -340,163 +471,242 @@ class ParadeMode implements VizMode {
         }
     }
 
-    /** The band slot (0..MAX_BANDS) for unit k, or -1 when k isn't a band. */
-    private bandSlot(k: number): number {
-        return (k & 1) === 1 ? (((k - 1) / 2) % MAX_BANDS + MAX_BANDS) % MAX_BANDS : -1;
-    }
-
-    /** The band nearest the middle of the view at `cycle`. */
-    private centreBand(cycle: number): number {
-        // Unit k is centred at k * UNIT + cycle * SPEED; bands are the odd units.
-        return Math.round((-cycle * SPEED / UNIT - 1) / 2) * 2 + 1;
-    }
-
-    /** Each player's horn: lit by a pitched note of the band nearest the middle when it sounded. */
-    private lightHorns(cycle: number): void {
-        this.horn.fill(0);
-        this.hornJump.fill(0);
-        for (const h of this.field.haps) {
-            if (h.role !== 'bass' && h.role !== 'mid' && h.role !== 'lead') continue;
-            const t = cycle - h.begin;
-            if (t < 0) continue;
-            const over = cycle - h.end;
-            const level = (over <= 0 ? 1 : 1 - over / TAIL) * h.fade;
-            if (level <= 0) continue;
-            const slot = this.bandSlot(this.centreBand(h.begin));
-            const file = Math.round(clamp01((h.note - 36) / 48) * (FILES - 1));
-            const rank = hash32(h.seed, 7) % RANKS;
-            const i = slot * PLAYERS + rank * FILES + file;
-            if (level <= this.horn[i]) continue;
-            this.horn[i] = level;
-            this.hornJump[i] = Math.exp(-t * 10);
-            setRgb(this.tint, h.team.rgb);
-            this.hornRgb[i * 3] = this.tint.r;
-            this.hornRgb[i * 3 + 1] = this.tint.g;
-            this.hornRgb[i * 3 + 2] = this.tint.b;
-        }
-    }
-
     private pose(cycle: number): void {
         const c = this.colors;
         if (!c) return;
-        const d = this.dummy;
-        const beat = cycle * 4;
-        const stepPhase = beat * Math.PI;
-        const sc = cycle * SPEED;
-        const kFirst = Math.ceil((-VIEW - sc) / UNIT);
-        const kLast = Math.floor((VIEW - sc) / UNIT);
-        let people = 0;
-        let glows = 0;
-        let drums = 0;
-        for (const b of this.balloons) b.group.visible = false;
-        this.ropePos.array.fill(0);
+        const shot = SHOTS[Math.floor(cycle / SHOT) % SHOTS.length];
+        const cam = this.stage.camera;
+        cam.position.copy(shot.pos);
+        cam.lookAt(shot.look);
 
-        for (let k = kFirst; k <= kLast; k++) {
-            const ux = k * UNIT + sc;
-            const slot = this.bandSlot(k);
-            if (slot >= 0) {
-                for (let rank = 0; rank < RANKS; rank++) {
-                    for (let file = 0; file < FILES; file++) {
-                        const i = slot * PLAYERS + rank * FILES + file;
-                        const x = ux + (RANKS / 2 - rank) * 1.7;
-                        const z = (file - (FILES - 1) / 2) * 2.2 + 0.5;
-                        const lit = this.horn[i];
-                        const jump = this.hornJump[i] * 0.45;
-                        const stomp = this.drum * 0.08;
-                        const p = people++;
-                        const y = 0.85 + Math.abs(Math.sin(stepPhase)) * 0.1 + jump - stomp;
-                        this.person(p, x, y, z, 0, stepPhase, c.leaves[1], c.cream);
-                        // The horn: held level, lifted and flaring while its note sounds.
-                        const lift = lit * 0.9;
-                        d.position.set(x + 0.45, y + 1.0 + lift * 0.3, z + 0.12);
-                        d.rotation.set(0, 0, -Math.PI / 2 + lift);
-                        d.scale.setScalar(1);
-                        d.updateMatrix();
-                        this.horns.setMatrixAt(p, d.matrix);
-                        this.hot.setRGB(this.hornRgb[i * 3], this.hornRgb[i * 3 + 1], this.hornRgb[i * 3 + 2]);
-                        this.tint.copy(c.leaves[2]).lerp(c.cream, 0.2);
-                        if (lit > 0) this.tint.lerp(this.hot, 0.6).multiplyScalar(1 + lit * 1.5);
-                        this.horns.setColorAt(p, this.tint);
-                        if (lit > 0 && glows < MAX_BANDS * PLAYERS) {
-                            d.position.set(x + 0.85 + lift * 0.1, y + 1.0 + lift * 0.55, z + 0.3);
-                            d.quaternion.copy(this.stage.camera.quaternion);
-                            const gs = 1.1 + lit * 0.7 + this.hornJump[i] * 1.2;
-                            d.scale.set(gs, gs, 1);
-                            d.updateMatrix();
-                            this.hornGlow.setMatrixAt(glows, d.matrix);
-                            this.hornGlow.setColorAt(glows, this.hot.multiplyScalar(lit * 0.7));
-                            glows++;
-                        }
-                    }
-                }
-                if (drums < MAX_BANDS) {
-                    // The bass drummer leads the band.
-                    const x = ux + (RANKS / 2 + 1) * 1.7;
-                    const p = people++;
-                    const y = 0.85 + Math.abs(Math.sin(stepPhase)) * 0.1 + this.drum * 0.15;
-                    this.person(p, x, y, 0.5, 0, stepPhase, c.leaves[1], c.cream);
-                    hide(this.horns, p);
-                    d.position.set(x + 0.6, y + 0.55, 0.5);
-                    d.rotation.set(0, Math.PI / 2, this.drum * 0.2);
-                    d.scale.setScalar(1 + this.drum * 0.12);
-                    d.updateMatrix();
-                    this.drums.setMatrixAt(drums, d.matrix);
-                    this.tint.copy(c.cream).lerp(c.leaves[2], 0.3).multiplyScalar(0.9 + this.drum * 1.6);
-                    this.drums.setColorAt(drums, this.tint);
-                    drums++;
-                }
-                continue;
-            }
-            const type = ((k / 2) % 3 + 3) % 3;
-            const balloon = this.balloons[type];
-            const g = balloon.group;
-            g.visible = true;
-            const bob = Math.sin(cycle * TAU * 0.5 + k) * 0.35 + clamp01(this.bass) * 0.9;
-            const by = 6.8 + bob;
-            g.position.set(ux, by, 0.5);
-            g.rotation.set(Math.sin(cycle * TAU * 0.25 + k) * 0.05, balloon.yaw + Math.sin(cycle * TAU * 0.125) * 0.12, Math.sin(cycle * TAU * 0.5 + k) * 0.06);
-            // Four handlers walk the ropes.
-            for (let h = 0; h < 4; h++) {
-                const hx = ux + (h < 2 ? -2.2 : 2.2);
-                const hz = 0.5 + (h % 2 === 0 ? -2.6 : 2.6);
-                const p = people++;
-                this.person(p, hx, 0.85 + Math.abs(Math.sin(stepPhase)) * 0.06, hz, 0.2, stepPhase, c.leaves[2], c.leaves[3]);
-                hide(this.horns, p);
-                const at = (type * 4 + h) * 6;
-                const arr = this.ropePos.array;
-                arr[at] = hx + 0.3; arr[at + 1] = 2.1; arr[at + 2] = hz;
-                arr[at + 3] = ux + (hx - ux) * 0.35; arr[at + 4] = by + balloon.ropeY * 1.3; arr[at + 5] = 0.5 + (hz - 0.5) * 0.35;
+        let p = 0;
+        let glows = 0;
+        p = this.poseMajor(cycle, p, c);
+        p = this.poseDrumLine(cycle, p, c);
+        for (let i = 0; i < HORNS; i++) {
+            const x = HORN_RANKS[Math.floor(i / FILE_Z.length)];
+            const z = FILE_Z[i % FILE_Z.length];
+            const y = this.march(p, x, z, cycle, c.leaves[1], c.cream);
+            p++;
+            const pose = this.hornPose[i];
+            const d = this.dummy;
+            // The near arm holds the horn: down at the chest at rest, up at the lips to play.
+            this.arm(HORN_ARMS + i, x, y, z + 0.3, HORN_ARM[pose]);
+            const hx = pose === 'rest' ? this.handX : x + 0.3;
+            const hy = pose === 'rest' ? this.handY : y + 1.12;
+            d.position.set(hx, hy, z + 0.12);
+            d.rotation.set(0, 0, HORN_TILT[pose]);
+            d.scale.setScalar(pose === 'hit' ? 1.2 : 1);
+            d.updateMatrix();
+            this.horns.setMatrixAt(i, d.matrix);
+            const lit = this.hornLit[i];
+            this.hot.setRGB(this.hornRgb[i * 3], this.hornRgb[i * 3 + 1], this.hornRgb[i * 3 + 2]);
+            this.tint.copy(c.leaves[2]).lerp(c.cream, 0.2);
+            if (lit > 0) this.tint.lerp(this.hot, 0.6).multiplyScalar(1 + lit * 1.2);
+            this.horns.setColorAt(i, this.tint);
+            if (lit > 0) {
+                const a = HORN_TILT[pose];
+                d.position.set(hx + Math.cos(a) * 0.75, hy + Math.sin(a) * 0.75, z + 0.25);
+                d.quaternion.copy(cam.quaternion);
+                const gs = 0.9 + lit * 0.5 + (pose === 'hit' ? 0.9 : 0);
+                d.scale.set(gs, gs, 1);
+                d.updateMatrix();
+                this.glows.setMatrixAt(glows, d.matrix);
+                this.glows.setColorAt(glows, this.hot.multiplyScalar(lit * 0.75));
+                glows++;
             }
         }
-        for (let p = people; p < MAX_PEOPLE; p++) {
-            for (const mesh of [this.torsos, this.heads, this.hats, this.plumes, this.horns]) hide(mesh, p);
-            hide(this.legs, p * 2);
-            hide(this.legs, p * 2 + 1);
+        glows = this.glowDrums(glows, c);
+        p = this.poseBalloon(cycle, p, c);
+        for (let i = p; i < MAX_PEOPLE; i++) {
+            for (const mesh of [this.torsos, this.heads, this.hats, this.plumes]) hide(mesh, i);
+            hide(this.legs, i * 2);
+            hide(this.legs, i * 2 + 1);
         }
-        for (let i = glows; i < MAX_BANDS * PLAYERS; i++) hide(this.hornGlow, i);
-        for (let i = drums; i < MAX_BANDS; i++) hide(this.drums, i);
-        this.ropePos.needsUpdate = true;
+        for (let i = glows; i < HORNS + 3; i++) hide(this.glows, i);
 
         this.poseCrowd(cycle);
         this.poseBunting(cycle);
         this.poseConfetti();
-        for (const mesh of [this.legs, this.torsos, this.heads, this.hats, this.plumes, this.horns, this.hornGlow, this.drums,
-            this.crowdBodies, this.crowdHeads, this.pennants, this.bits]) markDirty(mesh);
+        for (const mesh of [this.legs, this.torsos, this.heads, this.hats, this.plumes, this.horns, this.glows, this.sticks,
+            this.arms, this.snareDrums, this.cymbals, this.crowdBodies, this.crowdHeads, this.pennants, this.bits]) markDirty(mesh);
     }
 
-    /** One marcher: legs swinging with `step`, a uniform, a shako and a plume. */
-    private person(p: number, x: number, y: number, z: number, yaw: number, step: number, coat: Color, hat: Color): void {
+    /** The drum major: the mace keeps time, counts up through the phrase's last bar, and is thrust on the downbeat. */
+    private poseMajor(cycle: number, p: number, c: Harvest): number {
+        const y = this.march(p, MAJOR_X, MAJOR_Z, cycle, c.leaves[3], c.leaves[2]);
+        const left = beatsLeft(cycle, PHRASE);
+        const down = strike(cycle, Math.floor(cycle / PHRASE) * PHRASE, 1 / 16);
+        let arm: number;
+        let tilt: number;
+        if (down > HIT) {
+            // The downbeat: arm and mace thrust straight out.
+            arm = 1.5;
+            tilt = -1.5;
+        } else if (left <= 4) {
+            // The count: the arm a step higher on each beat of the last bar.
+            arm = 1.5 + (5 - left) * 0.38;
+            tilt = 0.1 + (5 - left) * 0.1;
+        } else {
+            arm = beatIndex(cycle) % 2 === 0 ? 1.1 : 1.6;
+            tilt = beatIndex(cycle) % 2 === 0 ? 0.35 : -0.25;
+        }
+        this.arm(MAJOR_ARM, MAJOR_X, y, MAJOR_Z + 0.32, arm);
+        this.mace.position.set(this.handX, this.handY - 0.5, MAJOR_Z + 0.4);
+        this.mace.rotation.set(0, 0, tilt);
+        return p + 1;
+    }
+
+    /**
+     * An arm from the shoulder of the player at (`x`, hip `y`) on the `z`
+     * side, swung to `angle`. Leaves the hand in `handX`/`handY`.
+     */
+    private arm(i: number, x: number, y: number, z: number, angle: number): void {
+        const d = this.dummy;
+        const sy = y + SHOULDER;
+        d.position.set(x, sy, z);
+        d.rotation.set(0, 0, angle);
+        d.scale.setScalar(1);
+        d.updateMatrix();
+        this.arms.setMatrixAt(i, d.matrix);
+        this.handX = x + Math.sin(angle) * ARM;
+        this.handY = sy - Math.cos(angle) * ARM;
+    }
+
+    /** A stick held at the last hand, pointing along `angle`. */
+    private stick(i: number, z: number, angle: number): void {
+        const d = this.dummy;
+        d.position.set(this.handX, this.handY, z);
+        d.rotation.set(0, 0, angle);
+        d.scale.setScalar(1);
+        d.updateMatrix();
+        this.sticks.setMatrixAt(i, d.matrix);
+    }
+
+    /** The drum line: cymbals, two snares and the bass drum, each in its pose. */
+    private poseDrumLine(cycle: number, p: number, c: Harvest): number {
+        const d = this.dummy;
+        let next = p;
+        for (const [file, z] of FILE_Z.entries()) {
+            const y = this.march(next, DRUM_X, z, cycle, c.leaves[1], c.cream);
+            next++;
+            const snare = SNARES.indexOf(file);
+            if (snare >= 0) {
+                const grip = SNARE_GRIP[this.snare[snare].stance];
+                d.position.set(DRUM_X + 0.78, y + 0.2, z);
+                d.rotation.set(0, 0, 0);
+                d.scale.setScalar(1);
+                d.updateMatrix();
+                this.snareDrums.setMatrixAt(snare, d.matrix);
+                for (const side of [0, 1]) {
+                    const sz = z + (side === 0 ? -0.3 : 0.3);
+                    this.arm(file * 2 + side, DRUM_X, y, sz, grip.arm);
+                    this.stick(file * 2 + side, sz, grip.stick);
+                }
+            } else if (file === BASS) {
+                const grip = BASS_GRIP[this.kick.stance];
+                this.bassDrum.position.set(DRUM_X + 0.2, y + 0.5, z);
+                this.bassDrum.scale.setScalar(this.kick.stance === 'hit' ? 1.06 : 1);
+                for (const side of [0, 1]) {
+                    // The near arm plays; the far one steadies the drum.
+                    const sz = z + (side === 0 ? -0.45 : 0.45);
+                    this.arm(file * 2 + side, DRUM_X, y, sz, side === 1 ? grip.arm : 0.9);
+                    if (side === 1) this.stick(file * 2 + side, sz, grip.stick);
+                    else hide(this.sticks, file * 2 + side);
+                }
+            } else if (file === CYMBAL) {
+                const arms = CYMBAL_ARMS[this.crash.stance];
+                for (const side of [0, 1]) {
+                    const sz = z + (side === 0 ? -0.2 : 0.2);
+                    this.arm(file * 2 + side, DRUM_X, y, sz, arms[side]);
+                    d.position.set(this.handX + 0.3, this.handY + (side === 0 ? -0.04 : 0.04), z);
+                    d.rotation.set(0, 0, 0);
+                    d.scale.setScalar(1);
+                    d.updateMatrix();
+                    this.cymbals.setMatrixAt(side, d.matrix);
+                    hide(this.sticks, file * 2 + side);
+                }
+            }
+        }
+        this.drumMat.color.copy(c.cream).lerp(c.leaves[2], 0.3).multiplyScalar(0.9 + this.kick.ring * 1.4);
+        return next;
+    }
+
+    /** A glow on the bass drum's face on a kick and between the cymbals on a crash. */
+    private glowDrums(start: number, c: Harvest): number {
+        const d = this.dummy;
+        let g = start;
+        const cam = this.stage.camera;
+        if (this.kick.ring > 0.05) {
+            d.position.copy(this.bassDrum.position);
+            d.position.z += 0.3;
+            d.quaternion.copy(cam.quaternion);
+            d.scale.set(2.2, 2.2, 1);
+            d.updateMatrix();
+            this.glows.setMatrixAt(g, d.matrix);
+            this.glows.setColorAt(g, this.hot.copy(c.sun).multiplyScalar(this.kick.ring * 0.6));
+            g++;
+        }
+        if (this.crash.ring > 0.05) {
+            d.position.set(DRUM_X + 0.85, 0.85 + SHOULDER + 0.1, FILE_Z[CYMBAL] + 0.5);
+            d.quaternion.copy(cam.quaternion);
+            const gs = 1.5 + this.crash.ring * 2.5;
+            d.scale.set(gs, gs, 1);
+            d.updateMatrix();
+            this.glows.setMatrixAt(g, d.matrix);
+            this.glows.setColorAt(g, this.hot.copy(c.cream).lerp(c.leaves[2], 0.4).multiplyScalar(this.crash.ring * 0.9));
+            g++;
+        }
+        return g;
+    }
+
+    /** One balloon a phrase, crossing behind the band and dipping on each beat, with four handlers. */
+    private poseBalloon(cycle: number, p: number, c: Harvest): number {
+        const phrase = Math.floor(cycle / PHRASE);
+        const t = cycle / PHRASE - phrase;
+        const type = ((phrase % 3) + 3) % 3;
+        for (const [i, b] of this.balloons.entries()) b.group.visible = i === type;
+        const balloon = this.balloons[type];
+        const ux = 34 - t * 68;
+        const dip = strike(cycle, Math.floor(cycle * 4) / 4, 1 / 24) * 0.35;
+        const by = BALLOON_Y - dip;
+        const g = balloon.group;
+        g.position.set(ux, by, BALLOON_Z);
+        g.rotation.set(0, balloon.yaw, 0);
+        const arr = this.ropePos.array;
+        let next = p;
+        for (let h = 0; h < 4; h++) {
+            const hx = ux + (h < 2 ? -2.2 : 2.2);
+            const hz = BALLOON_Z + (h % 2 === 0 ? -1.6 : 1.6);
+            this.march(next, hx, hz, cycle, c.leaves[2], c.leaves[3]);
+            next++;
+            const at = h * 6;
+            arr[at] = hx + 0.3; arr[at + 1] = 2.1; arr[at + 2] = hz;
+            arr[at + 3] = ux + (hx - ux) * 0.35; arr[at + 4] = by + balloon.ropeY * 1.3; arr[at + 5] = BALLOON_Z + (hz - BALLOON_Z) * 0.35;
+        }
+        this.ropePos.needsUpdate = true;
+        return next;
+    }
+
+    /**
+     * One marcher marking time: a knee comes up through each beat and the
+     * foot plants on the next, left and right in turn. Returns the hip height.
+     */
+    private march(p: number, x: number, z: number, cycle: number, coat: Color, hat: Color): number {
         const d = this.dummy;
         const c = this.colors;
-        if (!c) return;
+        if (!c) return 0.85;
+        const up = Math.sin(Math.PI * beatPhase(cycle));
+        const leg = beatIndex(cycle) % 2;
+        const y = 0.85 + up * 0.06;
         for (const side of [0, 1]) {
             d.position.set(x, y, z + (side === 0 ? -0.13 : 0.13));
-            d.rotation.set(0, yaw, Math.sin(step + side * Math.PI) * 0.45);
+            d.rotation.set(0, 0, side === leg ? up * 0.7 : 0);
             d.scale.setScalar(1);
             d.updateMatrix();
             this.legs.setMatrixAt(p * 2 + side, d.matrix);
         }
-        d.rotation.set(0, yaw, 0);
+        d.rotation.set(0, 0, 0);
         d.position.set(x, y + 0.45, z);
         d.updateMatrix();
         this.torsos.setMatrixAt(p, d.matrix);
@@ -513,21 +723,23 @@ class ParadeMode implements VizMode {
         d.updateMatrix();
         this.plumes.setMatrixAt(p, d.matrix);
         this.plumes.setColorAt(p, c.leaves[2]);
+        return y;
     }
 
     private poseCrowd(cycle: number): void {
         const d = this.dummy;
+        // The crowd sways a step on each beat, not a drift.
+        const lean = beatIndex(cycle) % 2 === 0 ? 0.04 : -0.04;
         for (let i = 0; i < CROWD; i++) {
             const near = i >= FAR;
             const x = near ? -10 + ((i - FAR) / NEAR) * 21 + (rand01(hash32(i, 1)) - 0.5) * 1.5
                 : -38 + (i / FAR) * 76 + (rand01(hash32(i, 1)) - 0.5) * 1.2;
             const z = near ? 11 + rand01(hash32(i, 2)) * 1.2 : KERB - 1 - rand01(hash32(i, 2)) * 1.6;
-            const sway = Math.sin(cycle * TAU + i) * 0.04;
             const hop = this.crowdHop[i] * 0.35;
             const tall = 0.9 + rand01(hash32(i, 4)) * 0.25;
             const wide = near ? 1.5 : 1;
             d.position.set(x, 0.12 + 0.65 * tall + hop, z);
-            d.rotation.set(0, 0, sway);
+            d.rotation.set(0, 0, lean * (i % 2 === 0 ? 1 : -1));
             d.scale.set(wide, tall, wide);
             d.updateMatrix();
             this.crowdBodies.setMatrixAt(i, d.matrix);
@@ -540,13 +752,14 @@ class ParadeMode implements VizMode {
 
     private poseBunting(cycle: number): void {
         const d = this.dummy;
-        const flutter = 0.1 + clamp01(this.bass) * 0.35;
+        // Each beat snaps the bunting, which settles before the next.
+        const flick = strike(cycle, Math.floor(cycle * 4) / 4, 1 / 24) * 0.4;
         for (let i = 0; i < 120; i++) {
             const x = -60 + i;
             const span = ((x % 8) + 8) % 8;
             const sag = Math.sin((span / 8) * Math.PI) * 0.9;
             d.position.set(x, 5.6 - sag, KERB - 0.2);
-            d.rotation.set(Math.sin(cycle * TAU * 2 + i * 0.7) * flutter, 0, 0);
+            d.rotation.set((i % 2 === 0 ? 1 : -1) * flick, 0, 0);
             d.scale.setScalar(1);
             d.updateMatrix();
             this.pennants.setMatrixAt(i, d.matrix);
@@ -571,6 +784,11 @@ class ParadeMode implements VizMode {
     render(ctx: CanvasRenderingContext2D, s: VizServices): void {
         this.stage.draw(ctx, s);
     }
+}
+
+/** Which sixteenth of its bar an onset falls on. */
+function sixteenth(begin: number): number {
+    return Math.round((begin - Math.floor(begin)) * 16);
 }
 
 function lambert(): MeshLambertMaterial {

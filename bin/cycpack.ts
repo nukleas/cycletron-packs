@@ -9,6 +9,12 @@
 //   cycpack render <show> [args]    build the show's pack, then render-viz on it (args pass through)
 //   cycpack seam <pack> [<pack>…]   build, then the seam test on every viz folder's build
 //   cycpack probe <pack>            render the pack's probe show and compare its frames with the last probe
+//   cycpack link <pack> [<pack>…]   build, then point the installed pack's viz folders at the ones here (symlinks)
+//   cycpack watch <pack> [<pack>…]  rebuild a pack whenever its src/ or kit/ changes
+//
+// link and watch are the working loop: the app reads a linked pack's built
+// visualizers straight from this repo, and watch keeps them built. The library is
+// $CYCLETRON_LIBRARY or ../strulibrary.
 //
 // <pack> is a folder name under packs/. kit/ is shared code the packs import
 // as @naderlabs/kit; each pack's build bundles what it uses. Node runs
@@ -16,13 +22,14 @@
 
 import {spawnSync, type SpawnSyncOptions} from 'node:child_process';
 import {createHash} from 'node:crypto';
-import {existsSync, mkdirSync, readFileSync, rmSync, writeFileSync} from 'node:fs';
+import {existsSync, lstatSync, mkdirSync, readFileSync, rmSync, symlinkSync, watch, writeFileSync} from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const CYCLETRON = path.resolve(process.env.CYCLETRON ?? path.join(ROOT, '..', 'cycletron'));
 const UI = path.join(CYCLETRON, 'ui');
+const LIBRARY = path.resolve(process.env.CYCLETRON_LIBRARY ?? path.join(ROOT, '..', 'strulibrary'));
 
 /** The library pack manifest fields cycpack reads. */
 interface Manifest {
@@ -89,6 +96,11 @@ function check(dir: string, sources = path.join(dir, 'src')): void {
  */
 function build(p: Pack, args: readonly string[] = []): void {
     for (const v of p.viz) run('node', [path.join(UI, 'scripts', 'pack-build.mjs'), v, ...args], {cwd: UI});
+}
+
+/** Build every viz folder of the pack, reporting a failure instead of exiting: for watch. */
+function rebuild(p: Pack): boolean {
+    return p.viz.every((v) => spawnSync('node', [path.join(UI, 'scripts', 'pack-build.mjs'), v], {stdio: 'inherit', cwd: UI}).status === 0);
 }
 
 /** The pack a show file lives in, or null for a show outside packs/. */
@@ -177,6 +189,46 @@ switch (cmd) {
         console.log(`${p.name}: ${lines.length} frames, ${digest}, ${verdict}`);
         break;
     }
+    case 'link': {
+        // Only the viz folders are linked. The app keeps every library read inside
+        // the library by real path, so a linked pack folder would lose its songs and
+        // shows; viz code loads by the link's own path.
+        const packs = [arg, ...rest].map(pack);
+        checkout();
+        for (const p of packs) {
+            const installed = path.join(LIBRARY, 'Packs', p.manifest.id);
+            if (!existsSync(installed)) fail(`${installed}: not installed; install dist/${p.manifest.id}-${p.manifest.version}.zip first (cycpack zip)`);
+            build(p);
+            for (const rel of p.manifest.viz ?? []) {
+                const dest = path.join(installed, rel);
+                // An installed viz folder holds only the zip's build, so it is replaced.
+                if (lstatSync(dest, {throwIfNoEntry: false})) rmSync(dest, {recursive: true});
+                symlinkSync(path.join(p.dir, rel), dest, 'dir');
+                console.log(`${dest} -> ${path.join(p.dir, rel)}`);
+            }
+        }
+        console.log('The app loads pack code at launch: restart Cycletron to pick up a build.');
+        break;
+    }
+    case 'watch': {
+        const packs = [arg, ...rest].map(pack);
+        checkout();
+        // Saves come in bursts (an editor writes, formats, writes again); build once they settle.
+        const pending = new Set<Pack>();
+        let timer: NodeJS.Timeout | undefined;
+        const queue = (ps: readonly Pack[]) => {
+            for (const p of ps) pending.add(p);
+            clearTimeout(timer);
+            timer = setTimeout(() => {
+                for (const p of pending) console.log(`${p.name}: ${rebuild(p) ? 'built' : 'build failed'} at ${new Date().toLocaleTimeString()}`);
+                pending.clear();
+            }, 200);
+        };
+        for (const p of packs) for (const v of p.viz) watch(path.join(v, 'src'), {recursive: true}, () => queue([p]));
+        watch(path.join(ROOT, 'kit', 'src'), {recursive: true}, () => queue(packs));
+        console.log(`watching ${packs.map((p) => p.name).join(', ')} and kit/ (ctrl-c to stop)`);
+        break;
+    }
     default:
-        fail('usage: cycpack check|build|zip|render|seam|probe ... (see the header of bin/cycpack.ts)');
+        fail('usage: cycpack check|build|zip|render|seam|probe|link|watch ... (see the header of bin/cycpack.ts)');
 }

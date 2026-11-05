@@ -1,8 +1,9 @@
 /**
- * CORNFIELD — rows of corn at sunset round a scarecrow in a clearing. The
- * bass is the wind: its level sets how far the whole field leans in a wave
- * rolling across the rows, and every kick sends a ring of wind out from the
- * scarecrow and flaps its arms. Snares put up crows that climb away toward
+ * CORNFIELD — rows of corn at sunset round a scarecrow in a clearing. A
+ * wave rolls across the rows once every two bars and each beat gusts it,
+ * every kick sends a ring of wind out from the scarecrow and flaps its arms,
+ * and the scarecrow's head nods from side to side on the beat. The camera
+ * cuts between four places every two bars. Snares put up crows that climb away toward
  * the sun; crashes flush the two perched on its arms. Hats puff pollen off
  * the tassels. Pitched notes light ears of corn: pitch picks the row, left
  * (low) to right (high), and an ear glows in its track colour while the note
@@ -17,6 +18,7 @@ import {
     InstancedMesh, Matrix4, Mesh, MeshBasicMaterial, MeshLambertMaterial, Object3D, SphereGeometry, Vector3,
 } from 'three';
 import {type Role} from '@naderlabs/kit/roles';
+import {beatIndex, strike} from '@naderlabs/kit/timing';
 import {bakeHarvest, type Harvest} from '../../lib/colors.js';
 import {setRgb} from '@naderlabs/kit/gl';
 import {GLOW_QUAD, glowMaterial} from '../../lib/glow.js';
@@ -46,6 +48,8 @@ const POLLEN_LIFE = 1.1;
 const MAX_RINGS = 4;
 const RING_SPEED = 14;
 const SUN = new Vector3(-40, 16, -260);
+/** Where the camera stands along the field's edge, one place per two-bar shot. */
+const SHOT_X = [0, -0.8, 0.5, -0.3];
 
 interface Team extends FieldTeam {}
 
@@ -108,7 +112,6 @@ class CornfieldMode implements VizMode {
     private readonly tint = new Color();
     private readonly hot = new Color();
     private colors: Harvest | null = null;
-    private bass = 0;
     private leanX = 0;
     private leanZ = 0;
     private flap = 0;
@@ -287,7 +290,6 @@ class CornfieldMode implements VizMode {
         if (this.perchFlush >= 0) this.perchFlush += dt;
         if (this.perchFlush > CROW_LIFE) this.perchFlush = -1;
         this.flap *= Math.exp(-dt * 5);
-        this.bass += (s.low - this.bass) * (1 - Math.exp(-dt * 6));
 
         this.poseField(cycle);
         this.poseCrows(cycle);
@@ -314,9 +316,9 @@ class CornfieldMode implements VizMode {
 
     /** Set `leanX`/`leanZ` for one stalk this frame. */
     private lean(st: Stalk, cycle: number): void {
-        // The wind: a wave rolling across the rows, as strong as the bass.
+        // The wind: a wave rolling across the rows, gusting on each beat.
         const wave = Math.sin(st.x * 0.22 + st.z * 0.12 - cycle * TAU * 0.5);
-        const gust = 0.05 + clamp01(this.bass) * 0.22;
+        const gust = 0.05 + strike(cycle, Math.floor(cycle * 4) / 4, 1 / 16) * 0.18;
         let lx = wave * gust + 0.04;
         let lz = 0;
         for (const ring of this.rings) {
@@ -457,13 +459,13 @@ class CornfieldMode implements VizMode {
 
     private poseScarecrow(cycle: number): void {
         const cam = this.stage.camera;
-        const drift = Math.sin(cycle * TAU / 16);
+        const drift = SHOT_X[Math.floor(cycle / 2) % SHOT_X.length];
         cam.position.set(drift * 5, 5.4, 10);
         cam.lookAt(drift * 1.5, 3.2, -14);
         this.sky.mesh.position.copy(cam.position);
         this.arms.rotation.z = this.flap * 0.22 * this.flapSide;
         this.arms.position.y = 3.55 + this.flap * 0.12;
-        this.head.rotation.z = Math.sin(cycle * TAU * 0.5) * (0.05 + clamp01(this.bass) * 0.18);
+        this.head.rotation.z = beatIndex(cycle) % 2 === 0 ? 0.12 : -0.12;
         this.head.rotation.x = this.flap * 0.15;
     }
 

@@ -33,12 +33,61 @@ imports it; one mode never imports from another mode's folder.
 `@naderlabs/kit/<module>` (an npm workspace; `npm install` links it).
 Today it holds `pen` (outlined rect figures), `drum-rig` (a seated drummer's
 kit flashes and arm strokes), `night` (stars, clouds, ridge, moon, dither),
-`roles` (hap roles by drum voice and register), `color`, and `gl` (the
-three.js bridge and `setRgb`). Each pack's build
+`roles` (hap roles by drum voice and register), `color`, `gl` (the
+three.js bridge and `setRgb`) and `timing` (poses on the grid, below). Each pack's build
 bundles what it uses, so an installed pack still needs only the SDK. Code
 moves into the kit when it is the same in two packs; what makes a pack look
 like itself (sprites, colours, which sounds count as which drum) stays in the
 pack.
+
+Everything here is TypeScript: the modes run in the app's web view, and
+`bin/cycpack.ts` runs on Node's type stripping (Node 22.18 or newer), no build.
+
+The visualizer sources import `@cycletron/viz-sdk`, which `npm install`
+links from the Cycletron checkout next to this repo
+(`../cycletron/ui/packages/viz-sdk`). Building, rendering and the seam test
+run in that checkout too, since they need the engine and the render page;
+set `CYCLETRON` if it lives somewhere else.
+
+```sh
+npm install
+npm run lint                                # oxlint (with oxlint-anti-slop) on the whole repo
+npx cycpack check christmas                 # tsc + oxlint on the pack's viz folders, bin/ and kit/
+npx cycpack build christmas                 # tsc + bundle each viz folder to dist/
+npx cycpack zip christmas                   # build, then dist/christmas-<version>.zip
+npx cycpack render packs/christmas/shows/jingle-bells.show.toml --size 960x540 --fps 24
+npx cycpack seam christmas                  # build, then the determinism test on the built modes
+npx cycpack probe christmas                 # render probe/, hash the frames, compare with the last probe
+```
+
+`render`, `seam` and `probe` build the pack first: the renderer only rebuilds
+when a pack's `src/` is newer than its `dist/`, which misses kit edits.
+
+A refactor that should change nothing (moving code into the kit, renames,
+lint fixes) should leave `cycpack probe` saying `unchanged`. It renders on one
+job, so the frames are exact; the digest of the last probe is kept in
+`renders/probe.digest`.
+
+To work on a pack in the app, install its zip once, then link it:
+
+```sh
+npx cycpack link winter        # the installed pack's viz folders become symlinks to this repo
+npx cycpack watch winter       # rebuild on every save to src/ or kit/
+```
+
+The app then loads the repo's build, so a change shows at the next launch of
+Cycletron with no zip or reinstall. A build that fails its type check leaves
+the last good `dist/` in place. Only the viz folders are linked: the app reads
+library files only where their real path is inside the library, so a linked
+song or show would not open. Installing the zip again replaces the links.
+
+Install a zip in the app: Samples panel, Install from Zip, Replace if the pack
+is already there; new visualizer code loads at the next launch. The zip
+carries the built `dist/` but not `src/`, which imports the kit.
+
+Renders (`packs/*/renders/`), build output (`dist/`) and `_*` staging folders
+are not tracked. Pack code runs inside the app with the app's permissions, so
+the app only loads packs you install on purpose.
 
 ## three.js modes
 
@@ -74,41 +123,25 @@ Not in the kit yet: the three.js packs each have their own sky dome, glow
 sprites and instance pools. They do similar jobs in different ways, so they
 stay in the packs until one version clearly serves all three.
 
-Everything here is TypeScript: the modes run in the app's web view, and
-`bin/cycpack.ts` runs on Node's type stripping (Node 22.18 or newer), no build.
+## Timing
 
-The visualizer sources import `@cycletron/viz-sdk`, which `npm install`
-links from the Cycletron checkout next to this repo
-(`../cycletron/ui/packages/viz-sdk`). Building, rendering and the seam test
-run in that checkout too, since they need the engine and the render page;
-set `CYCLETRON` if it lives somewhere else.
+A mode reads as music when you can watch it play, not when things flash
+after a note. The band modes and ball-drop's countdown are the reference:
 
-```sh
-npm install
-npm run lint                                # oxlint (with oxlint-anti-slop) on the whole repo
-npx cycpack check christmas                 # tsc + oxlint on the pack's viz folders, bin/ and kit/
-npx cycpack build christmas                 # tsc + bundle each viz folder to dist/
-npx cycpack zip christmas                   # build, then dist/christmas-<version>.zip
-npx cycpack render packs/christmas/shows/jingle-bells.show.toml --size 960x540 --fps 24
-npx cycpack seam christmas                  # build, then the determinism test on the built modes
-npx cycpack probe christmas                 # render probe/, hash the frames, compare with the last probe
-```
+- **A cast.** Each voice has a visible owner that keeps it (a drummer for the
+  kicks, a horn player per track), never a random spot per note.
+- **Poses on the grid.** `stance(strike(…), windup(…))` from `kit/timing`
+  picks rest, ready or hit; the hit pose is on the onset's frame. A few
+  snapped poses read; eased decays read as mush.
+- **Anticipation and structure.** `HapField` looks ahead, so a figure can
+  ready itself before its note (`windup`), and `beatsLeft` counts a phrase
+  down to its downbeat. Camera cuts land on bar lines.
+- **No off-grid motion on the subject.** Continuous motion is locked to the
+  beat (`beatPhase`, a `strike` on each beat) or left out; the audio level
+  (`s.low`) does not drive the main subject.
 
-`render`, `seam` and `probe` build the pack first: the renderer only rebuilds
-when a pack's `src/` is newer than its `dist/`, which misses kit edits.
-
-A refactor that should change nothing (moving code into the kit, renames,
-lint fixes) should leave `cycpack probe` saying `unchanged`. It renders on one
-job, so the frames are exact; the digest of the last probe is kept in
-`renders/probe.digest`.
-
-Install a zip in the app: Samples panel, Install from Zip, Replace if the pack
-is already there; new visualizer code loads at the next launch. The zip
-carries the built `dist/` but not `src/`, which imports the kit.
-
-Renders (`packs/*/renders/`), build output (`dist/`) and `_*` staging folders
-are not tracked. Pack code runs inside the app with the app's permissions, so
-the app only loads packs you install on purpose.
+Check poses on a strip of consecutive frames around a hit, not on stills.
+`harvest`'s `parade` is the worked example.
 
 ## Lint
 

@@ -5,7 +5,7 @@
   "author": "NaderLabs",
   "license": "AGPL-3.0-or-later",
   "sdk": "^1.2",
-  "description": "Midnight in three.js: fireworks that burst on their notes over a harbour skyline, a mirror ball counting down the bars on its tower, a confetti storm thrown by the hats and a champagne tower poured on the downbeats; the midnight palette.",
+  "description": "Midnight in three.js: fireworks that burst on their notes over a harbour skyline, a mirror ball counting down the bars on its tower, a party crew firing confetti toys on the drums, and guests around a champagne tower popping, toasting and sabering on the drums while the clock counts to midnight; the midnight palette.",
   "modes": [
     "fireworks",
     "ball-drop",
