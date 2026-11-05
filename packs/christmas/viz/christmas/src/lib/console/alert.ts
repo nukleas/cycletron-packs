@@ -11,7 +11,7 @@
 
 import {type FieldHap, type FieldTeam, HapField, hash32, type VizServices} from '@cycletron/viz-sdk';
 
-/** Onsets a bar at which the level steps: fewer than the first is 5. The carols run about 9 (intro) to 40 (last chorus); Last Christmas, a full-band MIDI cover, sits near 40 throughout. */
+/** Onsets a bar at which the level steps: fewer than the first is 5. The carols run about 9 (intro) to 40 (last chorus). */
 const STEPS = [14, 24, 32, 38];
 const MAX_LOG = 12;
 /** Bars between filler lines. */

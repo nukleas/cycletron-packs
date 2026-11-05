@@ -2,7 +2,7 @@
   "schema": 1,
   "id": "christmas",
   "name": "Christmas",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "authors": [
     "NaderLabs"
   ],
@@ -15,7 +15,6 @@
     "songs/01-jingle-bells.strudel",
     "songs/02-deck-the-halls.strudel",
     "songs/03-god-rest-ye-merry-gentlemen.strudel",
-    "songs/04-last-christmas.strudel",
     "songs/06-deck-the-halls-dubstep.strudel"
   ],
   "shows": [
@@ -23,7 +22,6 @@
     "shows/jingle-bells.show.toml",
     "shows/deck-the-halls.show.toml",
     "shows/god-rest-ye-merry-gentlemen.show.toml",
-    "shows/last-christmas.show.toml",
     "shows/deck-the-halls-dubstep.show.toml"
   ]
 }

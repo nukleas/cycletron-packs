@@ -1,6 +1,6 @@
 # Christmas
 
-The Christmas pack: the `naderlabs/christmas` visualizer pack under `viz/`, five songs and
+The Christmas pack: the `naderlabs/christmas` visualizer pack under `viz/`, four songs and
 the shows made for them. The theme is a Cold-War ops room running Christmas Eve as an
 operation: every visualizer is one station of the room, drawn through the same console.
 See `docs/PACKS.md` in the Cycletron repo.
@@ -12,10 +12,8 @@ See `docs/PACKS.md` in the Cycletron repo.
 | `songs/01-jingle-bells.strudel` | Jingle Bells (Pierpont, 1857) as a synth-score opener, 120 BPM, 96 bars |
 | `songs/02-deck-the-halls.strudel` | Deck the Halls (Welsh traditional) as the production line, D minor to F, 124 BPM, 96 bars |
 | `songs/03-god-rest-ye-merry-gentlemen.strudel` | God Rest Ye Merry, Gentlemen (English traditional), the dark middle, 104 BPM, 84 bars |
-| `songs/04-last-christmas.strudel` | Last Christmas (Wham!), a moody synth cover from the MIDI, 92 BPM, 84 bars. A cover, so it stays in the library |
 | `songs/06-deck-the-halls-dubstep.strudel` | Deck the Halls again, as a dubstep track: the rec room after hours, D minor, 140 BPM, 104 bars |
-| `songs/_last-christmas/` | The MIDI and the flat import |
-| `shows/christmas-album.show.toml` | All five back to back: A Cycletron Christmas, run as an ops room, the dubstep as the encore |
+| `shows/christmas-album.show.toml` | All four back to back: A Cycletron Christmas, run as an ops room, the dubstep as the encore |
 | `shows/<song>.show.toml` | One show per song. The album is assembled from these; edit them first |
 | `renders/` | Show renders (`out` in the show file) |
 
