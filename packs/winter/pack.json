@@ -7,7 +7,7 @@
     "NaderLabs"
   ],
   "license": "AGPL-3.0-or-later",
-  "description": "A 3D winter after the 8-bit Christmas pack: a band in an ice cave, a snowball fight, the aurora over a snowy ridge and a floodlit ski jump, on the winter-3d visualizers.",
+  "description": "A 3D winter after the 8-bit Christmas pack: a band in an ice cave and the aurora over a snowy ridge, on the winter-3d visualizers.",
   "viz": [
     "viz/winter-3d"
   ],

@@ -10,7 +10,7 @@ import {
 } from 'three';
 import {hash32, rand01, TAU} from '@cycletron/viz-sdk';
 import {dotTexture} from './dot.js';
-import type {Ink} from './ink.js';
+import type {Ink} from '../../lib/ink.js';
 
 export class NightSky {
     readonly group = new Group();

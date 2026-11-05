@@ -1,7 +1,7 @@
 # New Year's Eve
 
 The New Year's Eve pack: the `naderlabs/new-year-3d` visualizer pack (fireworks, ball
-drop, confetti, champagne, and the midnight palette) under `viz/`. No songs or shows
+drop, and the midnight palette) under `viz/`. No songs or shows
 yet; the probe borrows the Christmas pack's Deck the Halls (dubstep). Cycletron loads
 `viz/new-year-3d/dist/index.js` at startup while the pack is enabled
 (`Packs/enabled.json`); see `docs/PACKS.md` in the Cycletron repo.

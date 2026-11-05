@@ -35,9 +35,6 @@ export function held(cycle: number, begin: number, end: number, tail = 1 / 16): 
 
 export type Stance = 'rest' | 'ready' | 'hit';
 
-/** A strike half-life for a big move (a sabre, a leap): its hit pose holds for about a sixteenth of a bar. */
-export const BIG_HIT = 1 / 12;
-
 /** Above this a strike is the hit pose. */
 export const HIT = 0.55;
 

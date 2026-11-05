@@ -17,5 +17,5 @@ grain = 0
 
 [[song]]
 source = "../../halloween/songs/bustin-neil-cicierega.strudel"
-shots = ["autumn-forest", "parade", "cornfield", "harvest-moon"]
+shots = ["parade", "cornfield", "harvest-moon"]
 every = 2

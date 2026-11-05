@@ -7,7 +7,7 @@
     "NaderLabs"
   ],
   "license": "AGPL-3.0-or-later",
-  "description": "Thanksgiving and autumn: a low-poly forest, a parade, a cornfield and a harvest moon, in three.js.",
+  "description": "Thanksgiving and autumn: a marching band, a cornfield and a harvest moon, in three.js.",
   "viz": [
     "viz/harvest-3d"
   ],

@@ -20,12 +20,12 @@ import {
     DynamicDrawUsage, Fog, HemisphereLight, Mesh, MeshBasicMaterial, MeshLambertMaterial, PerspectiveCamera,
     PlaneGeometry, Points, PointsMaterial, Scene, Vector3,
 } from 'three';
-import {dotTexture} from '../../lib/dot.js';
+import {dotTexture} from './dot.js';
 import {Ink} from '../../lib/ink.js';
-import {Pines} from '../../lib/pines.js';
+import {Pines} from './pines.js';
 import {winterRole} from '../../lib/roles.js';
-import {NightSky} from '../../lib/sky.js';
-import {Snowfall} from '../../lib/snow.js';
+import {NightSky} from './sky.js';
+import {Snowfall} from './snow.js';
 
 const LOOKAHEAD = 1;
 const MAX_HAPS = 200;

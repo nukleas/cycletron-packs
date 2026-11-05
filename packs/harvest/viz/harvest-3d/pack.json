@@ -5,9 +5,8 @@
   "author": "NaderLabs",
   "license": "AGPL-3.0-or-later",
   "sdk": "^1.2",
-  "description": "A low-poly autumn: a forest shedding leaves, a Thanksgiving parade, a cornfield with its scarecrow and crows, and a pumpkin patch under the harvest moon, in three.js.",
+  "description": "A low-poly autumn: a Thanksgiving marching band, a cornfield with its scarecrow and crows, and a pumpkin patch under the harvest moon, in three.js.",
   "modes": [
-    "autumn-forest",
     "parade",
     "cornfield",
     "harvest-moon"

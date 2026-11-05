@@ -7,7 +7,7 @@
     "NaderLabs"
   ],
   "license": "AGPL-3.0-or-later",
-  "description": "Midnight on New Year's Eve in 3D: fireworks over the harbour, the ball drop, a party crew firing confetti and guests around a champagne tower.",
+  "description": "Midnight on New Year's Eve in 3D: fireworks over the harbour and the ball drop.",
   "viz": [
     "viz/new-year-3d"
   ],

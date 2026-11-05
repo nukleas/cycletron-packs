@@ -30,15 +30,15 @@ A helper starts in its mode's folder and moves to `lib/` when a second mode
 imports it; one mode never imports from another mode's folder.
 
 `kit/` is the tier above: code that two or more *packs* share, imported as
-`@naderlabs/kit/<module>` (an npm workspace; `npm install` links it).
-Today it holds `pen` (outlined rect figures), `drum-rig` (a seated drummer's
-kit flashes and arm strokes), `night` (stars, clouds, ridge, moon, dither),
-`roles` (hap roles by drum voice and register), `color`, `gl` (the
-three.js bridge and `setRgb`) and `timing` (poses on the grid, below). Each pack's build
-bundles what it uses, so an installed pack still needs only the SDK. Code
-moves into the kit when it is the same in two packs; what makes a pack look
-like itself (sprites, colours, which sounds count as which drum) stays in the
-pack.
+`@naderlabs/kit/<module>` (an npm workspace; `npm install` links it). Today it
+holds `pen` (outlined rect figures), `drum-rig` (a seated drummer's kit
+flashes and arm strokes), `night` (stars, clouds, ridge, moon, dither),
+`roles` (hap roles by drum voice and register), `color`, `gl` (the three.js
+bridge and `setRgb`) and `timing` (poses on the grid; see DESIGN.md). Each
+pack's build bundles what it uses, so an installed pack still needs only the
+SDK. Code moves into the kit when it is the same in two packs; what makes a
+pack look like itself (sprites, colours, which sounds count as which drum)
+stays in the pack.
 
 Everything here is TypeScript: the modes run in the app's web view, and
 `bin/cycpack.ts` runs on Node's type stripping (Node 22.18 or newer), no build.
@@ -123,25 +123,12 @@ Not in the kit yet: the three.js packs each have their own sky dome, glow
 sprites and instance pools. They do similar jobs in different ways, so they
 stay in the packs until one version clearly serves all three.
 
-## Timing
+## What makes a mode good
 
-A mode reads as music when you can watch it play, not when things flash
-after a note. The band modes and ball-drop's countdown are the reference:
-
-- **A cast.** Each voice has a visible owner that keeps it (a drummer for the
-  kicks, a horn player per track), never a random spot per note.
-- **Poses on the grid.** `stance(strike(…), windup(…))` from `kit/timing`
-  picks rest, ready or hit; the hit pose is on the onset's frame. A few
-  snapped poses read; eased decays read as mush.
-- **Anticipation and structure.** `HapField` looks ahead, so a figure can
-  ready itself before its note (`windup`), and `beatsLeft` counts a phrase
-  down to its downbeat. Camera cuts land on bar lines.
-- **No off-grid motion on the subject.** Continuous motion is locked to the
-  beat (`beatPhase`, a `strike` on each beat) or left out; the audio level
-  (`s.low`) does not drive the main subject.
-
-Check poses on a strip of consecutive frames around a hit, not on stills.
-`harvest`'s `parade` is the worked example.
+[DESIGN.md](DESIGN.md) records which modes work and why (light in a fixed
+place for each note, a calm frame, few big performers), the timing rules
+behind `kit/timing`, and how to check a mode by eye. Read it before starting
+one.
 
 ## Lint
 

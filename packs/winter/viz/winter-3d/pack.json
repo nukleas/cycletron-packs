@@ -5,12 +5,10 @@
   "author": "NaderLabs",
   "license": "AGPL-3.0-or-later",
   "sdk": "^1.2",
-  "description": "A low-poly winter in three.js: a yeti and a penguin playing an ice cave, a snowball fight between two forts, the aurora over a snowy ridge and a ski jump under floodlights.",
+  "description": "A low-poly winter in three.js: a yeti and a penguin playing an ice cave, and the aurora over a snowy ridge.",
   "modes": [
     "ice-cave",
-    "snowball-fight",
-    "aurora",
-    "ski-jump"
+    "aurora"
   ],
   "palettes": [
     "glacier"

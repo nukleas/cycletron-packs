@@ -1,7 +1,7 @@
 # Harvest
 
-The Harvest pack: the `naderlabs/harvest-3d` visualizer pack (autumn forest, parade,
-cornfield, harvest moon, and the harvest palette) under `viz/`. No songs or shows yet;
+The Harvest pack: the `naderlabs/harvest-3d` visualizer pack (parade, cornfield,
+harvest moon, and the harvest palette) under `viz/`. No songs or shows yet;
 the probe plays the Halloween pack's Bustin' through every mode. Cycletron loads
 `viz/harvest-3d/dist/index.js` at startup while the pack is enabled
 (`Packs/enabled.json`); see `docs/PACKS.md` in the Cycletron repo.
