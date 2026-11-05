@@ -4,7 +4,7 @@ import {frameRect, fillTri, PH, PW} from '@cycletron/viz-sdk';
 import {type Pix} from '../../lib/pixel.js';
 import {drawTree} from '../../lib/sky.js';
 import {PUMP_A} from '../../lib/sprites.js';
-import {drawRidge} from '@naderlabs/pixel-kit/night';
+import {drawRidge} from '@naderlabs/kit/night';
 
 export interface Win {
     x: number;

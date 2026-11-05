@@ -6,7 +6,7 @@
 import type {Theme} from '@cycletron/viz-sdk';
 import {alphaRamp, mixRgb, rgbOf} from '@cycletron/viz-sdk';
 import type {Shade} from '../../lib/iso.js';
-import {css, greenest} from '@naderlabs/pixel-kit/color';
+import {css, greenest} from '@naderlabs/kit/color';
 
 type Rgb = [number, number, number];
 

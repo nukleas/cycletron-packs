@@ -27,7 +27,7 @@ import {bakeLook, type Look} from './look.js';
 import {type Burst, drawBurst, drawNight, drawPuff, drawSnowfall, dropBursts, makeBurst, skyFlash} from './sky.js';
 import {slotFor} from './slots.js';
 import {BAG_DARK, BAG_LIT, VANE_DEER} from './sprites.js';
-import {type Role, isLong, registerPos} from '@naderlabs/pixel-kit/roles';
+import {type Role, isLong, registerPos} from '@naderlabs/kit/roles';
 
 const LOOKAHEAD = 2;
 const MAX_HAPS = 400;

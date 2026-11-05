@@ -17,7 +17,7 @@ import {halloweenRole} from '../../lib/roles.js';
 import {danceFrame, drawDancer} from './skeleton.js';
 import {TOMBS} from '../../lib/sprites.js';
 import {type Bat, type Bolt, ageBats, ageBolts, boltFlash, drawBats, drawBolt, drawGhostAt, drawNight, drawTree, makeBat, makeBolt} from '../../lib/sky.js';
-import {type Role, isLong, registerPos} from '@naderlabs/pixel-kit/roles';
+import {type Role, isLong, registerPos} from '@naderlabs/kit/roles';
 
 const LOOKAHEAD = 2;
 const MAX_HAPS = 400;

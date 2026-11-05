@@ -7,7 +7,7 @@ import {hash32, rand01, SeededRandom, TAU} from '@cycletron/viz-sdk';
 import {drawSprite, PH, PW} from '@cycletron/viz-sdk';
 import {type Pix} from './pixel.js';
 import {BATS, GHOSTS, TREE} from './sprites.js';
-import {drawStars, drawClouds, MOON} from '@naderlabs/pixel-kit/night';
+import {drawStars, drawClouds, MOON} from '@naderlabs/kit/night';
 
 export interface Bolt {
     age: number;

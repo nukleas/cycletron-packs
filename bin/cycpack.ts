@@ -11,7 +11,7 @@
 //   cycpack probe <pack>            render the pack's probe show and compare its frames with the last probe
 //
 // <pack> is a folder name under packs/. kit/ is shared code the packs import
-// as @naderlabs/pixel-kit; each pack's build bundles what it uses. Node runs
+// as @naderlabs/kit; each pack's build bundles what it uses. Node runs
 // this file as is (type stripping), so it keeps to erasable TypeScript.
 
 import {spawnSync, type SpawnSyncOptions} from 'node:child_process';

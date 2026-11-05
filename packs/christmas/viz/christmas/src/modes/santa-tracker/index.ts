@@ -29,7 +29,7 @@ import {Alert} from '../../lib/console/alert.js';
 import {bakeConsoleInk, type ConsoleInk, type ConsoleLayout, drawConsole, layoutConsole, type Station} from '../../lib/console/chrome.js';
 import {group, pad} from '../../lib/console/panel.js';
 import {drawStrip, pictureRect, type StripCell} from '../../lib/console/strip.js';
-import {css} from '@naderlabs/pixel-kit/color';
+import {css} from '@naderlabs/kit/color';
 
 const LOOKAHEAD = 2;
 const MAX_HAPS = 96;

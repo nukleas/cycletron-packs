@@ -1,4 +1,4 @@
-import {drumRole, type Role} from '@naderlabs/pixel-kit/roles';
+import {drumRole, type Role} from '@naderlabs/kit/roles';
 
 export function roleOf(name: string, note: number): Role {
     if (Number.isFinite(note)) return note < 48 ? 'bass' : note < 72 ? 'mid' : 'lead';

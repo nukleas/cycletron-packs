@@ -6,8 +6,8 @@
 import type {Theme} from '@cycletron/viz-sdk';
 import {mixRgb, rgbOf} from '@cycletron/viz-sdk';
 import {bakeInk, type Ink} from '../../lib/ink.js';
-import {checker} from '@naderlabs/pixel-kit/night';
-import {css} from '@naderlabs/pixel-kit/color';
+import {checker} from '@naderlabs/kit/night';
+import {css} from '@naderlabs/kit/color';
 
 export interface Look {
     ink: Ink;

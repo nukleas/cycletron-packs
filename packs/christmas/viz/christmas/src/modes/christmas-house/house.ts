@@ -8,7 +8,7 @@
 import {drawSprite, frameRect, fillTri, hash32, PH, PW} from '@cycletron/viz-sdk';
 import {type Look} from './look.js';
 import {BAG_DARK, FIR, XMAS_FIR} from './sprites.js';
-import {drawRidge} from '@naderlabs/pixel-kit/night';
+import {drawRidge} from '@naderlabs/kit/night';
 
 export interface Win {
     x: number;

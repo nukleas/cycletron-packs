@@ -9,7 +9,7 @@
 import {alphaRamp, clamp01, drawLabel, mixRgb, rampAt, rgbOf, type Theme, type VizServices} from '@cycletron/viz-sdk';
 import type {Alert} from './alert.js';
 import {pad} from './panel.js';
-import {css} from '@naderlabs/pixel-kit/color';
+import {css} from '@naderlabs/kit/color';
 
 export interface Rect {
     x: number;

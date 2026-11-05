@@ -36,7 +36,7 @@ import {
 import {brackets, pad} from '../../lib/console/panel.js';
 import {Life, type LifePalette} from './life.js';
 import {GROUND, Scene, type ScenePalette} from './scene.js';
-import {css} from '@naderlabs/pixel-kit/color';
+import {css} from '@naderlabs/kit/color';
 
 const LOOKAHEAD = 1;
 const MAX_LANTERNS = 200;

@@ -7,7 +7,7 @@
 import {hash32, PH, PW, rand01, TAU} from '@cycletron/viz-sdk';
 import {drawSprite} from '@cycletron/viz-sdk';
 import {type Look} from './look.js';
-import {drawStars, drawClouds, MOON} from '@naderlabs/pixel-kit/night';
+import {drawStars, drawClouds, MOON} from '@naderlabs/kit/night';
 
 export interface Burst {
     /** Cycle it went up at; its age is the cycle less this. */

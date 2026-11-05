@@ -5,7 +5,7 @@
  */
 
 import {instrumentFamily} from '@cycletron/viz-sdk';
-import {type KitPiece} from '@naderlabs/pixel-kit/drum-rig';
+import {type KitPiece} from '@naderlabs/kit/drum-rig';
 import {roleOf, voiceOf} from '../../lib/roles.js';
 
 export type Cast =

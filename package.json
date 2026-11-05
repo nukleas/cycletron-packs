@@ -21,9 +21,11 @@
   },
   "devDependencies": {
     "@cycletron/viz-sdk": "file:../cycletron/ui/packages/viz-sdk",
-    "@naderlabs/pixel-kit": "*",
+    "@naderlabs/kit": "*",
     "@types/node": "^22.20.5",
+    "@types/three": "^0.187.0",
     "oxlint": "^1.91.0",
-    "oxlint-anti-slop": "^0.4.0"
+    "oxlint-anti-slop": "^0.4.0",
+    "three": "^0.187.0"
   }
 }

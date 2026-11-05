@@ -1,4 +1,4 @@
-import {type Role} from '@naderlabs/pixel-kit/roles';
+import {type Role} from '@naderlabs/kit/roles';
 
 export function workshopRole(name: string, note: number): Role {
     const drum = drumRole(name);

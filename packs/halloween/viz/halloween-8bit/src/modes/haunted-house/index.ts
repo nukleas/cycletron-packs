@@ -18,7 +18,7 @@ import {bakePix, type Pix} from '../../lib/pixel.js';
 import {halloweenRole} from '../../lib/roles.js';
 import {PUMPS} from '../../lib/sprites.js';
 import {type Bolt, ageBolts, boltFlash, drawBolt, drawGhostAt, drawNight, makeBolt} from '../../lib/sky.js';
-import {type Role, isLong, registerPos} from '@naderlabs/pixel-kit/roles';
+import {type Role, isLong, registerPos} from '@naderlabs/kit/roles';
 
 const LOOKAHEAD = 2;
 const MAX_HAPS = 400;

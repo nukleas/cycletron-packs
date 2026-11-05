@@ -9,9 +9,9 @@ import {type FieldHap, type FieldTeam, HapField, type Rgb} from '@cycletron/viz-
 import {drawSprite, frameRect, nearest, PH, PW, PxScreen} from '@cycletron/viz-sdk';
 import {bakePix, type Pix} from '../../lib/pixel.js';
 import {type Cast, type Costume, castFor, drawPerformer, isOscillator, kitPiece, voiceOf} from '../../lib/monsters.js';
-import {isLong, registerPos} from '@naderlabs/pixel-kit/roles';
-import {MOON} from '@naderlabs/pixel-kit/night';
-import {type KitFlash, type KitPiece, PIECES} from '@naderlabs/pixel-kit/drum-rig';
+import {isLong, registerPos} from '@naderlabs/kit/roles';
+import {MOON} from '@naderlabs/kit/night';
+import {type KitFlash, type KitPiece, PIECES} from '@naderlabs/kit/drum-rig';
 
 const LOOKAHEAD = 1;
 const MAX_HAPS = 480;

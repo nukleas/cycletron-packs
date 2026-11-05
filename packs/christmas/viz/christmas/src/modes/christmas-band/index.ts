@@ -23,7 +23,7 @@ import {nearest, PH, PW, PxScreen} from '@cycletron/viz-sdk';
 import {type Cast, castFor, isOscillator, kitPiece, teamKey} from './cast.js';
 import {audienceAt, castName, moraleTag} from './feed.js';
 import {bakeInk, type Ink} from '../../lib/ink.js';
-import {idleKit, type KitFlash, PIECES} from '@naderlabs/pixel-kit/drum-rig';
+import {idleKit, type KitFlash, PIECES} from '@naderlabs/kit/drum-rig';
 import {drawPerformer, type Singer} from './performers.js';
 import {voiceOf} from '../../lib/roles.js';
 import {BACK_FOOT, drawBackdrop, drawFloor, FRONT_FOOT, LIGHT_Y} from './stage.js';
@@ -34,7 +34,7 @@ import {
 import {drawMonitor, fitMonitor, type Monitor} from '../../lib/console/monitor.js';
 import {group} from '../../lib/console/panel.js';
 import {drawStrip, pictureRect, type StripCell} from '../../lib/console/strip.js';
-import {isLong, registerPos} from '@naderlabs/pixel-kit/roles';
+import {isLong, registerPos} from '@naderlabs/kit/roles';
 
 const LOOKAHEAD = 2;
 const MAX_HAPS = 480;

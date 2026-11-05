@@ -10,9 +10,9 @@ import {type Ink} from './pixel.js';
 import {halloweenRole} from './roles.js';
 import {drawGhostAt} from './sky.js';
 import {instrumentFamily} from '@cycletron/viz-sdk';
-import {along, at, b, limb, ln, paint, type Pt, put, seg, stance} from '@naderlabs/pixel-kit/pen';
-import {DOWN, SEAT, SHOULDER_L, SHOULDER_R, hot, idleKit, type KitFlash, type KitPiece, leftStroke, rightStroke, type Stroke} from '@naderlabs/pixel-kit/drum-rig';
-import {type Role} from '@naderlabs/pixel-kit/roles';
+import {along, at, b, limb, ln, paint, type Pt, put, seg, stance} from '@naderlabs/kit/pen';
+import {DOWN, SEAT, SHOULDER_L, SHOULDER_R, hot, idleKit, type KitFlash, type KitPiece, leftStroke, rightStroke, type Stroke} from '@naderlabs/kit/drum-rig';
+import {type Role} from '@naderlabs/kit/roles';
 
 export type Cast = 'drummer' | 'frank' | 'wolf' | 'mummy' | 'vamp' | 'witch' | 'pumpkin' | 'ghost';
 

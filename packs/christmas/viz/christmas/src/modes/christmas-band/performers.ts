@@ -8,8 +8,8 @@
 import {drawSprite, spr, type Sprite} from '@cycletron/viz-sdk';
 import type {Cast} from './cast.js';
 import type {Ink} from '../../lib/ink.js';
-import {idleKit, type KitFlash, SEAT, SHOULDER_L, SHOULDER_R, leftStroke, rightStroke, hot, type Stroke, DOWN} from '@naderlabs/pixel-kit/drum-rig';
-import {along, at, b, limb, ln, paint, type Pt, put, seg, stance} from '@naderlabs/pixel-kit/pen';
+import {idleKit, type KitFlash, SEAT, SHOULDER_L, SHOULDER_R, leftStroke, rightStroke, hot, type Stroke, DOWN} from '@naderlabs/kit/drum-rig';
+import {along, at, b, limb, ln, paint, type Pt, put, seg, stance} from '@naderlabs/kit/pen';
 
 export interface Singer {
     accent: string;

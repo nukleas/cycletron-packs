@@ -6,7 +6,7 @@
  */
 
 import type {Ink} from '../../lib/ink.js';
-import {type Role} from '@naderlabs/pixel-kit/roles';
+import {type Role} from '@naderlabs/kit/roles';
 
 export type Face = 'elf' | 'snowman' | 'reindeer' | 'ginger' | 'penguin' | 'nutcracker' | 'mrsClaus';
 

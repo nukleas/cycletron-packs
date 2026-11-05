@@ -1,7 +1,7 @@
 {
-  "name": "@naderlabs/pixel-kit",
+  "name": "@naderlabs/kit",
   "private": true,
-  "description": "8-bit scene parts the packs share: figure rigging, night skies, hap roles. Bundled into each pack's build.",
+  "description": "Scene parts the packs share: figure rigging, night skies, hap roles, the three.js bridge. Bundled into each pack's build.",
   "license": "AGPL-3.0-or-later",
   "type": "module",
   "exports": {

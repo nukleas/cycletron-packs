@@ -47,7 +47,7 @@ import {drawStrip, pictureRect} from '../../lib/console/strip.js';
 import {bakeInk, type Ink, nearestIndex} from './ink.js';
 import {box, cone, diamond, ISO_W, quad, type Shade, star, View} from '../../lib/iso.js';
 import {drumRole, workshopRole} from './roles.js';
-import {type Role, isLong} from '@naderlabs/pixel-kit/roles';
+import {type Role, isLong} from '@naderlabs/kit/roles';
 
 const LOOKAHEAD = 2;
 const MAX_HAPS = 800;

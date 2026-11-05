@@ -14,8 +14,8 @@ import {bakePix, type Pix} from '../../lib/pixel.js';
 import {halloweenRole} from '../../lib/roles.js';
 import {REED} from '../../lib/sprites.js';
 import {drawGhostAt, drawNight, drawTree} from '../../lib/sky.js';
-import {type Role} from '@naderlabs/pixel-kit/roles';
-import {drawRidge} from '@naderlabs/pixel-kit/night';
+import {type Role} from '@naderlabs/kit/roles';
+import {drawRidge} from '@naderlabs/kit/night';
 
 const LOOKAHEAD = 1;
 const MAX_GHOSTS = 240;
