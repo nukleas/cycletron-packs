@@ -1,5 +1,5 @@
 /**
- * CORNFIELD — rows of corn at sunset round a scarecrow in a clearing. A
+ * CORNFIELD: rows of corn at sunset round a scarecrow in a clearing. A
  * wave rolls across the rows once every two bars and each beat gusts it,
  * every kick sends a ring of wind out from the scarecrow and flaps its arms,
  * and the scarecrow's head nods from side to side on the beat. The camera

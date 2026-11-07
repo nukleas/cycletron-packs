@@ -1,5 +1,5 @@
 /**
- * HARVEST MOON — a pumpkin patch on rolling hills under a huge rising moon.
+ * HARVEST MOON: a pumpkin patch on rolling hills under a huge rising moon.
  * The patch is the keyboard: three rows (bass at the front, mid, lead at the
  * back) of twelve pumpkins, one per pitch class. A note lights its pumpkin in
  * the track colour for as long as it is held, then the glow dies away. Kicks

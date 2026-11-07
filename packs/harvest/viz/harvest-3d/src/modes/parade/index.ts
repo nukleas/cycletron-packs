@@ -1,5 +1,5 @@
 /**
- * PARADE — a Thanksgiving marching band halted at the reviewing stand, seen
+ * PARADE: a Thanksgiving marching band halted at the reviewing stand, seen
  * from the kerb. Everyone in it plays one voice, and every hit lands on the
  * frame its note sounds:
  *
@@ -7,10 +7,14 @@
  *   split the snares hit by hit, the cymbal player the crashes. Each pair of
  *   sticks has three poses: at rest, cocked over the head an eighth of a bar
  *   before the next hit, and on the head on the onset.
- * - The horns, three ranks of four. Each pitched track has its own player
- *   (by track slot), who brings the horn up half a bar before their line
- *   starts, kicks the bell up and flares it in the track colour on each
- *   note, and holds it while the note holds.
+ * - The horns, three ranks of four, one per register: trumpets play the
+ *   high notes, trombones the middle, sousaphones the bass. Within its rank
+ *   each pitched track has its own player (by track slot), who brings the
+ *   horn up half a bar before their line starts, kicks the bell up and flares
+ *   it in the track colour on each note, and holds it while the note holds.
+ *   A trombone's slide runs out for low notes and in for high ones, and is
+ *   set for the next note before it sounds. A sousaphone is worn, so its
+ *   player only kicks and lights the bell over their head.
  * - The drum major counts the phrase: the mace keeps time, climbs a step on
  *   each beat of the last bar of every four, and is thrust forward on the
  *   downbeat.
@@ -39,6 +43,10 @@ import {harvestRole} from '../../lib/roles.js';
 import {SkyDome} from '../../lib/sky.js';
 import {Stage} from '../../lib/stage.js';
 import {acorn, type Balloon, type BalloonMats, pumpkinFloat, turkey} from './balloons.js';
+import {
+    SLIDE_RUN, slideGeometry, SOUSA_BELL_X, SOUSA_BELL_Y, sousaBellGeometry, sousaRingGeometry, TROMBONE_BELL,
+    tromboneGeometry, TRUMPET_BELL, trumpetGeometry,
+} from './instruments.js';
 
 /** Two bars, so a note on the next downbeat is in view for its wind-up. */
 const LOOKAHEAD = 2;
@@ -50,8 +58,17 @@ const SHOT = 2;
 const HORN_LEAD = 0.5;
 /** Files across the march (depth), and where each stands. */
 const FILE_Z = [-1.6, -0.3, 1.0, 2.3];
+/** The horn ranks, front to back: trumpets, trombones, sousaphones. */
 const HORN_RANKS = [1.2, -0.8, -2.8];
-const HORNS = HORN_RANKS.length * FILE_Z.length;
+const TRUMPETS = 0;
+const TROMBONES = 1;
+/** The rank that plays each register. */
+const RANK_OF: Partial<Record<Role, number>> = {lead: TRUMPETS, mid: TROMBONES, bass: 2};
+const FILES = FILE_Z.length;
+const HORNS = HORN_RANKS.length * FILES;
+/** The trombones' range, top to bottom: the slide is in at the top and all the way out at the bottom. */
+const SLIDE_TOP = 72;
+const SLIDE_SPAN = 24;
 const DRUM_X = 3.2;
 const MAJOR_X = 5.6;
 const MAJOR_Z = 0.6;
@@ -94,6 +111,9 @@ const CYMBAL_ARMS: Record<Stance, [number, number]> = {rest: [0.6, 0.35], ready:
 /** The direction a horn's bell points: down at the chest at rest, level to play, kicked up on a note. */
 const HORN_TILT: Record<Stance, number> = {rest: -1.1, ready: 0, hit: 0.35};
 const HORN_ARM: Record<Stance, number> = {rest: 0.25, ready: 1.45, hit: 1.6};
+/** A sousaphone player's hand stays on the valves; the bell kicks back on a note. */
+const SOUSA_ARM = 1.2;
+const SOUSA_KICK = 0.25;
 const ARM = 0.62;
 const SHOULDER = 0.88;
 
@@ -139,8 +159,6 @@ interface Play {
     ring: number;
 }
 
-const isPitched = (r: Role): boolean => r === 'bass' || r === 'mid' || r === 'lead';
-
 class ParadeMode implements VizMode {
     private readonly stage = new Stage(46, 0.3, 500, 40, 160);
     private readonly sky = new SkyDome(350);
@@ -156,6 +174,7 @@ class ParadeMode implements VizMode {
     private readonly dummy = new Object3D();
     private readonly tint = new Color();
     private readonly hot = new Color();
+    private readonly bell = new Vector3();
     private readonly confetti: Bit[] = [];
     private readonly crowdHop = new Float32Array(CROWD);
     private readonly buildings: Building[] = [];
@@ -167,6 +186,11 @@ class ParadeMode implements VizMode {
     private readonly hornRgb = new Float32Array(HORNS * 3);
     private readonly hornStruck = new Float32Array(HORNS);
     private readonly hornWound = new Float32Array(HORNS);
+    /** Per horn player: the onset and pitch of the last note and the next, for the trombone slides. */
+    private readonly hornLast = new Float32Array(HORNS);
+    private readonly hornNext = new Float32Array(HORNS);
+    private readonly lastNote = new Float32Array(HORNS);
+    private readonly nextNote = new Float32Array(HORNS);
     private readonly kick: Play = {stance: 'rest', ring: 0};
     private readonly crash: Play = {stance: 'rest', ring: 0};
     private readonly snare: Play[] = SNARES.map((): Play => ({stance: 'rest', ring: 0}));
@@ -177,7 +201,11 @@ class ParadeMode implements VizMode {
     private readonly heads: InstancedMesh;
     private readonly hats: InstancedMesh;
     private readonly plumes: InstancedMesh;
-    private readonly horns: InstancedMesh;
+    private readonly trumpets: InstancedMesh;
+    private readonly trombones: InstancedMesh;
+    private readonly slides: InstancedMesh;
+    private readonly sousaRings: InstancedMesh;
+    private readonly sousaBells: InstancedMesh;
     private readonly glows: InstancedMesh;
     private readonly sticks: InstancedMesh;
     private readonly arms: InstancedMesh;
@@ -222,11 +250,11 @@ class ParadeMode implements VizMode {
         this.heads = new InstancedMesh(new SphereGeometry(0.24, 7, 5), lambert(), MAX_PEOPLE);
         this.hats = new InstancedMesh(new CylinderGeometry(0.22, 0.2, 0.5, 6), lambert(), MAX_PEOPLE);
         this.plumes = new InstancedMesh(new ConeGeometry(0.09, 0.4, 5), lambert(), MAX_PEOPLE);
-        // A horn: the narrow end at the player's mouth, the bell out along +x.
-        const hornGeo = new ConeGeometry(0.22, 0.7, 8, 1, true);
-        hornGeo.rotateZ(Math.PI / 2);
-        hornGeo.translate(0.35, 0, 0);
-        this.horns = new InstancedMesh(hornGeo, new MeshLambertMaterial({flatShading: true, side: DoubleSide}), HORNS);
+        this.trumpets = new InstancedMesh(trumpetGeometry(), brass(), FILES);
+        this.trombones = new InstancedMesh(tromboneGeometry(), brass(), FILES);
+        this.slides = new InstancedMesh(slideGeometry(), lambert(), FILES);
+        this.sousaRings = new InstancedMesh(sousaRingGeometry(), lambert(), FILES);
+        this.sousaBells = new InstancedMesh(sousaBellGeometry(), brass(), FILES);
         this.glows = new InstancedMesh(GLOW_QUAD, glowMaterial(), HORNS + 3);
         // A stick pivots at the hand and reaches out along +x.
         const stickGeo = new BoxGeometry(0.7, 0.08, 0.08);
@@ -247,7 +275,7 @@ class ParadeMode implements VizMode {
         this.maceHead = new Mesh(new SphereGeometry(0.16, 8, 6), this.maceMat);
         this.mace.add(this.maceHead);
         this.maceHead.position.set(0, 1.3, 0);
-        scene.add(this.legs, this.torsos, this.heads, this.hats, this.plumes, this.horns, this.glows, this.sticks,
+        scene.add(this.legs, this.torsos, this.heads, this.hats, this.plumes, ...this.brassMeshes(), this.glows, this.sticks,
             this.arms, this.snareDrums, this.bassDrum, this.cymbals, this.mace);
 
         this.crowdBodies = new InstancedMesh(new CylinderGeometry(0.3, 0.38, 1.3, 6), lambert(), CROWD);
@@ -380,10 +408,15 @@ class ParadeMode implements VizMode {
         for (let i = 0; i < ARMS; i++) this.arms.setColorAt(i, c.leaves[i === ARMS - 1 ? 3 : 1]);
         this.tint.copy(c.cream).lerp(c.leaves[1], 0.25);
         for (let i = 0; i < SNARES.length; i++) this.snareDrums.setColorAt(i, this.tint);
+        this.tint.copy(c.leaves[2]).lerp(c.cream, 0.2);
+        for (let i = 0; i < FILES; i++) {
+            this.slides.setColorAt(i, this.tint);
+            this.sousaRings.setColorAt(i, this.tint);
+        }
         this.tint.copy(c.leaves[2]).lerp(c.cream, 0.35);
         for (let i = 0; i < 2; i++) this.cymbals.setColorAt(i, this.tint);
         for (const mesh of [this.blocks, this.cornices, this.crowdBodies, this.crowdHeads, this.pennants, this.bits,
-            this.sticks, this.arms, this.snareDrums, this.cymbals]) markDirty(mesh);
+            this.sticks, this.arms, this.snareDrums, this.cymbals, this.slides, this.sousaRings]) markDirty(mesh);
         this.field.invalidate();
     }
 
@@ -439,9 +472,19 @@ class ParadeMode implements VizMode {
         const struck = this.hornStruck.fill(0);
         const wound = this.hornWound.fill(0);
         this.hornLit.fill(0);
+        this.hornLast.fill(-Infinity);
+        this.hornNext.fill(Infinity);
         for (const h of this.field.haps) {
-            if (!isPitched(h.role)) continue;
-            const i = h.team.slot % HORNS;
+            const rank = RANK_OF[h.role];
+            if (rank === undefined) continue;
+            const i = rank * FILES + (h.team.slot % FILES);
+            if (h.begin <= cycle && h.begin > this.hornLast[i]) {
+                this.hornLast[i] = h.begin;
+                this.lastNote[i] = h.note;
+            } else if (h.begin > cycle && h.begin < this.hornNext[i]) {
+                this.hornNext[i] = h.begin;
+                this.nextNote[i] = h.note;
+            }
             struck[i] = Math.max(struck[i], strike(cycle, h.begin));
             wound[i] = Math.max(wound[i], windup(cycle, h.begin, HORN_LEAD));
             const lit = held(cycle, h.begin, h.end, TAIL) * h.fade;
@@ -484,31 +527,21 @@ class ParadeMode implements VizMode {
         p = this.poseMajor(cycle, p, c);
         p = this.poseDrumLine(cycle, p, c);
         for (let i = 0; i < HORNS; i++) {
-            const x = HORN_RANKS[Math.floor(i / FILE_Z.length)];
-            const z = FILE_Z[i % FILE_Z.length];
+            const rank = Math.floor(i / FILES);
+            const x = HORN_RANKS[rank];
+            const z = FILE_Z[i % FILES];
             const y = this.march(p, x, z, cycle, c.leaves[1], c.cream);
             p++;
-            const pose = this.hornPose[i];
-            const d = this.dummy;
-            // The near arm holds the horn: down at the chest at rest, up at the lips to play.
-            this.arm(HORN_ARMS + i, x, y, z + 0.3, HORN_ARM[pose]);
-            const hx = pose === 'rest' ? this.handX : x + 0.3;
-            const hy = pose === 'rest' ? this.handY : y + 1.12;
-            d.position.set(hx, hy, z + 0.12);
-            d.rotation.set(0, 0, HORN_TILT[pose]);
-            d.scale.setScalar(pose === 'hit' ? 1.2 : 1);
-            d.updateMatrix();
-            this.horns.setMatrixAt(i, d.matrix);
             const lit = this.hornLit[i];
             this.hot.setRGB(this.hornRgb[i * 3], this.hornRgb[i * 3 + 1], this.hornRgb[i * 3 + 2]);
             this.tint.copy(c.leaves[2]).lerp(c.cream, 0.2);
             if (lit > 0) this.tint.lerp(this.hot, 0.6).multiplyScalar(1 + lit * 1.2);
-            this.horns.setColorAt(i, this.tint);
+            const bell = rank === TRUMPETS || rank === TROMBONES ? this.poseHorn(i, rank, x, y, z) : this.poseSousa(i, x, y, z);
             if (lit > 0) {
-                const a = HORN_TILT[pose];
-                d.position.set(hx + Math.cos(a) * 0.75, hy + Math.sin(a) * 0.75, z + 0.25);
+                const d = this.dummy;
+                d.position.copy(bell);
                 d.quaternion.copy(cam.quaternion);
-                const gs = 0.9 + lit * 0.5 + (pose === 'hit' ? 0.9 : 0);
+                const gs = (0.9 + lit * 0.5 + (this.hornPose[i] === 'hit' ? 0.9 : 0)) * (rank === TRUMPETS || rank === TROMBONES ? 1 : 1.6);
                 d.scale.set(gs, gs, 1);
                 d.updateMatrix();
                 this.glows.setMatrixAt(glows, d.matrix);
@@ -528,8 +561,68 @@ class ParadeMode implements VizMode {
         this.poseCrowd(cycle);
         this.poseBunting(cycle);
         this.poseConfetti();
-        for (const mesh of [this.legs, this.torsos, this.heads, this.hats, this.plumes, this.horns, this.glows, this.sticks,
+        for (const mesh of [this.legs, this.torsos, this.heads, this.hats, this.plumes, ...this.brassMeshes(), this.glows, this.sticks,
             this.arms, this.snareDrums, this.cymbals, this.crowdBodies, this.crowdHeads, this.pennants, this.bits]) markDirty(mesh);
+    }
+
+    /**
+     * A trumpet or trombone, held in the near hand: down at the chest at
+     * rest, up at the lips to play. Colours it with `tint` and returns where
+     * its bell is.
+     */
+    private poseHorn(i: number, rank: number, x: number, y: number, z: number): Vector3 {
+        const pose = this.hornPose[i];
+        const file = i % FILES;
+        const d = this.dummy;
+        this.arm(HORN_ARMS + i, x, y, z + 0.3, HORN_ARM[pose]);
+        const hx = pose === 'rest' ? this.handX : x + 0.3;
+        const hy = pose === 'rest' ? this.handY : y + 1.12;
+        const tilt = HORN_TILT[pose];
+        const size = pose === 'hit' ? 1.15 : 1;
+        d.position.set(hx, hy, z + 0.12);
+        d.rotation.set(0, 0, tilt);
+        d.scale.setScalar(size);
+        d.updateMatrix();
+        const mesh = rank === TRUMPETS ? this.trumpets : this.trombones;
+        mesh.setMatrixAt(file, d.matrix);
+        mesh.setColorAt(file, this.tint);
+        if (rank === TROMBONES) {
+            // The slide is set for the next note once the player is ready for it.
+            const note = pose === 'ready' && Number.isFinite(this.hornNext[i]) ? this.nextNote[i] : this.lastNote[i];
+            const out = SLIDE_RUN * clamp01((SLIDE_TOP - note) / SLIDE_SPAN);
+            d.position.set(hx + Math.cos(tilt) * out, hy + Math.sin(tilt) * out, z + 0.12);
+            d.updateMatrix();
+            this.slides.setMatrixAt(file, d.matrix);
+        }
+        const reach = (rank === TRUMPETS ? TRUMPET_BELL : TROMBONE_BELL) * size;
+        return this.bell.set(hx + Math.cos(tilt) * reach, hy + Math.sin(tilt) * reach, z + 0.25);
+    }
+
+    /** A sousaphone, worn: the hand stays on the valves and the bell over the head kicks back on a note. */
+    private poseSousa(i: number, x: number, y: number, z: number): Vector3 {
+        const pose = this.hornPose[i];
+        const file = i % FILES;
+        const d = this.dummy;
+        this.arm(HORN_ARMS + i, x, y, z + 0.3, SOUSA_ARM);
+        d.position.set(x, y, z);
+        d.rotation.set(0, 0, 0);
+        d.scale.setScalar(1);
+        d.updateMatrix();
+        this.sousaRings.setMatrixAt(file, d.matrix);
+        const kick = pose === 'hit' ? SOUSA_KICK : 0;
+        const size = pose === 'hit' ? 1.2 : 1;
+        d.position.set(x, y + SOUSA_BELL_Y, z);
+        d.rotation.set(0, 0, kick);
+        d.scale.setScalar(size);
+        d.updateMatrix();
+        this.sousaBells.setMatrixAt(file, d.matrix);
+        this.sousaBells.setColorAt(file, this.tint);
+        const reach = SOUSA_BELL_X * size;
+        return this.bell.set(x + Math.cos(kick) * reach, y + SOUSA_BELL_Y + Math.sin(kick) * reach, z + 0.3);
+    }
+
+    private brassMeshes(): InstancedMesh[] {
+        return [this.trumpets, this.trombones, this.slides, this.sousaRings, this.sousaBells];
     }
 
     /** The drum major: the mace keeps time, counts up through the phrase's last bar, and is thrust on the downbeat. */
@@ -793,6 +886,11 @@ function sixteenth(begin: number): number {
 
 function lambert(): MeshLambertMaterial {
     return new MeshLambertMaterial({flatShading: true});
+}
+
+/** Brass for an open horn, lit inside its bell too. */
+function brass(): MeshLambertMaterial {
+    return new MeshLambertMaterial({flatShading: true, side: DoubleSide});
 }
 
 function plane(w: number, d: number, mat: MeshLambertMaterial | MeshBasicMaterial): Mesh {
