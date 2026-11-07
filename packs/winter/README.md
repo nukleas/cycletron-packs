@@ -1,7 +1,7 @@
 # Winter
 
-The Winter pack: the `naderlabs/winter-3d` visualizer pack (ice cave, aurora, and
-the glacier palette) under `viz/`. A 3D follow-up to the 8-bit
+The Winter pack: the `naderlabs/winter-3d` visualizer pack (ice cave, yeti DJ,
+aurora, and the glacier palette) under `viz/`. A 3D follow-up to the 8-bit
 Christmas pack, drawn in three.js. Cycletron loads `viz/winter-3d/dist/index.js` at
 startup while the pack is enabled (`Packs/enabled.json`); see `docs/PACKS.md` in the
 Cycletron repo. It has no songs or shows of its own yet; the probe plays it to the

@@ -5,9 +5,10 @@
   "author": "NaderLabs",
   "license": "AGPL-3.0-or-later",
   "sdk": "^1.2",
-  "description": "A low-poly winter in three.js: a yeti and a penguin playing an ice cave, and the aurora over a snowy ridge.",
+  "description": "A low-poly winter in three.js: a yeti and a penguin playing an ice cave (and DJing it after hours), and the aurora over a snowy ridge.",
   "modes": [
     "ice-cave",
+    "yeti-dj",
     "aurora"
   ],
   "palettes": [

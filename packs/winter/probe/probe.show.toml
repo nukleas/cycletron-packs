@@ -17,5 +17,5 @@ grain = 0
 
 [[song]]
 source = "../../christmas/songs/05-silver-bells-silent-night.strudel"
-shots = ["ice-cave", "aurora"]
+shots = ["ice-cave", "yeti-dj", "aurora"]
 every = 2

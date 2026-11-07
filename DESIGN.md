@@ -9,12 +9,27 @@ these are the seasonal ones, but the same eye applies.
 Kept as the reference set:
 
 - **ice-cave** (winter): a yeti on a two-octave crystal marimba and a penguin
-  on an ice drum and icicle chimes.
+  on an ice drum and icicle chimes. Polished after the verdict: a key light and a
+  paler dome brighten the room, and the crystals keep their unlit colour and
+  glow, so a lit one still reads. A detailed yeti (shag, a dark face under a
+  heavy brow, fangs) was tried and reverted: the round one's flat face and
+  blank stare as it rocks on the beat is the charm. Simple, readable
+  characters beat detailed ones.
+- **yeti-dj** (winter): ice-cave's variant, the same cave and figures as a DJ
+  set. The crystals' job goes to a laser fan, a beam per pitch class and
+  register, and the drip's phrase count to a drop: the arm climbs through
+  the last bar and every beam fires on the downbeat. The venue (riser, wall,
+  truss of spots, cryo, a crowd) makes it a show. The crowd works here where
+  the cut crowd modes didn't, because it is dark framing in the foreground,
+  never the subject, and it moves as one.
 - **aurora** (winter): northern lights over a cabin; held notes spread light
   along the curtains.
 - **harvest-moon** (harvest): a pumpkin patch played like a keyboard, each
   pumpkin lit from inside while its note holds.
-- **parade** (harvest): a marching band halted at the reviewing stand.
+- **parade** (harvest): a marching band halted at the reviewing stand. Its
+  horn ranks are one per register (trumpets high, trombones middle,
+  sousaphones bass), each a plain outline you can tell at frame size, and a
+  trombone's slide sits where its pitch is.
 
 Cut, and why:
 

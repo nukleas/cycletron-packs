@@ -1,5 +1,5 @@
 /**
- * AURORA — the northern lights over a snowy ridge, a cabin and its pines in
+ * AURORA: the northern lights over a snowy ridge, a cabin and its pines in
  * the foreground. The pitched tracks share five curtains of light. A note
  * lights its curtain at a point set by its pitch (low notes to the left,
  * high to the right) and the glow spreads along the curtain from there,

@@ -13,3 +13,14 @@ function voiceOf(name: string): string {
     const cut = base.lastIndexOf('_');
     return cut >= 0 ? base.slice(cut + 1) : base;
 }
+
+interface Played {
+    role: Role;
+}
+
+/** The yeti's stomp. */
+export const isKick = (h: Played): boolean => h.role === 'kick';
+/** The penguin's drum hand: snares and toms. */
+export const isSnare = (h: Played): boolean => h.role === 'snare' || h.role === 'tom';
+/** The penguin's other hand: the metal and the rest of the kit. */
+export const isChime = (h: Played): boolean => h.role === 'hat' || h.role === 'crash' || h.role === 'perc';
