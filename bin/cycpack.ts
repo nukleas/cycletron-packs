@@ -1,13 +1,15 @@
 #!/usr/bin/env node
-// Work on the packs in this repo. Type checks and zips run here; building,
-// rendering and the seam test run in a Cycletron checkout, since they need
-// the engine and the render page. The checkout is $CYCLETRON or ../cycletron.
+// Work on the packs in this repo. Type checks and zips run here; building and
+// the seam test run in a Cycletron checkout, since they need the engine and the
+// render page. The checkout is $CYCLETRON or ../cycletron. Renders run through
+// the cycletron binary: $CYCLETRON_BIN (an installed app), else the checkout's
+// debug build, which loads the render page from vite (`npm run dev` in ui/).
 //
 //   cycpack check <pack>            tsc and oxlint on every viz folder of the pack, and on bin/, kit/ and the tests
 //   cycpack test <pack>             node --test on kit/test and every viz folder's test/
 //   cycpack build <pack>            pack-build every viz folder (tsc + bundle to dist/)
 //   cycpack zip <pack>              build, then dist/<id>-<version>.zip for Install from Zip
-//   cycpack render <show> [args]    build the show's pack, then render-viz on it (args pass through)
+//   cycpack render <show> [args]    build the show's pack, then cycletron render on it (args pass through)
 //   cycpack seam <pack> [<pack>…]   build, then the seam test on every viz folder's build
 //   cycpack probe <pack>            render the pack's probe show and compare its frames with the last probe
 //   cycpack link <pack> [<pack>…]   build, then point the installed pack's viz folders at the ones here (symlinks)
@@ -24,6 +26,7 @@
 import {spawnSync, type SpawnSyncOptions} from 'node:child_process';
 import {createHash} from 'node:crypto';
 import {existsSync, lstatSync, mkdirSync, readFileSync, rmSync, symlinkSync, watch, writeFileSync} from 'node:fs';
+import net from 'node:net';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 
@@ -82,6 +85,31 @@ function pack(name: string | undefined): Pack {
 function run(cmd: string, args: readonly string[], opts: SpawnSyncOptions = {}): void {
     const r = spawnSync(cmd, args, {stdio: 'inherit', ...opts});
     if (r.status !== 0) process.exit(r.status ?? 1);
+}
+
+/** `cycletron render <args>`: $CYCLETRON_BIN, else the checkout's debug build. */
+async function render(args: readonly string[]): Promise<void> {
+    const bin = process.env.CYCLETRON_BIN;
+    if (bin) {
+        run(bin, ['render', ...args]);
+        return;
+    }
+    checkout();
+    // The debug build loads the render page from vite. Check for it here rather
+    // than wait out the binary's startup timeout.
+    if (!(await listening(5173))) fail(`a debug build renders through vite: run \`npm run dev\` in ${UI} first (or set CYCLETRON_BIN)`);
+    run('cargo', ['run', '-q', '-p', 'cycletron-app', '--bin', 'cycletron', '--', 'render', ...args], {cwd: CYCLETRON});
+}
+
+function listening(port: number): Promise<boolean> {
+    return new Promise((resolve) => {
+        const s = net.connect(port, 'localhost');
+        s.once('connect', () => {
+            s.destroy();
+            resolve(true);
+        });
+        s.once('error', () => resolve(false));
+    });
 }
 
 /** tsc on a folder's tsconfig.json, and oxlint on its sources (`src/` unless named). */
@@ -159,9 +187,9 @@ switch (cmd) {
         checkout();
         const p = packOfShow(arg);
         if (p) build(p);
-        // The renderer runs in the checkout, so a relative --out is resolved here, against the caller's directory.
+        // The debug build runs in the checkout, so a relative --out is resolved here, against the caller's directory.
         const flags = rest.map((v, i) => (rest[i - 1] === '--out' ? path.resolve(v) : v));
-        run('node', [path.join(UI, 'scripts', 'render-viz.mjs'), path.resolve(arg), ...flags], {cwd: UI});
+        await render([path.resolve(arg), ...flags]);
         break;
     }
     case 'seam': {
@@ -187,7 +215,7 @@ switch (cmd) {
         const video = path.join(p.dir, 'renders', 'probe.mp4');
         // 40 seconds is a pass through every mode at either pack's tempo; --to overrides it.
         const span = rest.includes('--to') ? rest : ['--to', '40', ...rest];
-        run('node', [path.join(UI, 'scripts', 'render-viz.mjs'), show, '--out', video, '--jobs', '1', ...span], {cwd: UI});
+        await render([show, '--out', video, '--jobs', '1', ...span]);
         const frames = spawnSync('ffmpeg', ['-v', 'error', '-i', video, '-map', '0:v', '-f', 'framemd5', '-'], {encoding: 'utf8', maxBuffer: 1 << 28});
         if (frames.status !== 0) fail(`ffmpeg: ${frames.stderr.trim()}`);
         const lines = frames.stdout.split('\n').filter((l) => l && !l.startsWith('#'));
