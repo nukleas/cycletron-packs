@@ -1,5 +1,5 @@
 /**
- * PRODUCTION — station STN-02 of the SLEIGHCON ops room. An isometric toy
+ * PRODUCTION: station STN-02 of the SLEIGHCON ops room. An isometric toy
  * factory fills the console body, and a readout strip under it reads the
  * line's numbers off the same state.
  *

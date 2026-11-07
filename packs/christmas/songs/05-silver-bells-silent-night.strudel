@@ -4,74 +4,46 @@ bpm: 100
 created: 2026-11-03
 tags: [cover, christmas, glitch-hop]
 ---
-// Silver Bells (Jay Livingston & Ray Evans, 1950) meets Silent Night (Franz Xaver Gruber, 1818).
-// Rec Room (STN-05) snowglobe glitch-hop in Bb major / G minor at 100 BPM.
-// Both melodies share the 8-bar I - IV - V - I / vi - IV - V - I progression
-// (Bb - Eb - F - Bb - Gm - Eb - F - Bb): "Silver Bells" drives the syncopated
-// city-sidewalk bounce on epiano, square lead and talking bitcrushed bass while
-// "Silent Night" floats above in 4/4 dotted-quarter phrasing ([11@3 12 11@2 9@2])
-// on glockenspiel, tubular bells and choir, locking together in counterpoint on the drops.
-//
-// FORM (100 BPM · 1 cycle = 1 bar · 80 bars = 3:12):
-//   intro    8  e1  snowglobe music-box "Silent Night" on glockenspiel, choir pad, sub, morse
-//   verse    8  e2  swung 808/909 glitch-hop beat, talking saw bass, "City sidewalks" on epiano
-//   build    8  e3  "Silver bells" hook fragments, bitcrushed pluck stutter arp, snare roll
-//   drop    12  e5  full glitch-hop chorus ("Silver bells / Ring-a-ling") + "Silent Night" bell answers
-//   verse2   8  e3  second verse with chopped bitcrushed ear-candy arps and bell counter-chimes
-//   break    8  e1  snowglobe calm: cathedral tubular bells + choir play "Silent Night", morse ping
-//   build2   8  e3  both themes interleave over snare rush, ops-room klaxon and countdown tick
-//   final   12  e5  full double-melody counterpoint ("Silent Night" on bells/trumpet + "Silver Bells" lead)
-//   outro    8  e1  music-box "Sleep in heavenly peace", tubular bell toll, morse stand-down
-// Degrees are from Bb3:major so none go negative: 7 = Bb4, 9 = D5, 11 = F5, 14 = Bb5.
+// Silver Bells (Livingston & Evans, 1950) over Silent Night (Gruber, 1818)
+// degrees from Bb3 major: 7 = Bb4, 14 = Bb5
 
 setbpm(100);
 
 "<intro@2 verse@2 build@2 drop@3 verse2@2 break@2 build2@2 final@3 outro@2>".slow(4).pickRestart({
   intro: stack(
-    // deep sine sub anchoring Bb - Eb - F - Bb
     note("<bb1@2 eb1@2 f1@2 bb1@2>").s("sine").lpf(145).attack(0.04).release(0.4).gain(0.32),
-    // warm snowglobe choir pad (clean triads so bell overtones ring without semitone rubs)
     chord("<Bb Eb F Bb Gm Eb F Bb>").voicing().s("wt_choir")
       .attack(0.8).release(1.6).hpf(180).lpf(1600).room(0.7).gain(0.15),
-    // "Silent Night" in 4/4 dotted-quarter phrasing on music-box glockenspiel
     note("<[11@3 12 11@2 9@2] [11@3 12 11@2 9@2] [15@3 15 15@2 13@2] [14@3 14 14@2 11@2] [12@3 12 14@2 13 12] [11@3 12 11@2 9@2] [15@3 16 15@2 13@2] [14@6 ~@2]>")
       .scale("Bb3:major").s("glockenspiel")
       .hpf(400).lpf(5200).decay(0.55).sustain(0.15).release(0.45)
       .room(0.6).roomsize(0.75).pan(0.56).gain(0.24),
-    // morse ping on bars 1 and 5
-    note("<[c7 ~ c7 c7 ~ ~ ~ ~] ~ ~ ~ [c7 c7 ~ c7 ~ ~ ~ ~] ~ ~ ~>")
-      .s("square").decay(0.03).sustain(0).hpf(2200).gain(0.07).pan(0.25),
-    // radio static on the last beat of the section
-    s("<~@7 [~ ~ ~ white]>").bpf(1800).bandq(6).coarse(6).decay(0.12).sustain(0).gain(0.11).pan(0.8)
+    note("<[f6 ~ bb6 f7 ~ ~ ~ ~] ~ ~ ~ [bb6 f6 ~ d7 ~ ~ ~ ~] ~ ~ ~>")
+      .s("triangle").crush(6).decay(0.08).sustain(0).hpf(1500).gain(0.12).pan(0.25),
+    s("<~@7 [~ ~ ~ white*4]>").hpf(2500).crush(3).decay(0.03).sustain(0).gain(0.06).pan(0.8)
   ),
   verse: stack(
-    // swung 808 kick + 909 snare with glitch ghost notes
     s("<[bd ~ ~ bd ~ ~ bd ~] [bd ~ ~ bd ~ bd ~ ~] [bd ~ ~ bd ~ ~ bd ~] [bd ~ bd ~ ~ bd ~ [bd bd]]>").bank("RolandTR808").gain(0.58),
     s("<[~ sd ~ sd] [~ sd ~ [sd ~ ~ sd]] [~ sd ~ sd] [~ sd ~ [sd sd*2]]>").bank("RolandTR909").gain(0.38).room(0.18).pan(0.52),
     s("hh*8").bank("RolandTR909").gain("[0.12 0.19]*4").pan(0.6),
-    // sub fundamental (root + fifth approaches so zero semitone clashes)
     note("<[bb1@3 ~ bb1@2 ~ f1] [eb1@3 ~ eb1@2 ~ bb1] [f1@3 ~ f1@2 ~ c2] [bb1@3 ~ bb1@2 f1 d1] [g1@3 ~ g1@2 ~ d1] [eb1@3 ~ eb1@2 ~ bb1] [f1@3 ~ f1@2 ~ c2] [bb1@6 ~@2]>")
       .s("sine").lpf(150).decay(0.28).sustain(0.5).release(0.15).gain(0.35),
-    // talking resonant saw bass with octave hops
     note("<[7 ~ 7 14 ~ 7 11 ~] [10 ~ 10 17 ~ 10 12 ~] [11 ~ 11 18 ~ 11 15 ~] [7 ~ 11 14 ~ 16 14 11] [5 ~ 5 12 ~ 5 9 ~] [10 ~ 10 17 ~ 10 12 ~] [11 ~ 11 18 ~ 15 11 9] [7 ~ 14 11 9 7 ~ ~]>")
       .scale("Bb0:major").s("sawtooth")
       .lpf("<900 1300 1050 1800 950 1400 1150 2100>").lpq(5)
       .lpenv(2.6).lpattack(0.015).lpdecay(0.14).lpsustain(0.15)
       .decay(0.18).sustain(0.22).release(0.08).gain(0.23).pan(0.48),
-    // warm string pad
     chord("<Bb Eb F Bb Gm Eb F Bb>").voicing().s("wt_strings")
       .hpf(200).lpf(2000).attack(0.25).release(0.8).room(0.4).pan(0.38).gain(0.14),
-    // "City sidewalks, busy sidewalks, dressed in holiday style..."
     note("<[9 7 5@2 ~ 9 7 5] [10 9 8 9 10 11@3] [11 10 11 12 11 10 9 7] [9@6 ~@2] [9 7 5@2 ~ 9 7 5] [10 9 8 9 10 11@3] [11 12 13 14 13 12 11 13] [14@6 ~@2]>")
       .scale("Bb3:major").s("gm_epiano1")
       .hpf(220).lpf(3600).decay(0.32).sustain(0.35).release(0.2)
       .delay(0.22).delaytime(0.375).delayfeedback(0.28)
       .room(0.32).pan(0.58).gain(0.32),
-    // distant "Silent Night" bell echoes in the phrase gaps
     note("<[~ ~ ~ ~ 11@2 9@2] [~ ~ ~ ~ 12@2 10@2] [~ ~ ~ ~ 15@2 13@2] [14@4 ~@4] [~ ~ ~ ~ 12@2 9@2] [~ ~ ~ ~ 14@2 12@2] [~ ~ ~ ~ 15@2 13@2] [14@4 ~@4]>")
       .scale("Bb3:major").s("wt_bell")
       .hpf(350).lpf(4200).decay(0.4).sustain(0.1).release(0.35).room(0.45).pan(0.35).gain(0.17),
-    s("<~@7 [~ ~ ~ white]>").bpf(1800).bandq(6).coarse(6).decay(0.12).sustain(0).gain(0.11).pan(0.8)
+    s("<~@7 [~ ~ ~ white*4]>").hpf(2500).crush(3).decay(0.03).sustain(0).gain(0.06).pan(0.8)
   ),
   build: stack(
     s("<[bd ~ ~ bd ~ ~ bd ~] [bd ~ bd ~ bd ~ bd ~] [bd*4] [bd*8]>").bank("RolandTR808").gain(0.58),
@@ -81,7 +53,6 @@ setbpm(100);
     s("<~ ~ [sleighbells*4] [sleighbells*8]>").gain(0.14).room(0.25).pan(0.7),
     note("<[g1 ~ g1 ~ g1 ~ d1 ~] [eb1 ~ eb1 ~ eb1 ~ bb1 ~] [f1*4] [f1*8]>")
       .s("sine").lpf(160).decay(0.18).sustain(0.42).gain(0.34),
-    // bitcrushed saw bass opening up across the build
     note("<[5 5 12 5 9 5 12 5] [10 10 17 10 12 10 17 10] [11 11 18 11 15 11 18 11] [11 12 13 15 16 18 19 20]>")
       .scale("Bb0:major").s("sawtooth")
       .lpf(saw.range(900, 2800).slow(8)).lpq(5.5)
@@ -90,41 +61,34 @@ setbpm(100);
       .decay(0.14).sustain(0.15).release(0.06).gain(0.22).pan(0.48),
     chord("<Gm Eb F F>").voicing().s("wt_strings")
       .hpf(200).lpf(saw.range(1200, 3000).slow(8)).attack(0.15).release(0.5).room(0.4).gain(0.15),
-    // "Silver bells, silver bells" hook fragments climbing
     note("<[9 8 7@2 ~ 9 8 7] [12 11 10@2 ~ 12 11 10] [13 14 15 11 13 14 15 16] [15 16 18 19 20 19 18 15]>")
       .scale("Bb3:major").s("square")
       .hpf(250).lpf(saw.range(1600, 3800).slow(8)).lpq(3)
       .decay(0.15).sustain(0.25).release(0.08).room(0.28).pan(0.42).gain(0.22),
-    // glitch stutter pluck arp (open chord tones avoiding 2nd clashes with the lead)
     note("<[7 9 11 14] [10 12 14 17] [11 15 18 15]*2 [15 16 18 19 20 19 18 15]>")
       .scale("Bb3:major").s("wt_pluck")
       .hpf(300).lpf(3600).crush(5).coarse(2)
       .decay(0.08).sustain(0).release(0.05)
       .pan(sine.range(0.25, 0.75).fast(2)).gain(0.17),
-    s("<~@7 [~ ~ ~ white]>").bpf(1800).bandq(6).coarse(6).decay(0.12).sustain(0).gain(0.12).pan(0.8)
+    s("<~@7 [~ ~ ~ white*4]>").hpf(2500).crush(3).decay(0.03).sustain(0).gain(0.06).pan(0.8)
   ),
   drop: stack(
-    // heavy glitch-hop 808/909 groove with stutter turnaround fills on bars 4, 8, 12
     s("<[bd ~ ~ bd ~ ~ bd ~] [bd ~ ~ bd ~ bd ~ [~ bd]] [bd ~ ~ bd ~ ~ bd ~] [bd ~ bd ~ ~ bd ~ [bd*2]] [bd ~ ~ bd ~ ~ bd ~] [bd ~ ~ bd ~ bd ~ ~] [bd ~ ~ bd ~ ~ bd ~] [bd ~ bd ~ ~ bd [bd*2] ~] [bd ~ ~ bd ~ ~ bd ~] [bd ~ ~ bd ~ bd ~ [~ bd]] [bd ~ ~ bd ~ ~ bd ~] [bd ~ bd ~ [bd*2] ~ bd ~]>").bank("RolandTR808").gain(0.6),
     s("<[~ [sd,cp] ~ [sd,cp]] [~ [sd,cp] ~ [sd,cp]] [~ [sd,cp] ~ [sd,cp]] [~ [sd,cp] [sd*2] [cp*4]] [~ [sd,cp] ~ [sd,cp]] [~ [sd,cp] ~ [sd,cp]] [~ [sd,cp] ~ [sd,cp]] [~ [sd,cp] [sd*4] [sd*4]] [~ [sd,cp] ~ [sd,cp]] [~ [sd,cp] ~ [sd,cp]] [~ [sd,cp] ~ [sd,cp]] [~ [sd,cp] [sd*2] [sd*4]]>").bank("RolandTR909").gain(0.38).room(0.2).pan(0.52),
     s("hh*16").bank("RolandTR909").gain("[0.13 0.2 0.14 0.22]*4").pan(0.62),
     s("[~ oh]*4").bank("RolandTR909").gain(0.12).pan(0.38),
     s("sleighbells*4").gain("[0.12 0.17]*2").room(0.25).pan(0.72),
     s("cr").mask("<1 ~ ~ ~ 1 ~ ~ ~ 1 ~ ~ ~>").bank("RolandTR909").gain(0.17).pan(0.6),
-    // deep 808 sub
     note("<[bb1@3 ~ bb1@2 f1 bb1] [eb1@3 ~ eb1@2 g1 eb1] [f1@3 ~ f1@2 c2 f1] [bb1@3 ~ f1@2 d1 bb0] [g1@3 ~ g1@2 d1 g1] [eb1@3 ~ eb1@2 g1 eb1] [f1@3 ~ f1@2 c2 f1] [bb1@4 f1@2 bb1@2] [g1@3 ~ g1@2 d1 g1] [eb1@3 ~ eb1@2 g1 eb1] [f1@3 ~ f1@2 c2 f1] [bb1@6 ~@2]>")
       .s("sine").lpf(155).decay(0.24).sustain(0.52).release(0.12).gain(0.36),
-    // talking glitch-hop saw bass with bitcrushed turnaround fills
     note("<[7 ~ 7 14 ~ 11 7 [14 16]] [10 ~ 10 17 ~ 14 10 [17 16]] [11 ~ 11 18 ~ 15 11 [18 20]] [7 ~ 14 11 [14 16 14 11] 9 7 ~] [5 ~ 5 12 ~ 9 5 [12 14]] [10 ~ 10 17 ~ 14 10 [17 19]] [11 ~ 11 18 ~ 15 13 [11 9]] [7 14 7 16 [14 13 12 11] 9 7 ~] [5 ~ 5 12 ~ 9 5 [12 14]] [10 ~ 10 17 ~ 14 10 [17 16]] [11 ~ 11 18 ~ 15 18 [20 18]] [7 ~ 14 ~ 7@4]>")
       .scale("Bb0:major").s("sawtooth")
       .lpf("<1200 1800 1400 2500 1100 1900 1500 2600 1250 1850 1600 2400>").lpq(6)
       .lpenv(3.2).lpattack(0.01).lpdecay(0.13).lpsustain(0.15)
       .crush("<8 8 8 5 8 8 8 5 8 8 6 5>").coarse("<1 1 1 2 1 1 1 2 1 1 1 2>")
       .decay(0.16).sustain(0.22).release(0.07).gain(0.24).pan(0.48),
-    // warm supersaw chord bed
     chord("<Bb Eb F Bb Gm Eb F Bb Gm Eb F Bb>").voicing().s("supersaw")
       .hpf(220).lpf(2400).attack(0.03).decay(0.35).sustain(0.32).release(0.2).room(0.35).gain(0.13),
-    // "Silver bells, silver bells, it's Christmas time in the city / Ring-a-ling, hear them ring..."
     note("<[9 8 7@2 ~ 11 9 7] [12 11 10@2 ~ 14 12 10] [13 14 15 11@2 12 13 11] [9@3 11 12 11 9 7] [9 8 7@2 ~ 9 11 12] [12 11 10@2 ~ 10 12 14] [13 14 15 16@2 15 13 11] [14@4 16 14 11 9] [9 8 7@2 ~ 12 11 10] [13 14 15 16 ~ 15 13 11] [12 11 10 12 13 14 15 16] [14@6 ~@2]>")
       .scale("Bb3:major").s("square")
       .hpf(250).lpf(3800).lpq(3)
@@ -132,12 +96,10 @@ setbpm(100);
       .decay(0.2).sustain(0.34).release(0.1)
       .delay(0.2).delaytime(0.25).delayfeedback(0.25)
       .room(0.28).pan(0.42).gain(0.25),
-    // "Silent Night" glockenspiel counter-phrases answering in the gaps + 4-bar tag
     note("<[~ ~ ~ ~ 11@3 12] [~ ~ ~ ~ 12@3 13] [~ ~ ~ ~ 15@2 13@2] [14@4 ~@4] [~ ~ ~ ~ 12@3 14] [~ ~ ~ ~ 17@2 14@2] [~ ~ ~ ~ 15@2 13@2] [14@4 ~@4] [11@3 12 11@2 9@2] [15@3 15 15@2 13@2] [14@2 11@2 9@2 8@2] [7@6 ~@2]>")
       .scale("Bb4:major").s("glockenspiel")
       .hpf(500).lpf(5200).decay(0.4).sustain(0.12).release(0.3)
       .room(0.42).pan(0.62).gain(0.2),
-    // bitcrushed micro-stutter ear candy in the pockets
     note("<[~ ~ [14 11 9 7] ~ ~ ~ [16 14] ~] [~ ~ [17 14 12 10] ~ ~ ~ [19 17] ~] [~ ~ [18 15 13 11] ~ ~ ~ [20 18] ~] [~ [21 18 16 14] ~ [14 11 9 7] [11 9 7 5] ~ ~ ~] [~ ~ [12 9 7 5] ~ ~ ~ [14 12] ~] [~ ~ [17 14 12 10] ~ ~ ~ [19 17] ~] [~ ~ [18 15 13 11] ~ ~ ~ [20 18] ~] [[21 18 16 14] ~ [16 14 11 9] ~ [14 11 9 7] ~ ~ ~] [~ ~ [12 9 7 5] ~ ~ ~ [14 12] ~] [~ ~ [17 14 12 10] ~ ~ ~ [19 17] ~] [~ ~ [18 15 13 11] ~ [20 18 15 13] ~ ~ ~] [[21 18 16 14] [18 16 14 11] [14 11 9 7] ~ ~ ~ ~ ~]>")
       .scale("Bb3:major").s("wt_pluck")
       .hpf(350).lpf(4200).crush(5).coarse("<1 2 1 2>")
@@ -159,7 +121,6 @@ setbpm(100);
       .decay(0.18).sustain(0.22).release(0.08).gain(0.23).pan(0.48),
     chord("<Bb Eb F Bb Gm Eb F Bb>").voicing().s("wt_strings")
       .hpf(200).lpf(2200).attack(0.2).release(0.7).room(0.38).pan(0.38).gain(0.14),
-    // "Strings of street lights, even stop lights, blink a bright red and green..."
     note("<[9 7 5@2 ~ 9 7 5] [10 9 8 9 10 11@3] [11 10 11 12 11 10 9 7] [9@4 11 9 7 5] [9 7 5@2 ~ 9 7 5] [10 9 8 9 10 11@3] [11 12 13 14 15 16 15 13] [14@6 ~@2]>")
       .scale("Bb3:major").s("gm_epiano1")
       .hpf(220).lpf(3600).decay(0.3).sustain(0.35).release(0.2)
@@ -171,10 +132,9 @@ setbpm(100);
     note("<[~ ~ ~ [14 11 9 7]] [~ ~ ~ [17 14 12 10]] [~ ~ ~ [18 15 13 11]] [~ [16 14 11 9] ~ ~] [~ ~ ~ [12 9 7 5]] [~ ~ ~ [17 14 12 10]] [~ ~ ~ [18 15 13 11]] [~ [21 18 16 14] ~ ~]>")
       .scale("Bb3:major").s("wt_pluck")
       .hpf(350).lpf(3600).crush(6).decay(0.1).sustain(0).release(0.06).pan(0.68).gain(0.15),
-    s("<~@7 [~ ~ ~ white]>").bpf(1800).bandq(6).coarse(6).decay(0.12).sustain(0).gain(0.11).pan(0.8)
+    s("<~@7 [~ ~ ~ white*4]>").hpf(2500).crush(3).decay(0.03).sustain(0).gain(0.06).pan(0.8)
   ),
   break: stack(
-    // snowglobe calm: SLEIGHCON 5 — full "Silent Night" hymn on cathedral tubular bells + glockenspiel + choir
     note("<bb1 eb1 f1 bb1 g1 eb1 f1 bb1>").s("sine").lpf(135).attack(0.08).release(0.5).gain(0.3),
     chord("<Bb Bb F Bb Eb Bb F Bb>").voicing().s("wt_choir")
       .hpf(180).lpf(2000).attack(0.6).release(1.4).room(0.75).roomsize(0.85).gain(0.18),
@@ -186,9 +146,9 @@ setbpm(100);
       .scale("Bb3:major").s("glockenspiel")
       .hpf(500).lpf(5200).decay(0.5).sustain(0.1).release(0.45)
       .room(0.65).pan(0.62).gain(0.18),
-    note("<[c7 ~ c7 ~ ~ ~ ~ ~] ~ ~ ~ [c7 c7 ~ c7 ~ ~ ~ ~] ~ ~ ~>")
-      .s("square").decay(0.03).sustain(0).hpf(2200).gain(0.07).pan(0.25),
-    s("<~@7 [~ ~ ~ white]>").bpf(1800).bandq(6).coarse(6).decay(0.12).sustain(0).gain(0.11).pan(0.8)
+    note("<[f6 ~ bb6 ~ ~ ~ ~ ~] ~ ~ ~ [bb6 f6 ~ d7 ~ ~ ~ ~] ~ ~ ~>")
+      .s("triangle").crush(6).decay(0.08).sustain(0).hpf(1500).gain(0.12).pan(0.25),
+    s("<~@7 [~ ~ ~ white*4]>").hpf(2500).crush(3).decay(0.03).sustain(0).gain(0.06).pan(0.8)
   ),
   build2: stack(
     s("rim*4").bank("RolandTR909").gain(0.22).pan(0.55),
@@ -206,7 +166,7 @@ setbpm(100);
       .decay(0.14).sustain(0.15).release(0.06).gain(0.22).pan(0.48),
     chord("<Gm Eb F F>").voicing().s("wt_strings")
       .hpf(200).lpf(saw.range(1400, 3200).slow(8)).attack(0.12).release(0.4).room(0.42).gain(0.15),
-    // "Silver Bells" and "Silent Night" motifs interleaving as the drop approaches
+    // the two tunes trade off into the drop
     note("<[9 8 7 ~ 11@2 12 11] [12 11 10 ~ 15@2 14 12] [13 14 15 11 12 13 14 15] [15 16 18 19 20 19 18 ~]>")
       .scale("Bb3:major").s("square")
       .hpf(250).lpf(saw.range(1800, 4000).slow(8)).lpq(3)
@@ -216,25 +176,20 @@ setbpm(100);
       .hpf(300).lpf(3800).crush(5).coarse(2)
       .decay(0.08).sustain(0).release(0.05)
       .pan(sine.range(0.25, 0.75).fast(2)).gain(0.17),
-    // ops-room klaxon: two detuned saws a fifth apart on F2 + C3, swelling over the last two bars
-    note("<~@6 [f2,c3]@2>").s("sawtooth").superimpose(x => x.detune(0.12)).vib(5).vibmod(0.3)
-      .attack(1.5).sustain(1).release(0.4).lpf(420).lpenv(2.6).lpattack(4.0).lpsustain(1).gain(0.032).pan(0.3),
-    // countdown tick on every beat of the last bar, hard left
-    s("<~@7 rim*4>").coarse(8).gain(0.11).pan(0),
-    s("<~@7 [~ ~ ~ white]>").bpf(1800).bandq(6).coarse(6).decay(0.12).sustain(0).gain(0.12).pan(0.8)
+    note("<~@6 [f2,c3]@2>").s("sine").fmi(3).fmh(1.5).penv(12).pattack(4.8)
+      .attack(1.5).sustain(1).release(0.4).lpf(1800).gain(0.05).pan(0.3),
+    note("<~@7 [bb5 bb5 bb5 bb6]>").s("glockenspiel").decay(0.2).gain(0.09).pan(0),
+    s("<~@7 [~ ~ ~ white*4]>").hpf(2500).crush(3).decay(0.03).sustain(0).gain(0.06).pan(0.8)
   ),
   final: stack(
-    // SLEIGHCON 1 overdrive drop: full glitch-hop drums + sleighbells + crash
     s("<[bd ~ ~ bd ~ ~ bd [~ bd]] [bd ~ ~ bd ~ bd ~ ~] [bd ~ ~ bd ~ ~ bd [~ bd]] [bd ~ bd ~ [bd*2] bd ~ [bd*2]] [bd ~ ~ bd ~ ~ bd [~ bd]] [bd ~ ~ bd ~ bd ~ ~] [bd ~ ~ bd ~ ~ bd [~ bd]] [bd ~ bd ~ [bd*2] ~ [bd*4] ~] [bd ~ ~ bd ~ ~ bd [~ bd]] [bd ~ ~ bd ~ bd ~ ~] [bd ~ ~ bd ~ ~ bd [~ bd]] [bd ~ bd [bd*2] ~ bd [bd*4] ~]>").bank("RolandTR808").gain(0.6),
     s("<[~ [sd,cp] ~ [sd,cp]] [~ [sd,cp] [~ sd] [sd,cp]] [~ [sd,cp] ~ [sd,cp]] [~ [sd,cp] [sd*4] [cp*4]] [~ [sd,cp] ~ [sd,cp]] [~ [sd,cp] [~ sd] [sd,cp]] [~ [sd,cp] ~ [sd,cp]] [~ [sd,cp] [sd*4] [sd*8]] [~ [sd,cp] ~ [sd,cp]] [~ [sd,cp] [~ sd] [sd,cp]] [~ [sd,cp] ~ [sd,cp]] [~ [sd,cp] [sd*4] [sd*8]]>").bank("RolandTR909").gain(0.38).room(0.22).pan(0.52),
     s("hh*16").bank("RolandTR909").gain("[0.13 0.2 0.14 0.22]*4").pan(0.62),
     s("[~ oh]*4").bank("RolandTR909").gain(0.12).pan(0.38),
     s("sleighbells*8").gain("[0.11 0.16 0.12 0.18]*2").room(0.28).pan(0.74),
     s("cr").mask("<1 ~ ~ ~ 1 ~ ~ ~ 1 ~ ~ 1>").bank("RolandTR909").gain(0.17).pan(0.6),
-    // deep 808 sub
     note("<[bb1@3 ~ bb1@2 f1 bb1] [eb1@3 ~ eb1@2 g1 eb1] [f1@3 ~ f1@2 c2 f1] [bb1@3 ~ f1@2 d1 bb0] [g1@3 ~ g1@2 d1 g1] [eb1@3 ~ eb1@2 g1 eb1] [f1@3 ~ f1@2 c2 f1] [bb1@4 f1@2 bb1@2] [g1@3 ~ g1@2 d1 g1] [eb1@3 ~ eb1@2 g1 eb1] [f1@3 ~ f1@2 c2 f1] [bb1@6 ~@2]>")
       .s("sine").lpf(155).decay(0.24).sustain(0.52).release(0.12).gain(0.36),
-    // talking bitcrushed saw bass at full throttle
     note("<[7 ~ 7 14 ~ 11 7 [14 16]] [10 ~ 10 17 ~ 14 10 [17 16]] [11 ~ 11 18 ~ 15 11 [18 20]] [7 ~ 14 11 [16 14 12 11] 9 7 ~] [5 ~ 5 12 ~ 9 5 [12 14]] [10 ~ 10 17 ~ 14 10 [17 19]] [11 ~ 11 18 ~ 15 13 [11 9]] [7 14 7 16 [18 16 14 11] 9 7 ~] [5 ~ 5 12 ~ 9 5 [12 14]] [10 ~ 10 17 ~ 14 10 [17 19]] [11 ~ 11 18 ~ 15 18 [20 21]] [14 11 9 7 14@4]>")
       .scale("Bb0:major").s("sawtooth")
       .lpf("<1350 1950 1550 2800 1250 2050 1650 3000 1400 2100 1800 2900>").lpq(6.5)
@@ -243,7 +198,6 @@ setbpm(100);
       .decay(0.16).sustain(0.22).release(0.07).gain(0.24).pan(0.48),
     chord("<Bb Eb F Bb Gm Eb F Bb Gm Eb F Bb>").voicing().s("supersaw")
       .hpf(220).lpf(2800).attack(0.02).decay(0.35).sustain(0.32).release(0.22).room(0.38).gain(0.13),
-    // COUNTERPOINT VOICE 1: "Silver Bells" chorus bouncing on the square glitch-hop lead
     note("<[9 8 7@2 ~ 11 9 7] [12 11 10@2 ~ 14 12 10] [13 14 15 11@2 12 13 11] [9@3 11 12 11 9 7] [9 8 7@2 ~ 9 11 12] [12 11 10@2 ~ 10 12 14] [13 14 15 16@2 15 13 11] [14@4 16 14 11 9] [9 8 7@2 ~ 12 11 10] [13 14 15 16 ~ 15 13 11] [12 11 10 12 13 14 15 16] [14@6 ~@2]>")
       .scale("Bb3:major").s("square")
       .hpf(250).lpf(4200).lpq(3.2)
@@ -251,7 +205,6 @@ setbpm(100);
       .decay(0.2).sustain(0.35).release(0.1)
       .delay(0.2).delaytime(0.25).delayfeedback(0.25)
       .room(0.3).pan(0.38).gain(0.23),
-    // COUNTERPOINT VOICE 2: "Silent Night" soaring simultaneously on cathedral tubular bells + brass!
     note("<[11@3 12 11@2 9@2] [12@3 13 12@2 10@2] [15@3 15 15@2 13@2] [14@3 14 14@2 11@2] [12@3 12 14@2 12@2] [17@3 16 14@2 12@2] [15@3 16 15@2 13@2] [14@6 ~@2] [11@3 12 11@2 9@2] [12@3 13 12@2 10@2] [15@3 16 15@2 13@2] [14@6 ~@2]>")
       .scale("Bb3:major").s("tubularbells")
       .hpf(350).lpf(5200).decay(0.75).sustain(0.22).release(0.55)
@@ -260,7 +213,6 @@ setbpm(100);
       .scale("Bb3:major").s("gm_trumpet")
       .hpf(250).lpf(3800).attack(0.03).decay(0.35).sustain(0.4).release(0.2)
       .room(0.38).pan(0.56).gain(0.18),
-    // stereo bitcrushed glitch arp weaving through the counterpoint
     note("<[~ [14 11 9 7] ~ [16 14 11 9]] [~ [17 14 12 10] ~ [19 17 14 12]] [~ [18 15 13 11] ~ [20 18 15 13]] [[21 18 16 14] ~ [16 14 11 9] [14 11 9 7]] [~ [12 9 7 5] ~ [16 14 12 9]] [~ [17 14 12 10] ~ [19 17 14 12]] [~ [18 15 13 11] ~ [20 18 15 13]] [[21 18 16 14] [18 16 14 11] [16 14 11 9] [14 11 9 7]] [~ [12 9 7 5] ~ [16 14 12 9]] [~ [17 14 12 10] ~ [19 17 14 12]] [[18 15 13 11] ~ [20 18 15 13] ~] [[21 18 16 14] [18 16 14 11] [14@4] ~]>")
       .scale("Bb3:major").s("wt_pluck")
       .hpf(350).lpf(4600).crush(5).coarse("<1 2 1 2>")
@@ -269,7 +221,6 @@ setbpm(100);
       .pan(sine.range(0.22, 0.78).fast(4)).gain(0.16)
   ),
   outro: stack(
-    // stand down in the snowglobe: "Sleep in heavenly peace" on glockenspiel + final tubular bell
     note("<bb1@2 eb1@2 f1@2 bb1@2>").s("sine").lpf(135).attack(0.08).release(0.6)
       .gain("<0.3 0.26 0.22 0.18 0.15 0.12 0.09 0.06>"),
     chord("<Bb Eb F Bb Gm Eb F Bb>").voicing().s("wt_choir")
@@ -286,7 +237,7 @@ setbpm(100);
       .scale("Bb3:major").s("tubularbells")
       .hpf(300).lpf(3800).decay(1.2).sustain(0.2).release(1.0)
       .room(0.8).roomsize(0.9).pan(0.5).gain(0.25),
-    note("<~ ~ [c7 ~ c7 c7 ~ ~ ~ ~] ~ ~ ~ [c7 ~ ~ ~ ~ ~ ~ ~] ~>")
-      .s("square").decay(0.03).sustain(0).hpf(2200).gain(0.06).pan(0.25)
+    note("<~ ~ [f6 ~ bb6 f7 ~ ~ ~ ~] ~ ~ ~ [bb6 ~ ~ ~ ~ ~ ~ ~] ~>")
+      .s("triangle").crush(6).decay(0.08).sustain(0).hpf(1500).gain(0.12).pan(0.25)
   )
 })

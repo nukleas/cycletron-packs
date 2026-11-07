@@ -1,5 +1,5 @@
 /**
- * SAT FEED — station STN-04 of the SLEIGHCON room: the satellite picture of
+ * SAT FEED: station STN-04 of the SLEIGHCON room: the satellite picture of
  * the village the operators protect on a silent night, inside the shared
  * console. A starry sky with the Milky Way, aurora and a crescent moon over
  * snow-capped mountains, a pine treeline and a two-tier village with a church,

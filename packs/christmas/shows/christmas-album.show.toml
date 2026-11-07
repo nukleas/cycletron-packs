@@ -19,7 +19,7 @@ camera = { move = "still", punch = 0, kick = 0.4 }
 palette = "norad"
 grain = 0.12
 
-# ---- 01 · Jingle Bells ------------------------------------
+# ---- 01 Jingle Bells ------------------------------------
 # 120 BPM, 96 bars. The shift begins: the morale feed, the outside view to open and close.
 
 [[song]]
@@ -37,7 +37,7 @@ build2 = { mode = "sleigh-road", palette = "amber", letterbox = 2.39, transition
 final  = { shots = ["christmas-band", "snowglobe", "christmas-house", { mode = "snowfall", palette = "evergreen" }], every = 4, palette = "blood", transition = "flash", strobe = { on = "snare", strength = 0.2 }, camera = { move = "still", punch = 0, kick = 0.8 }, text = [{ say = "OH WHAT FUN", at = 4, hold = 2, place = "top" }] }
 outro  = { shots = [{ mode = "snowfall", bars = 4, palette = "evergreen" }, { mode = "snowfall", bars = 4, palette = "ice" }], transition = "fade", text = [{ say = "> STAND DOWN · STN-04", at = 0, hold = 1.5, place = "top" }] }
 
-# ---- 02 · Deck the Halls ----------------------------------
+# ---- 02 Deck the Halls ----------------------------------
 # 124 BPM, 96 bars. The production line, D minor until the overdrive final.
 
 [[song]]
@@ -54,7 +54,7 @@ build2 = { palette = "amber", transition = "fade", camera = { move = "still", pu
 final  = { shots = ["workshop", "snowglobe", "workshop", "sleigh-road"], every = 4, palette = "blood", transition = "flash", strobe = { on = "snare", strength = 0.2 }, camera = { move = "still", punch = 0, kick = 0.8 } }
 outro  = { shots = [{ mode = "workshop", bars = 4 }, { mode = "snowfall", bars = 4, palette = "evergreen" }], transition = "fade", text = [{ say = "> SHIFT COMPLETE · LINE A IDLE", at = 0, hold = 1.5, place = "top" }] }
 
-# ---- 03 · God Rest Ye Merry, Gentlemen --------------------
+# ---- 03 God Rest Ye Merry, Gentlemen --------------------
 # 104 BPM, 84 bars. The dark middle: the situation display.
 
 [[song]]
@@ -72,7 +72,7 @@ lift2  = { mode = "lens-bench", palette = "amber", transition = "fade", camera =
 final  = { shots = ["santa-tracker", "snowglobe", "santa-tracker", "sleigh-road", "christmas-house", "snowglobe"], every = 2, palette = "blood", transition = "flash", strobe = { on = "snare", strength = 0.2 }, camera = { move = "still", punch = 0, kick = 0.8 } }
 outro  = { transition = "fade", text = [{ say = "> STAND DOWN · STATIONS HOLD", at = 0, hold = 2, place = "top" }, { say = "COMFORT AND JOY", at = 6, hold = 3, style = "card" }] }
 
-# ---- 06 · Deck the Halls (Dubstep) ------------------------
+# ---- 06 Deck the Halls (Dubstep) ------------------------
 # 140 BPM, 104 bars. The encore: the house outside after hours, the rec room on the drops.
 
 [[song]]

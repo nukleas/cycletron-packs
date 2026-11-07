@@ -1,5 +1,5 @@
 /**
- * SANTA TRACKER — a situation display in the NORAD style. A wireframe globe
+ * SANTA TRACKER: a situation display in the NORAD style. A wireframe globe
  * turns once per 32 bars under a radar sweep that goes round once per bar.
  * Every pitched note is a contact on the globe: pitch class picks the
  * longitude, register the latitude, snapped to the nearest city and tinted

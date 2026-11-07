@@ -1,5 +1,5 @@
 /**
- * SLEIGH ROAD — Santa's sleigh run along a Christmas ribbon road through the
+ * SLEIGH ROAD: Santa's sleigh run along a Christmas ribbon road through the
  * night sky, forked from the app's STAR ROAD kart race. A full-frame
  * cinematic, not a console station: the album cuts to it on the builds,
  * letterboxed, so the HUD keeps to the middle of the frame.

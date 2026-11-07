@@ -1,5 +1,5 @@
 /**
- * MORALE FEED — station 3 of the ops room: the stage camera from the North
+ * MORALE FEED: station 3 of the ops room: the stage camera from the North
  * Pole on a monitor that fills the console body. The picture is
  * Santa's band on a cosy stage, one pixel member per sound, moving on that
  * sound's onsets. Drums share Santa's kit at the back: each piece flashes on

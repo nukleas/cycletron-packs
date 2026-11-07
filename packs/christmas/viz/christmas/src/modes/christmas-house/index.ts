@@ -1,5 +1,5 @@
 /**
- * CHRISTMAS HOUSE — a NES house on a snowy night, forked from the Halloween
+ * CHRISTMAS HOUSE: a NES house on a snowy night, forked from the Halloween
  * pack's HAUNTED HOUSE. Each floor is a register and pitch picks the window
  * (the tower takes notes from C6 up); a note lights its window warm gold
  * with a face in the glass in the track's colour: an elf, a snowman, a

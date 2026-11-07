@@ -37,16 +37,19 @@ reads the same number and a cut lands on it. Levels 2 and 1 tint the frame and f
 Palettes: `norad` (phosphor green, the home look) and `evergreen` (the outside view, for
 the SAT feed). The shows use the built-in `amber` on lifts and `blood` on last choruses.
 
-Build the visualizers and render a show from the Cycletron repo:
+Build the visualizers and render a show from this repo:
 
-    cd ui && node scripts/pack-build.mjs <this folder>/viz/christmas
-    node scripts/render-viz.mjs <this folder>/shows/christmas-album.show.toml
+    npx cycpack build christmas
+    npx cycpack render packs/christmas/shows/christmas-album.show.toml
 
 ## The music
 
 Each piece is a Cold-War synth score built on its carol as a motif: a pulsing bass, arpeggios,
 808/909 kits, low-passed pads, the tune on square leads or bells, minor colour in the verses, a
-radio layer (static at section ends, Morse pings, a klaxon into the last drop). Forms run intro,
+radio layer: a ping, a mark at section ends, a riser into the last drop and a count-in. Each song
+has its own: Jingle Bells keeps the plain Morse and klaxon, the toy line a PA chime and a speeding
+alarm, God Rest a sonar ping and a siren, Silver Bells crushed music-box bleeps, the dubstep
+crackle and a growl. Forms run intro,
 verse, build, drop, break, build, final, outro, and are shaped so SLEIGHCON goes 5 in the intros,
 1 on the drops, back to 5 for the stand-down. The fifth track is Deck the Halls again as
 dubstep, the rec room after hours: half-time 909 drums, a sine sub and a tempo-locked wobble

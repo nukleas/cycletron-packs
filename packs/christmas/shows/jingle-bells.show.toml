@@ -21,7 +21,7 @@ source = "../songs/01-jingle-bells.strudel"
 mode = "christmas-band"
 fade = { in = 1, out = 3 }
 
-# 0–8 · morse, the saw pulse, the hook in pieces. The outside view, then the name.
+# 0–8: morse, the saw pulse, the hook in pieces. The outside view, then the name.
 [song.sections.intro]
 mode = "snowfall"
 palette = "evergreen"
@@ -31,13 +31,13 @@ text = [
   { say = "J. L. PIERPONT · 1857", at = 5, hold = 2, style = "card" },
 ]
 
-# 8–24 · kick, rim and octave bass. The band comes in.
+# 8–24: kick, rim and octave bass. The band comes in.
 [song.sections.verse]
 mode = "christmas-band"
 transition = "fade"
 text = [{ say = "> STN-03 MORALE FEED · LINK LOCKED", at = 0, hold = 1.5, place = "top" }]
 
-# 24–32 · hats double, the figure climbs, snare roll. Amber.
+# 24–32: hats double, the figure climbs, snare roll. Amber.
 [song.sections.build]
 mode = "sleigh-road"
 palette = "amber"
@@ -46,7 +46,7 @@ transition = "fade"
 camera = { move = "push", punch = 0.5, kick = 0.5 }
 text = [{ say = "> SLEIGHCON RISING", at = 1, hold = 2, place = "top" }]
 
-# 32–48 · first drop: the hook in G, the full kit.
+# 32–48: first drop: the hook in G, the full kit.
 [song.sections.drop]
 shots = ["christmas-band", { mode = "snowfall", palette = "evergreen" }, { mode = "christmas-house", palette = "evergreen" }, "snowglobe"]
 every = 4
@@ -57,13 +57,13 @@ text = [
   { say = "> STN-05 REC ROOM · DISCO RIG ARMED", at = 12, hold = 1.5, place = "top" },
 ]
 
-# 48–64 · sleigh bells and pad, the hook on bells. Back outside.
+# 48–64: sleigh bells and pad, the hook on bells. Back outside.
 [song.sections.break]
 shots = [{ mode = "snowfall", bars = 8, palette = "evergreen" }, { mode = "snowglobe", bars = 8 }]
 transition = "fade"
 text = [{ say = "> STN-04 SAT FEED · HOLDING", at = 0, hold = 1.5, place = "top" }]
 
-# 64–72 · snare roll, klaxon, countdown. The sleigh run, final leg.
+# 64–72: snare roll, klaxon, countdown. The sleigh run, final leg.
 [song.sections.build2]
 mode = "sleigh-road"
 palette = "amber"
@@ -72,7 +72,7 @@ transition = "fade"
 camera = { move = "push", punch = 0.5, kick = 0.6 }
 text = [{ say = "> SLEIGHCON RISING · ALL STATIONS", at = 1, hold = 2, place = "top" }]
 
-# 72–88 · last drop: the lead in octaves, in red.
+# 72–88: last drop: the lead in octaves, in red.
 [song.sections.final]
 shots = ["christmas-band", "snowglobe", "christmas-house", { mode = "snowfall", palette = "evergreen" }]
 every = 4
@@ -82,7 +82,7 @@ strobe = { on = "snare", strength = 0.2 }
 camera = { move = "still", punch = 0, kick = 0.8 }
 text = [{ say = "OH WHAT FUN", at = 4, hold = 2, place = "top" }]
 
-# 88–96 · stand down: bells, pad on Em, the tubular bell, then out.
+# 88–96: stand down: bells, pad on Em, the tubular bell, then out.
 [song.sections.outro]
 shots = [{ mode = "snowfall", bars = 4, palette = "evergreen" }, { mode = "snowfall", bars = 4, palette = "ice" }]
 transition = "fade"

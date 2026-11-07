@@ -1,5 +1,5 @@
 /**
- * REC ROOM — station STN-05 of the SLEIGHCON ops room: a North Pole rave
+ * REC ROOM: station STN-05 of the SLEIGHCON ops room: a North Pole rave
  * inside an ornate glass snowglobe on the break-room console. The dome sits
  * centred in the whole body; a readout strip across the bottom reads DANCERS,
  * TILES lit/total, LASERS active, VORTEX rpm, TURB (meter) and STROBE.
