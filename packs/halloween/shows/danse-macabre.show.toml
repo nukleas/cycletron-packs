@@ -1,0 +1,108 @@
+# Danse Macabre (Saint-Saëns), for Halloween. Format: docs/SHOW_FILES.md.
+# Bars count from the section's start; the song is one 3/4 bar per cycle.
+
+[show]
+title = "Danse Macabre"
+out = "../renders/danse-macabre.mp4"
+size = "1920x1080"
+fps = 60
+
+[defaults]
+code = { follow = "solo", size = 10 }
+titles = false
+camera = "drift"
+palette = "pumpkin"
+grain = 0.15
+
+[[song]]
+source = "../songs/danse-macabre.strudel"
+mode = "graveyard"
+fade = { in = 1, out = 2 }
+
+# 0–12: the clock strikes twelve on D over the graves, then the name.
+[song.sections.midnight]
+mode = "graveyard"
+code = "hide"
+letterbox = 2.39
+camera = { move = "push", punch = 0 }
+text = [
+  { say = "CAMILLE SAINT-SAËNS", at = 2, hold = 3, style = "card" },
+  { say = "DANSE MACABRE", at = 6, hold = 4, style = "card" },
+]
+
+# 12–20: Death tunes his fiddle: the tritone A–E♭ against the open fifth.
+[song.sections.tuning]
+mode = "haunted-house"
+transition = "black"
+grain = 0.35
+camera = { move = "still", punch = 0, kick = 0.5 }
+text = [{ say = "midnight. death tunes his fiddle.", at = 1, hold = 4, place = "top" }]
+
+# 20–36: the first waltz, on the bones. The dead get up.
+[song.sections.theme1]
+shots = [{ mode = "graveyard", bars = 8 }, { mode = "monster-band", bars = 8 }]
+transition = "flash"
+camera = { move = "drift", kick = 1.2 }
+
+# 36–52: the fiddle's chromatic lament.
+[song.sections.theme2]
+shots = ["monster-band", "haunted-house", { mode = "monster-band", palette = "blood" }, "haunted-house"]
+transition = "fade"
+camera = { move = "orbit", punch = 0.8 }
+
+# 52–60: tritones stacking, the snare rolls in.
+[song.sections.build]
+mode = "monster-band"
+palette = "toxic"
+transition = "glitch"
+strobe = { on = "snare", strength = 0.15 }
+camera = { move = "push", punch = 1.5, kick = 1.5 }
+
+# 60–76: the whole waltz, full band. A cut every two bars.
+[song.sections.drop]
+shots = ["graveyard", "monster-band", { mode = "haunted-house", palette = "blood" }, "monster-band"]
+every = 2
+transition = "flash"
+strobe = { on = "kick", strength = 0.18 }
+camera = { move = "shake", punch = 1.5, kick = 2 }
+
+# 76–92: the dies irae over rattling bones. Skeletons only.
+[song.sections.bones]
+mode = "graveyard"
+palette = "toxic"
+transition = "glitch"
+camera = { move = "drift", kick = 1 }
+text = [{ say = "DIES IRAE", at = 0.5, hold = 2, style = "card" }]
+
+# 92–100: the lament in the bass, the tritones climbing.
+[song.sections.build2]
+mode = "haunted-house"
+palette = "blood"
+transition = "black"
+strobe = { on = "snare", strength = 0.15 }
+camera = { move = "push", punch = 1.5, kick = 1.5 }
+
+# 100–116: the lament at full tilt.
+[song.sections.climax]
+shots = [{ mode = "monster-band", palette = "blood" }, "graveyard", { mode = "monster-band", palette = "toxic" }, "haunted-house"]
+every = 2
+transition = "flash"
+strobe = { on = "kick", strength = 0.2 }
+camera = { move = "shake", punch = 2, kick = 2.5 }
+
+# 116–122: the cock crows. Everything stops.
+[song.sections.rooster]
+mode = "haunted-house"
+transition = "black"
+letterbox = 2.39
+camera = { move = "still", punch = 0, kick = 0 }
+text = [{ say = "COCK-A-DOODLE-DOO", at = 1, hold = 2.5, style = "card" }]
+
+# 122–134: dawn. The dead slip back under, the fiddle shivers out.
+[song.sections.dawn]
+mode = "graveyard"
+code = "hide"
+transition = "fade"
+grain = 0.3
+camera = { move = "pull", punch = 0 }
+text = [{ say = "dawn.", at = 2, hold = 3, place = "bottom" }]

@@ -1,0 +1,102 @@
+# Funeral March of a Marionette (Gounod), for Halloween. Format: docs/SHOW_FILES.md.
+# Bars count from the section's start; the song is one 6/8 bar per cycle.
+
+[show]
+title = "Funeral March of a Marionette"
+out = "../renders/marionette-march.mp4"
+size = "1920x1080"
+fps = 60
+
+[defaults]
+code = "hide"
+titles = false
+camera = "drift"
+palette = "pumpkin"
+grain = 0.15
+
+[[song]]
+source = "../songs/marionette-march.strudel"
+mode = "graveyard"
+fade = { in = 1, out = 2 }
+
+# 0–12: two crashes, the fall, the troupe's murmur, three bells on A.
+[song.sections.intro]
+mode = "haunted-house"
+letterbox = 2.39
+grain = 0.35
+camera = { move = "still", punch = 0, kick = 1.5 }
+text = [
+  { say = "CHARLES GOUNOD · 1872", at = 0.5, hold = 1.5, style = "card" },
+  { say = "THE MARIONETTE IS BROKEN", at = 3, hold = 2, style = "card" },
+  { say = "FUNERAL MARCH OF A MARIONETTE", at = 8, hold = 3.5, style = "card" },
+]
+
+# 12–20: the theme down low, on tiptoe.
+[song.sections.tiptoe]
+mode = "ghost-fog"
+transition = "fade"
+camera = { move = "push", punch = 0 }
+
+# 20–36: the cortège, xylophone bones on top.
+[song.sections.cortege]
+shots = [{ mode = "graveyard", bars = 8 }, { mode = "monster-band", bars = 8 }]
+transition = "fade"
+camera = { move = "drift", kick = 1 }
+
+# 36–44: the A-major stabs, then the snare roll.
+[song.sections.episode]
+shots = [{ mode = "haunted-house", bars = 6 }, { mode = "monster-band", bars = 2, palette = "blood" }]
+transition = "glitch"
+camera = { move = "orbit", punch = 1.5, kick = 1.5 }
+
+# 44–60: the whole march, heavy. A cut every 2 bars.
+[song.sections.drop]
+shots = ["monster-band", "graveyard", { mode = "monster-band", palette = "blood" }, "haunted-house"]
+every = 2
+transition = "flash"
+strobe = { on = "snare", strength = 0.18 }
+camera = { move = "shake", punch = 1.5, kick = 2 }
+
+# 60–76: the D-major trio. The troupe stops for refreshments.
+[song.sections.trio]
+shots = [{ mode = "haunted-house", bars = 8 }, { mode = "monster-band", bars = 8 }]
+palette = "toxic"
+transition = "fade"
+camera = { move = "drift", punch = 0.5, kick = 1 }
+text = [{ say = "intermission", at = 1, hold = 2, place = "top" }]
+
+# 76–84: the theme on xylophone alone, then the roll back in.
+[song.sections.break]
+mode = "ghost-fog"
+letterbox = 2.39
+grain = 0.4
+transition = "black"
+camera = { move = "still", punch = 0, kick = 0.5 }
+
+# 84–100: the last march, everyone. A cut every bar in the second half.
+[song.sections.finale]
+shots = [
+  { mode = "monster-band", bars = 4 },
+  { mode = "graveyard", bars = 4, palette = "blood" },
+  { mode = "haunted-house", bars = 1 },
+  { mode = "monster-band", bars = 1 },
+  { mode = "graveyard", bars = 1 },
+  { mode = "kaleidoscope", bars = 1, palette = "blood" },
+  { mode = "haunted-house", bars = 1 },
+  { mode = "monster-band", bars = 1 },
+  { mode = "graveyard", bars = 1 },
+  { mode = "monster-band", bars = 1 },
+]
+transition = "flash"
+strobe = { on = "kick", strength = 0.15 }
+camera = { move = "shake", punch = 1.5, kick = 2 }
+
+# 100–106: the climb to D, two last ppp octaves.
+[song.sections.outro]
+mode = "graveyard"
+transition = "fade"
+camera = { move = "pull", punch = 0 }
+text = [
+  { say = "HAPPY HALLOWEEN", at = 1.5, hold = 3.5, style = "card" },
+  { say = "from Gounod's 1872 score · played by Cycletron", at = 3, hold = 2.5 },
+]

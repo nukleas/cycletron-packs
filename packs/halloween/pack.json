@@ -12,9 +12,17 @@
     "viz/halloween-8bit"
   ],
   "songs": [
-    "songs/bustin-neil-cicierega.strudel"
+    "songs/bustin-neil-cicierega.strudel",
+    "songs/danse-macabre.strudel",
+    "songs/mountain-king.strudel",
+    "songs/marionette-march.strudel",
+    "songs/toccata-d-minor.strudel"
   ],
   "shows": [
-    "shows/bustin.show.toml"
+    "shows/bustin.show.toml",
+    "shows/danse-macabre.show.toml",
+    "shows/mountain-king.show.toml",
+    "shows/marionette-march.show.toml",
+    "shows/toccata-d-minor.show.toml"
   ]
 }

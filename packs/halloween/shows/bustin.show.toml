@@ -19,7 +19,7 @@ source = "../songs/bustin-neil-cicierega.strudel"
 mode = "graveyard"
 fade = { in = 1, out = 2 }
 
-# 0–5 · tremolo guitar, drum roll. The band takes the stage, then the name.
+# 0–5: tremolo guitar, drum roll. The band takes the stage, then the name.
 [song.sections.intro]
 mode = "haunted-house"
 camera = { move = "still", punch = 0 }
@@ -28,36 +28,36 @@ text = [
   { say = "BUSTIN'", at = 2.2, hold = 2.2, style = "card" },
 ]
 
-# 5–13 · bass and drums enter. Windows light per note, the door on the kick.
+# 5–13: bass and drums enter. Windows light per note, the door on the kick.
 [song.sections.groove]
 mode = "monster-band"
 transition = "flash"
 camera = { move = "drift", kick = 1.5 }
 
-# 13–21 · trumpet verse. Captions ride the chopped vocal, up top, clear of the front row.
+# 13–21: trumpet verse. Captions ride the chopped vocal, up top, clear of the front row.
 [song.sections.verse1]
 mode = "monster-band"
 
-# 21–29 · first chorus: a cut every 2 bars.
+# 21–29: first chorus: a cut every 2 bars.
 [song.sections.chorus1]
 shots = ["haunted-house", "monster-band", "graveyard", { mode = "monster-band", palette = "blood" }]
 every = 2
 transition = "flash"
 camera = { move = "shake", punch = 1.5, kick = 2 }
 
-# 29–41 · 4 bars of stabs, then 8 of verse. Two shots that sum to the section.
+# 29–41: 4 bars of stabs, then 8 of verse. Two shots that sum to the section.
 [song.sections.verse2]
 shots = [{ mode = "monster-band", bars = 4, palette = "toxic" }, { mode = "monster-band", bars = 8 }]
 transition = "glitch"
 
-# 41–49 · full chorus; the bass walks down B A G# G in the last four.
+# 41–49: full chorus; the bass walks down B A G# G in the last four.
 [song.sections.chorus2]
 shots = ["graveyard", "haunted-house", { mode = "monster-band", palette = "blood" }, "haunted-house"]
 every = 2
 transition = "flash"
 camera = { move = "shake", punch = 1.5, kick = 2 }
 
-# 49–57 · tritone stabs. Green, orbiting.
+# 49–57: tritone stabs. Green, orbiting.
 [song.sections.afraid]
 mode = "monster-band"
 palette = "toxic"
@@ -67,7 +67,7 @@ text = [
   { say = "I AIN'T AFRAID OF NO GHOST", at = 1, hold = 2.4, style = "card" }
 ]
 
-# 57–65 · kick only, piano drone, horn answer. The drummer alone, cinema bars, a low strobe.
+# 57–65: kick only, piano drone, horn answer. The drummer alone, cinema bars, a low strobe.
 [song.sections.breakdown]
 mode = "haunted-house"
 letterbox = 2.39
@@ -76,17 +76,17 @@ transition = "black"
 strobe = { on = "kick", strength = 0.15 }
 camera = { move = "still", punch = 0, kick = 0.5 }
 
-# 65–73 · stabs return.
+# 65–73: stabs return.
 [song.sections.stabs]
 mode = "monster-band"
 transition = "flash"
 camera = { move = "drift", kick = 1.5 }
 
-# 73–81 · third verse.
+# 73–81: third verse.
 [song.sections.verse3]
 mode = "monster-band"
 
-# 81–89 · cowbell and tom break, four on the floor.
+# 81–89: cowbell and tom break, four on the floor.
 [song.sections.break]
 shots = [{ mode = "monster-band", palette = "blood" }, { mode = "flame-graph" }]
 every = 2
@@ -94,7 +94,7 @@ transition = { kind = "glitch", bars = 0.15 }
 strobe = { on = "kick", strength = 0.2 }
 camera = { move = "shake", punch = 1.5, kick = 2.5 }
 
-# 89–97 · a cut every bar; bar 96 is the stop, so the eighth shot is the band with the question.
+# 89–97: a cut every bar; bar 96 is the stop, so the eighth shot is the band with the question.
 [song.sections.chorus3]
 shots = ["graveyard", "haunted-house", "kaleidoscope", "tunnel", "graveyard", "haunted-house", "plasma", "monster-band"]
 every = 1
@@ -103,7 +103,7 @@ strobe = { on = "kick", strength = 0.12 }
 camera = { move = "drift", punch = 1.5, kick = 2 }
 text = [{ say = "WHO YOU GONNA CALL?", at = 7, hold = 1, style = "card" }]
 
-# 97–105 · the same cut; bar 104 stops again.
+# 97–105: the same cut; bar 104 stops again.
 [song.sections.chorus4]
 shots = ["haunted-house", "graveyard", "tunnel", "kaleidoscope", "haunted-house", "graveyard", "spot-field", "monster-band"]
 every = 1
@@ -112,13 +112,13 @@ strobe = { on = "kick", strength = 0.12 }
 camera = { move = "shake", punch = 1.5, kick = 2 }
 text = [{ say = "WHO YOU GONNA CALL?", at = 7, hold = 1, style = "card" }]
 
-# 105–113 · sax counter-line; bar 112 is the last stop, the tempo jumps inside it.
+# 105–113: sax counter-line; bar 112 is the last stop, the tempo jumps inside it.
 [song.sections.finale]
 shots = [{ mode = "monster-band", bars = 7 }, { mode = "graveyard", bars = 1 }]
 transition = "flash"
 camera = { move = "still", punch = 1, kick = 1 }
 
-# 113–126 · 16 bars at 150 bpm in 13 cycles. Graves, then the band plays it out under the end card.
+# 113–126: 16 bars at 150 bpm in 13 cycles. Graves, then the band plays it out under the end card.
 [song.sections.outro]
 shots = [{ mode = "graveyard", bars = 8 }, { mode = "monster-band", bars = 5 }]
 transition = "fade"

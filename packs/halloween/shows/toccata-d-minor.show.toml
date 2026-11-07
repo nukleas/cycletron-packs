@@ -1,0 +1,87 @@
+# Toccata and Fugue in D minor, for Halloween. Format: docs/SHOW_FILES.md.
+# Bars count from the section's start; the song is one bar per cycle at 120 BPM.
+# The organ in the haunted house, the vampire at the keys, then the fugue as a rave in the yard.
+
+[show]
+title = "Toccata and Fugue in D minor"
+out = "../renders/toccata-d-minor.mp4"
+size = "1920x1080"
+fps = 60
+
+[defaults]
+code = { follow = "solo", size = 10 }
+titles = false
+camera = "drift"
+palette = "pumpkin"
+grain = 0.15
+
+[[song]]
+source = "../songs/toccata-d-minor.strudel"
+mode = "graveyard"
+fade = { in = 1, out = 2 }
+
+# 0–8: the mordent and the run, three times down the octaves, then the rolled chord. The house alone.
+[song.sections.intro]
+mode = "haunted-house"
+letterbox = 2.39
+grain = 0.3
+camera = { move = "push", punch = 0, kick = 0 }
+text = [
+  { say = "J. S. BACH", at = 0.5, hold = 1.5, style = "card" },
+  { say = "TOCCATA AND FUGUE IN D MINOR", at = 2.5, hold = 2.5, style = "card" },
+  { say = "BWV 565", at = 5.5, hold = 1.5, place = "bottom" },
+]
+
+# 8–16: prestissimo triplets; the kick comes up through a filter at bar 4.
+[song.sections.toccata]
+shots = [{ mode = "monster-band", bars = 4 }, { mode = "haunted-house", bars = 4 }]
+transition = "flash"
+camera = { move = "drift", kick = 1 }
+
+# 16–24: the descending run over the pedal A, the snare roll in the last two.
+[song.sections.build]
+mode = "monster-band"
+palette = "blood"
+transition = "glitch"
+camera = { move = "push", punch = 1, kick = 1.5 }
+
+# 24–40: the fugue subject as the riff, then the answer in G minor with the countersubject.
+[song.sections.drop]
+shots = ["graveyard", "monster-band", { mode = "haunted-house", palette = "toxic" }, "graveyard"]
+every = 4
+transition = "flash"
+strobe = { on = "kick", strength = 0.12 }
+camera = { move = "shake", punch = 1.5, kick = 2 }
+text = [{ say = "FUGUE", at = 0, hold = 1, style = "card" }]
+
+# 40–48: the drums leave. The mordent once more, the diminished chord in the choir.
+[song.sections.break]
+mode = "ghost-fog"
+letterbox = 2.39
+grain = 0.4
+transition = "black"
+camera = { move = "still", punch = 0, kick = 0.5 }
+
+# 48–56: the falling triplet sequence twice, the run, the roll.
+[song.sections.build2]
+shots = [{ mode = "haunted-house", bars = 4 }, { mode = "monster-band", bars = 4, palette = "blood" }]
+transition = "glitch"
+camera = { move = "push", punch = 1, kick = 1.5 }
+
+# 56–72: the subject in the bass, the opening mordent on top, then the answer.
+[song.sections.drop2]
+shots = ["graveyard", "haunted-house", "monster-band", { mode = "graveyard", palette = "blood" }, "monster-band", { mode = "ghost-fog", palette = "toxic" }, "haunted-house", "graveyard"]
+every = 2
+transition = "flash"
+strobe = { on = "kick", strength = 0.15 }
+camera = { move = "shake", punch = 1.5, kick = 2.5 }
+
+# 72–84: the mordent over the last kicks, then the fugue's final cadence, slowing to D minor.
+[song.sections.outro]
+shots = [{ mode = "haunted-house", bars = 4 }, { mode = "ghost-fog", bars = 8 }]
+transition = "fade"
+camera = { move = "pull", punch = 0, kick = 0.5 }
+text = [
+  { say = "HAPPY HALLOWEEN", at = 7, hold = 3.5, style = "card" },
+  { say = "from the Mutopia score · played by Cycletron", at = 9, hold = 2.5 },
+]

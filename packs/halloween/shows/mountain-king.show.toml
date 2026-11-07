@@ -1,0 +1,93 @@
+# In the Hall of the Mountain King (Grieg), for Halloween. Format: docs/SHOW_FILES.md.
+# Bars here are cycles. From stalk on, each section fits more bars of music into its
+# cycles (16 in 15, 16 in 14, 8 in 6, 8 in 5, 8 in 4), so cuts land on fractions.
+
+[show]
+title = "In the Hall of the Mountain King"
+out = "../renders/mountain-king.mp4"
+size = "1920x1080"
+fps = 60
+
+[defaults]
+code = { follow = "solo", size = 10 }
+titles = false
+camera = "drift"
+palette = "pumpkin"
+grain = 0.15
+
+[[song]]
+source = "../songs/mountain-king.strudel"
+mode = "graveyard"
+fade = { in = 1, out = 1 }
+
+# 0–4: the held F#, wind and a gong. Fog over the swamp, then the name.
+[song.sections.intro]
+mode = "ghost-fog"
+letterbox = 2.39
+grain = 0.35
+camera = { move = "push", punch = 0, kick = 0 }
+text = [
+  { say = "EDVARD GRIEG", at = 0.5, hold = 1.4, style = "card" },
+  { say = "IN THE HALL OF THE MOUNTAIN KING", at = 2, hold = 1.8, style = "card" },
+]
+
+# 4–20: pp. The theme low on square, the triangle ostinato. A heartbeat from bar 9.
+[song.sections.creep]
+shots = [{ mode = "graveyard", bars = 8 }, { mode = "haunted-house", bars = 8 }]
+transition = "fade"
+camera = { move = "push", punch = 0, kick = 0.5 }
+
+# 20–35: 107 bpm. The kick walks in; the bones (marimba) answer in the second half.
+[song.sections.stalk]
+shots = [{ mode = "monster-band", bars = 7.5 }, { mode = "graveyard", bars = 7.5 }]
+transition = "glitch"
+camera = { move = "drift", punch = 0.5, kick = 1 }
+
+# 35–49: 114 bpm. Dominant phrase high, then triplet arps, a snare roll and the bass walk down.
+[song.sections.gather]
+shots = [{ mode = "haunted-house", bars = 7 }, { mode = "monster-band", bars = 7, palette = "toxic" }]
+transition = "flash"
+camera = { move = "push", punch = 1, kick = 1.5 }
+
+# 49–55: Più vivo, 133 bpm. The drop: a cut every two bars of music.
+[song.sections.frenzy]
+shots = ["monster-band", { mode = "graveyard", palette = "blood" }, "haunted-house", { mode = "monster-band", palette = "blood" }]
+every = 1.5
+transition = "flash"
+strobe = { on = "kick", strength = 0.12 }
+camera = { move = "shake", punch = 1.5, kick = 2 }
+
+# 55–60: 160 bpm, sempre stretto. Red and green.
+[song.sections.rampage]
+shots = [{ mode = "graveyard", palette = "toxic" }, { mode = "monster-band", palette = "blood" }, { mode = "flame-graph", palette = "blood" }, { mode = "haunted-house", palette = "toxic" }]
+every = 1.25
+transition = "glitch"
+strobe = { on = "kick", strength = 0.15 }
+camera = { move = "shake", punch = 1.5, kick = 2.5 }
+
+# 60–64: 200 bpm. A cut on every bar.
+[song.sections.madness]
+shots = [
+  { mode = "monster-band", palette = "blood" }, "graveyard", { mode = "haunted-house", palette = "blood" }, { mode = "kaleidoscope", palette = "blood" },
+  { mode = "monster-band", palette = "toxic" }, "graveyard", { mode = "haunted-house", palette = "blood" }, { mode = "flame-graph", palette = "blood" },
+]
+every = 0.5
+transition = "flash"
+strobe = { on = "kick", strength = 0.2 }
+camera = { move = "shake", punch = 2, kick = 3 }
+
+# 64–74: the stabs, the pause, the tremolo, the last chord. Then fog and the end card.
+[song.sections.coda]
+shots = [
+  { mode = "monster-band", bars = 2, palette = "blood" },
+  { mode = "haunted-house", bars = 2 },
+  { mode = "graveyard", bars = 3, palette = "blood" },
+  { mode = "ghost-fog", bars = 3 },
+]
+transition = "flash"
+strobe = { on = "snare", strength = 0.15 }
+camera = { move = "still", punch = 1.5, kick = 2 }
+text = [
+  { say = "HAPPY HALLOWEEN", at = 7.6, hold = 2, style = "card" },
+  { say = "Grieg, Peer Gynt (1875) · from the Mutopia score · played by Cycletron", at = 8.2, hold = 1.6 },
+]

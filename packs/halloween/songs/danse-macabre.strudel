@@ -1,0 +1,173 @@
+---
+name: "Danse Macabre (Saint-Saëns)"
+bpm: 208
+created: 2026-11-06
+tags: [cycletron,classical,halloween,chiptune]
+---
+// Danse macabre by Camille Saint-Saëns (1874), from Liszt's piano transcription (Durand, 1876)
+// 3/4, one bar per cycle; the dies irae sits in A major, as in the score
+setcpm(52)
+
+"<midnight@12 tuning@8 theme1@16 theme2@16 build@8 drop@16 bones@16 build2@8 climax@16 rooster@6 dawn@12>".slow(1).pickRestart({
+  midnight: stack(
+    note("d4").s("tubularbells").room(0.7).roomsize(0.8).gain(0.48).pan(0.45),
+    note("d5").s("triangle").decay(0.5).sustain(0).hpf(600).room(0.6).gain(0.12).pan(0.6),
+    note("d2").s("sine").attack(0.02).release(1.2).gain(0.3),
+    note("<~!4 [a4 bb4]*6!4 [f#5 g5]*6!4>").s("triangle").lpf(2400).room(0.5).gain(0.075).pan(0.3),
+    note("<~!4 [f#3,a3]!4 [d4,a4]!4>").s("wt_strings").attack(0.8).release(1.5).lpf(900).room(0.6).gain(0.18),
+    s("<~!11 [~ ~ white]>").hpf(4000).decay(0.4).sustain(0).gain(0.06).pan(0.8)
+  ),
+  tuning: stack(
+    note(`<
+      [a4,eb5] [d4,a4] [[a4,eb5]@2 [a4,eb5]] [[d4,a4]@2 [d4,a4]]
+      [[a4,eb5] [a4,eb5] [a4,eb5]@2 [d4,a4]@2] [[a4,eb5] [a4,eb5] [a4,eb5]@2 [d4,a4]@2]
+      [[a4,eb5] [d4,a4] [a4,eb5] [d4,a4] [a4,eb5] [d4,a4]] [[a4,eb5] ~ ~ ~ ~ ~]>`)
+      .s("wt_violin").attack(0.01).release(0.3).vib(5).vibmod(0.15).room(0.4).gain(0.45).pan(0.55),
+    note("<~!7 [~ ~ ~ ~ d5@2]>").s("square").decay(0.12).sustain(0.3).lpf(2600).gain(0.24).pan(0.45),
+    note("<~!4 [d2 ~ ~]!4>").s("sawtooth").lpf(300).decay(0.3).sustain(0).gain(0.42),
+    note("d2").s("sine").attack(0.5).release(1).gain(0.21),
+    s("<~!4 [~ rim rim]!4>").gain(0.18).pan(0.7),
+    s("<~!7 [~ ~ [white white]]>").hpf(5000).decay(0.15).sustain(0).gain(0.075).pan(0.2)
+  ),
+  theme1: stack(
+    note(`<
+      [~ ~ g4 bb4 g4 a4] [bb4@2 a4 bb4 g4 bb4] [a4 g4 g4 bb4 g4 a4] [bb4@2 a4 bb4 g4 bb4]
+      [~ ~ ab4 c5 ab4 bb4] [c5@2 bb4 c5 ab4 c5] [bb4 ab4 ab4 c5 ab4 bb4] [c5@2 ab4 c5 bb4 ab4]
+      [bb5 ~ g5 bb5 g5 a5] [bb5@2 a5 bb5 g5 bb5] [a5 g5 g5 bb5 g5 a5] [bb5@2 a5 bb5 g5 bb5]
+      [ab5 ~ ab5 c6 ab5 bb5] [c6@2 bb5 c6 ab5 c6] [bb5 ab5 ab5 c6 ab5 bb5] [c6@2 ab5 c6 bb5 ab5]>`)
+      .s("marimba").hpf(400).room(0.25).gain(0.75).pan(0.55),
+    note(`<
+      [~ ~ g4 bb4 g4 a4] [bb4@2 a4 bb4 g4 bb4] [a4 g4 g4 bb4 g4 a4] [bb4@2 a4 bb4 g4 bb4]
+      [~ ~ ab4 c5 ab4 bb4] [c5@2 bb4 c5 ab4 c5] [bb4 ab4 ab4 c5 ab4 bb4] [c5@2 ab4 c5 bb4 ab4]
+      [bb5 ~ g5 bb5 g5 a5] [bb5@2 a5 bb5 g5 bb5] [a5 g5 g5 bb5 g5 a5] [bb5@2 a5 bb5 g5 bb5]
+      [ab5 ~ ab5 c6 ab5 bb5] [c6@2 bb5 c6 ab5 c6] [bb5 ab5 ab5 c6 ab5 bb5] [c6@2 ab5 c6 bb5 ab5]>`)
+      .s("square").decay(0.1).sustain(0.2).lpf(2200).gain(0.15).pan(0.4),
+    note("<[~ d4 d4]!4 [~ eb4 eb4]!4 [~ d4 d4]!4 [~ eb4 eb4]!4>").s("wt_pluck").decay(0.15).sustain(0).room(0.3).gain(0.33).pan(0.7),
+    note("<[g1 ~ ~]!4 [d1 ~ ~]!4 [g1 ~ ~]!4 [d1 ~ ~]!4>").s("sawtooth").lpf(260).decay(0.35).sustain(0).gain(0.36),
+    note("<[g2,d3,g3]!4 [d3,ab3,c4]!4 [g2,d3,bb3]!4 [d3,ab3,c4]!4>").s("wt_strings").attack(0.3).release(0.8).hpf(220).lpf(1400).room(0.5).gain(0.15),
+    s("<~!8 [bd ~ ~]!8>").bank("RolandTR808").gain(0.9),
+    s("[~ rim rim]").gain(0.15).pan(0.3)
+  ),
+  theme2: stack(
+    note(`<
+      [g4@2 g4] [f4@2 f4] [e4@2 e4] [eb4@2 eb4] [d4 e4 g4] [f#4 e4 d4] [e4@2 e4] [f#4 ~ d4]
+      [g4@2 g4] [f4@2 f4] [e4@2 e4] [eb4@2 eb4] [d4 g4 bb4] [a4 f#4 d4] [f#4@2 e4] d4>`)
+      .s("wt_violin").hpf(200).attack(0.02).release(0.25).vib(5.5).vibmod(0.12).room(0.35).gain(0.54).pan(0.5),
+    note(`<
+      [g5@2 g5] [f5@2 f5] [e5@2 e5] [eb5@2 eb5] [d5 e5 g5] [f#5 e5 d5] [e5@2 e5] [f#5 ~ d5]
+      [g5@2 g5] [f5@2 f5] [e5@2 e5] [eb5@2 eb5] [d5 g5 bb5] [a5 f#5 d5] [f#5@2 e5] d5>`)
+      .s("pulse").width(0.25).decay(0.2).sustain(0.4).lpf(2400).gain(0.105).pan(0.62),
+    note(`<
+      [g2,bb2,d3] [g2,bb2,d3] [g2,bb2,c#3] [g2,c3,eb3] [d3,f#3,a3] [d3,f#3,c4] [a2,c#3,g3] [d3,f#3,a3]
+      [g2,bb2,d3] [g2,bb2,d3] [g2,bb2,c#3] [g2,c3,eb3] [g2,bb2,d3] [d3,f#3,c4] [d3,f#3,c4] [d3,f#3,a3]>`)
+      .s("wt_strings").attack(0.2).release(0.6).hpf(220).lpf(1800).room(0.5).gain(0.195),
+    note("<g1 g1 g1 g1 d2 d2 a1 d2 g1 g1 g1 g1 g1 d2 d2 d2>").s("sawtooth").lpf(280).decay(0.4).sustain(0.2).gain(0.33),
+    note("<[~ d4 d4] [~ d4 d4] [~ c#4 c#4] [~ c4 c4] [~ a3 a3] [~ c4 c4] [~ c#4 c#4] [~ c4 c4]>").s("wt_pluck").decay(0.15).sustain(0).room(0.3).gain(0.27).pan(0.75),
+    s("[bd ~ ~]").bank("RolandTR808").gain(0.975),
+    s("[~ ~ ~ ~ sd ~]").bank("RolandTR808").gain(0.45),
+    s("[~ hh hh]*2").bank("RolandTR808").gain(0.3).pan(0.6)
+  ),
+  build: stack(
+    note("<[[a4,eb5] ~ [a4,eb5] ~ [a4,eb5] ~]!4 [[a4,eb5] [a4,eb5] [a4,eb5] [a4,eb5] [a4,eb5] [a4,eb5]]!2 [[a4,eb5]*12]!2>")
+      .s("supersaw").lpf(saw.range(700, 3200).slow(8)).decay(0.08).sustain(0.2).gain(0.21).pan(0.5),
+    note("<[d4,a4]@2!4 [[d4,a4] ~ [d4,a4] ~ [d4,a4] ~]!4>").s("wt_violin").release(0.2).room(0.3).gain(0.27).pan(0.35),
+    note("<[d1 d2]*3!6 [d1 d2]*6!2>").s("sawtooth").lpf(saw.range(220, 600).slow(8)).decay(0.12).sustain(0.3).gain(0.36),
+    s("<[bd ~ ~]!4 [bd ~ bd]!2 bd*6!2>").bank("RolandTR808").gain(0.9),
+    s("<~!2 [~ ~ sd]!2 sd*3!2 sd*6 sd*12>").bank("RolandTR909").gain(0.45).pan(0.5),
+    s("<~!6 [white*12]!2>").hpf(saw.range(2000, 8000).slow(2)).decay(0.06).sustain(0).gain(0.06),
+    note("<~!7 [~ ~ ~ ~ d5@2]>").s("square").decay(0.12).sustain(0.3).lpf(2600).gain(0.27).pan(0.45)
+  ),
+  drop: stack(
+    note(`<
+      [~ ~ g5 bb5 g5 a5] [bb5@2 a5 bb5 g5 bb5] [a5 g5 g5 bb5 g5 a5] [bb5@2 a5 bb5 g5 bb5]
+      [~ ~ ab5 c6 ab5 bb5] [c6@2 bb5 c6 ab5 c6] [bb5 ab5 ab5 c6 ab5 bb5] [c6@2 ab5 c6 bb5 ab5]>`)
+      .s("supersaw").lpf(3400).decay(0.15).sustain(0.35).release(0.1).gain(0.3).pan(0.5),
+    note(`<
+      [~ ~ g4 bb4 g4 a4] [bb4@2 a4 bb4 g4 bb4] [a4 g4 g4 bb4 g4 a4] [bb4@2 a4 bb4 g4 bb4]
+      [~ ~ ab4 c5 ab4 bb4] [c5@2 bb4 c5 ab4 c5] [bb4 ab4 ab4 c5 ab4 bb4] [c5@2 ab4 c5 bb4 ab4]>`)
+      .s("square").decay(0.1).sustain(0.3).lpf(1800).crush(6).gain(0.165).pan(0.35),
+    note(`<
+      [~ ~ g5 bb5 g5 a5] [bb5@2 a5 bb5 g5 bb5] [a5 g5 g5 bb5 g5 a5] [bb5@2 a5 bb5 g5 bb5]
+      [~ ~ ab5 c6 ab5 bb5] [c6@2 bb5 c6 ab5 c6] [bb5 ab5 ab5 c6 ab5 bb5] [c6@2 ab5 c6 bb5 ab5]>`)
+      .s("marimba").hpf(400).gain(0.56).pan(0.68),
+    note("<[g1 g2]*3!4 [d1 d2]*3!4>").s("sawtooth").lpf(420).lpenv(2).lpdecay(0.1).lpsustain(0).decay(0.12).sustain(0.3).gain(0.3),
+    note("<g1!4 d1!4>").s("sine").release(0.3).gain(0.27),
+    note("<[~ [g3,bb3,d4] [g3,bb3,d4]]!4 [~ [ab3,c4,d4] [ab3,c4,d4]]!4>").s("wt_strings").decay(0.2).sustain(0.4).hpf(250).lpf(2400).gain(0.18),
+    s("[bd ~ ~ ~ ~ ~]").bank("RolandTR808").gain(1.125),
+    s("[~ ~ cp ~ cp ~]").bank("RolandTR808").gain(0.48).pan(0.5),
+    s("hh*6").bank("RolandTR808").gain("[0.21 0.12]*3").pan(0.6),
+    s("<cr ~!7>").gain(0.42).pan(0.45)
+  ),
+  bones: stack(
+    note(`<
+      [[e5,e6] ~ [c#5,e5,c#6]] [[b4,d5,b5] ~ [c#5,e5,c#6]] [[a4,c#5,a5] ~ [b4,d5,b5]] [[b4,e5,g#5] ~ [a4,c#5,a5]]
+      [[a4,c#5,a5] ~ [c#5,e5,c#6]] [[c#5,e5,c#6] ~ [f#5,a5,d6]] [[c#5,e5,c#6] [b4,d5,b5] [a4,c#5,a5]] [[c#5,e5,c#6] ~ [b4,d5,b5]]>`)
+      .s("pulse").width(0.3).decay(0.09).sustain(0).lpf(3600).room(0.25).gain(0.3).pan(0.45),
+    note("<[e6 ~ c#6] [b5 ~ c#6] [a5 ~ b5] [g#5 ~ a5] [a5 ~ c#6] [c#6 ~ d6] [c#6 b5 a5] [c#6 ~ b5]>")
+      .s("glockenspiel").room(0.3).gain("<0!8 0.45!8>").pan(0.6),
+    note(`<
+      [~ ~ ~ ~ e4 f4 e4 d#4 e4 f4 e4 ~] [~ ~ ~ ~ e3 f3 e3 d#3 e3 f3 e3 ~]
+      [~ ~ ~ ~ c3 d3 c3 b2 c3 d3 c3 ~] [~ ~ ~ ~ e3 f3 e3 d#3 e3 f3 e3 ~]>`)
+      .s("marimba").hpf(200).gain(0.63).pan(0.3),
+    note("<a1 e1 a1 e1 a1 d2 a1 e1>").s("sawtooth").lpf(300).decay(0.3).sustain(0.1).gain(0.39),
+    s("[bd ~ ~]").bank("RolandTR808").gain(0.9),
+    s("[~ rim rim]").gain(0.21).pan(0.7),
+    s("hh*6").bank("RolandTR808").gain("[0.15 0.09]*3").pan(0.35)
+  ),
+  build2: stack(
+    note("<[g2@2 g2] [f2@2 f2] [e2@2 e2] [eb2@2 eb2] [d2 e2 g2] [f#2 e2 d2] [e2@2 e2] [f#2 ~ d2]>")
+      .s("sawtooth").lpf(saw.range(300, 1400).slow(8)).decay(0.2).sustain(0.5).gain(0.36)
+      .superimpose(x => x.add(-12).s("sine").gain(0.36)),
+    note("<[[a4,eb5] ~ [a4,eb5] ~ [a4,eb5] ~]!4 [[a4,eb5]*6]!2 [[a4,eb5]*12]!2>")
+      .s("supersaw").lpf(saw.range(900, 3600).slow(8)).decay(0.06).sustain(0.15).gain(0.18).pan(0.6),
+    s("<[bd ~ ~]!4 [bd ~ bd]!2 bd*6!2>").bank("RolandTR808").gain(0.975),
+    s("<[~ ~ sd]!2 sd*3!2 sd*6!2 sd*12 [sd*12 ~]>").bank("RolandTR909").gain(0.48),
+    s("<~!6 [white*12]!2>").hpf(saw.range(2000, 9000).slow(2)).decay(0.06).sustain(0).gain(0.068),
+    note("<~!7 [~ ~ ~ ~ d5@2]>").s("wt_violin").release(0.2).gain(0.45).pan(0.5)
+  ),
+  climax: stack(
+    note(`<
+      [g5@2 g5] [f5@2 f5] [e5@2 e5] [eb5@2 eb5] [d5 e5 g5] [f#5 e5 d5] [e5@2 e5] [f#5 ~ d5]
+      [g5@2 g5] [f5@2 f5] [e5@2 e5] [eb5@2 eb5] [d5 g5 bb5] [a5 f#5 d5] [f#5@2 e5] d5>`)
+      .s("supersaw").lpf(3400).attack(0.005).decay(0.3).sustain(0.5).release(0.15).gain(0.255).pan(0.5),
+    note(`<
+      [g4@2 g4] [f4@2 f4] [e4@2 e4] [eb4@2 eb4] [d4 e4 g4] [f#4 e4 d4] [e4@2 e4] [f#4 ~ d4]
+      [g4@2 g4] [f4@2 f4] [e4@2 e4] [eb4@2 eb4] [d4 g4 bb4] [a4 f#4 d4] [f#4@2 e4] d4>`)
+      .s("wt_violin").hpf(200).attack(0.01).release(0.2).vib(6).vibmod(0.1).gain(0.45).pan(0.38),
+    note(`<
+      [g6@2 g6] [f6@2 f6] [e6@2 e6] [eb6@2 eb6] [d6 e6 g6] [f#6 e6 d6] [e6@2 e6] [f#6 ~ d6]
+      [g6@2 g6] [f6@2 f6] [e6@2 e6] [eb6@2 eb6] [d6 g6 bb6] [a6 f#6 d6] [f#6@2 e6] d6>`)
+      .s("square").decay(0.08).sustain(0.2).lpf(4000).crush(5).gain(0.068).pan(0.7),
+    note(`<
+      [~ [g3,bb3,d4] [g3,bb3,d4]] [~ [g3,bb3,d4] [g3,bb3,d4]] [~ [g3,bb3,c#4] [g3,bb3,c#4]] [~ [g3,c4,eb4] [g3,c4,eb4]]
+      [~ [d3,f#3,a3] [d3,f#3,a3]] [~ [d3,f#3,c4] [d3,f#3,c4]] [~ [a3,c#4,g4] [a3,c#4,g4]] [~ [d3,f#3,a3] [d3,f#3,a3]]
+      [~ [g3,bb3,d4] [g3,bb3,d4]] [~ [g3,bb3,d4] [g3,bb3,d4]] [~ [g3,bb3,c#4] [g3,bb3,c#4]] [~ [g3,c4,eb4] [g3,c4,eb4]]
+      [~ [g3,bb3,d4] [g3,bb3,d4]] [~ [d3,f#3,c4] [d3,f#3,c4]] [~ [d3,f#3,c4] [d3,f#3,c4]] [~ [d3,f#3,a3] [d3,f#3,a3]]>`)
+      .s("wt_strings").decay(0.25).sustain(0.4).hpf(250).lpf(2600).gain(0.18),
+    note("<[g1 g2]*3!4 [d1 d2]*3 [d1 d2]*3 [a0 a1]*3 [d1 d2]*3 [g1 g2]*3!5 [d1 d2]*3!3>")
+      .s("sawtooth").lpf(480).lpenv(2).lpdecay(0.1).lpsustain(0).decay(0.12).sustain(0.3).gain(0.3),
+    note("<g1!4 d1 d1 a0 d1 g1!5 d1!3>").s("sine").release(0.3).gain(0.27),
+    s("[bd ~ ~ ~ bd ~]").bank("RolandTR808").gain(1.125),
+    s("[~ ~ [sd,cp] ~ [sd,cp] ~]").bank("RolandTR808").gain(0.48),
+    s("hh*12").bank("RolandTR808").gain("[0.18 0.09 0.135 0.09]*3").pan(0.6),
+    s("<cr ~!7 cr ~!7>").gain(0.42).pan(0.45)
+  ),
+  rooster: stack(
+    note("<[eb5@2 ~ c6 c6@2] [eb5@2 g5@4] [eb5@2 ~ c6 c6@2] [eb5@2 g5@4] g5 ~>")
+      .s("wt_oboe").attack(0.01).release(0.25).vib(6).vibmod(0.2).room(0.5).roomsize(0.6).gain(0.63).pan(0.55),
+    note("<[eb5@2 ~ c6 c6@2] [eb5@2 g5@4] [eb5@2 ~ c6 c6@2] [eb5@2 g5@4] g5 ~>")
+      .s("square").decay(0.1).sustain(0.3).lpf(2000).gain(0.105).pan(0.4),
+    note("<[c3,g3]!6>").s("wt_strings").attack(0.05).release(1).lpf(800).room(0.6).gain(0.21),
+    s("<cr ~!5>").gain(0.3).room(0.5)
+  ),
+  dawn: stack(
+    note("<[d4 eb4]*6!8 ~!4>").s("triangle").lpf(1800).room(0.5).gain(0.105).pan(0.4),
+    note(`<
+      ~ ~ [~ ~ g4 bb4 a4 bb4] [a4 g4 g4 a4 bb4 g4] [d5 ~ g5 a5 bb5 g5] [d6 ~ ~ ~ ~ ~] ~ ~
+      [d5 eb5 f#5 g5 a5 bb5] [c#6 d6 eb6 f#6 g6 a6] ~ ~>`)
+      .s("marimba").hpf(250).room(0.4).gain(0.57).pan(0.6),
+    note("<~!10 [[g3,bb3,d4,g4] ~ ~] ~>").s("wt_pluck").decay(0.6).sustain(0).room(0.6).gain(0.45),
+    note("<d2!8 ~ ~ [g1 ~ ~] g1>").s("sine").attack(0.3).release(1.2).gain(0.27),
+    s("<~!10 [bd ~ ~] ~>").bank("RolandTR808").gain(0.6).room(0.4)
+  )
+})
