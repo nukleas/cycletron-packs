@@ -1,5 +1,5 @@
 /**
- * BALL DROP — a mirror ball on the mast of a tower, counting down every
+ * BALL DROP: a mirror ball on the mast of a tower, counting down every
  * eight-bar phrase. The ball slides down the mast across the phrase and the
  * tower's display counts the beats left (32 to 01); on the downbeat of the
  * next phrase it lands, the display reads 00, the ball goes white and throws

@@ -1,5 +1,5 @@
 /**
- * FIREWORKS — a harbour skyline at midnight. Every pitched note is a shell:
+ * FIREWORKS: a harbour skyline at midnight. Every pitched note is a shell:
  * it launches early (the field looks a bar ahead) so it bursts exactly on its
  * onset. Pitch is burst height, the track colour is the stars' colour, and
  * the register picks the shell: bass notes are gold willows that hang and
