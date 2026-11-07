@@ -5,7 +5,7 @@
   "author": "NaderLabs",
   "license": "AGPL-3.0-or-later",
   "sdk": "^1.1",
-  "description": "A graveyard, a haunted house, a monster band and a swamp of ghosts, all 8-bit, made for the Bustin' show.",
+  "description": "A graveyard, a haunted house, a monster band and a haunted phosphor machine, made for the Bustin' show.",
   "modes": [
     "graveyard",
     "haunted-house",

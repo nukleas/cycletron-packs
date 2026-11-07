@@ -1,5 +1,5 @@
 /**
- * HAUNTED HOUSE — a NES mansion. Each floor is a register and pitch picks
+ * HAUNTED HOUSE: a NES mansion. Each floor is a register and pitch picks
  * the window, lit around a pixel monster. Kicks open the door, hats light
  * the porch pumpkins, held notes leave as chimney ghosts, and a crash puts
  * a Big Boo in the attic for a bar.

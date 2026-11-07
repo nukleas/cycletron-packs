@@ -1,5 +1,5 @@
 /**
- * GRAVEYARD — an 8-bit yard. Bass stands in front, leads in back, and pitch
+ * GRAVEYARD: an 8-bit yard. Bass stands in front, leads in back, and pitch
  * picks the column. The skeleton climbs out, cycles a dance on the beat, and
  * sinks. Held notes are ghosts. Kicks hop the ground, snares throw bolts,
  * hats send bats.

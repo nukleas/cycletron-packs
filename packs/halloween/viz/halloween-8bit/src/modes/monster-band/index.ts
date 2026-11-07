@@ -1,5 +1,5 @@
 /**
- * MONSTER BAND — one pixel monster per sound, moving on that sound's onsets.
+ * MONSTER BAND: one pixel monster per sound, moving on that sound's onsets.
  * Drums share a skeleton at the back of the stage. Pitch lifts the hands,
  * a long note holds the pose, and a kick thumps the stage.
  */

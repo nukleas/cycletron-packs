@@ -6,8 +6,12 @@ Graveyard is a Ghosts 'n Goblins / Castlevania yard: three terraces, grid tombs,
 
 Haunted house is a NES mansion. Floors are registers and windows are pitch slots, each with a two-frame silhouette. Kicks open the door, hats light porch pumpkins, held notes puff chimney ghosts, the vane steps eight ways.
 
-Ghost fog is a swamp screen with no trailFade. Pac-Man ghosts wear the track colour and leave two dim afterimages taken from their own motion. Hats are wisps, kicks are pixel ripples, snares catch the moon in the water.
+Ghost in the Machine is an imagined machine self-portrait: an asymmetric sensor array, a cognitive lattice, two rotating tetrahedra at its core, and a woven waveform speech field. A curved vector shell turns with melody pitch; bass opens the speech socket, chords widen the sensors and surrounding cage, snares separate the face plates, and leads extend the crown contacts. Kicks compress and expand the kernel and launch shock rings; hats advance orbital contacts.
 
-All three paint a 320×180 buffer and blit it with smoothing off. Colour is a handful of solids baked from the theme (bg, a few mixes, the accent pool): no alpha and no gradients. Dither is a 2×2 checker.
+The background is a full circuit board: two copper colours, memory dies, pins, vias, return paths, and edge buses. Each register / pitch class owns a fixed trace. Every pitched hap travels that trace half a cycle before onset, docks on the corresponding facial contact, displays its remaining hold as an arc, then returns through the board after release. Held notes illuminate their copper; spectrum bands drive the memory cells, and the live waveform weaves the speech field. Stopped playback leaves a dormant machine.
+
+The projected face and PCB are resolution-independent canvas vectors. Flights, rings, and poses are sampled from absolute cycle time without accumulated trails or random motion, so seeks and render chunks remain deterministic. Its persistence ID remains `ghost-fog`, preserving existing shows and saved selections.
+
+Graveyard and haunted house retain their 320×180 pixel buffers, solid theme colours and 2×2 dither. Ghost in the Machine uses a 640×360 logical coordinate system scaled directly to the output canvas, preserving fine vectors at larger sizes. None of these modes uses trail fade.
 
 Sprites are small bitmaps: skeletons, tombs, bats, the moon, pumpkins, ghosts. Spawns and followers run in update(); render only reads state.

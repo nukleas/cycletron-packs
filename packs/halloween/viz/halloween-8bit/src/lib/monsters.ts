@@ -2,7 +2,7 @@
  * Pixel monsters shared by the band and the house windows.
  * The cast comes from the sound name. Drum voices are the token after the
  * last `_` (so `RolandTR909_sd` is a snare), never `instrumentFamily`'s
- * `perc` bucket — that bucket is every non-drum, including a trumpet.
+ * `perc` bucket: that bucket is every non-drum, including a trumpet.
  */
 
 import {drawSprite, spr, type Sprite} from '@cycletron/viz-sdk';
