@@ -1,9 +1,5 @@
-# The Winter EP: the four songs back to back, as a research station's feed.
-# Open it to play the EP. Format: docs/SHOW_FILES.md.
-#
-# The per-song shows in this folder are the working copies; this one is
-# assembled from them. Each song opens on a numbered card; the station's
-# readouts run along the top, and the playing section's code runs beside it.
+# The Winter EP, the four songs back to back. Format: docs/SHOW_FILES.md.
+# The sections follow the per-song shows; keep them in step.
 
 [show]
 title = "Winter"
@@ -18,8 +14,7 @@ camera = { move = "still", punch = 0, kick = 0.4 }
 palette = "glacier"
 grain = 0.1
 
-# ---- 01 Permafrost ------------------------------------
-# 150 BPM, 104 bars. F minor industrial: the cave wakes, the booth takes the drops, the aurora the thaw.
+# 01 Permafrost, 150 BPM, 104 bars. F minor industrial: the cave wakes, the booth takes the drops, the aurora the thaw.
 
 [[song]]
 source = "../songs/permafrost.strudel"
@@ -37,8 +32,7 @@ drop2  = { shots = [{ mode = "yeti-dj", bars = 8 }, { mode = "ice-cave", bars = 
 peak   = { mode = "yeti-dj", transition = { kind = "glitch", bars = 0.4 }, strobe = { on = "snare", strength = 0.15 }, camera = { move = "shake", punch = 3, kick = 2 } }
 outro  = { mode = "ice-cave", transition = "fade", camera = { move = "drift", punch = 0, kick = 0.5 }, text = [{ say = "> STATION IDLE", at = 6, hold = 3, place = "top" }] }
 
-# ---- 02 Rookery ---------------------------------------
-# 145 BPM, 112 bars. F minor acid hard groove: the booth opens, the warehouse takes the drops.
+# 02 Rookery, 145 BPM, 112 bars. F minor acid hard groove: the booth opens, the warehouse takes the drops.
 
 [[song]]
 source = "../songs/rookery.strudel"
@@ -56,25 +50,24 @@ peak    = { shots = [{ mode = "penguin-warehouse", bars = 2 }, { mode = "ice-cav
 reprise = { mode = "penguin-warehouse", transition = "glitch", camera = { move = "shake", punch = 2.5, kick = 1.6 } }
 outro   = { shots = [{ mode = "yeti-dj", bars = 4 }, { mode = "aurora", bars = 4 }], transition = "black", camera = { move = "pull", punch = 0.4, kick = 0.5 }, text = [{ say = "> COLONY · AT REST", at = 5, hold = 1.5, place = "top" }] }
 
-# ---- 03 Crevasse --------------------------------------
-# 140 BPM, 96 bars. A phrygian: the organ carries it. The code moves right, clear of the console.
+# 03 Crevasse, 140 BPM, 96 bars. A phrygian: the organ carries it. The code sits right, clear of the console.
 
 [[song]]
 source = "../songs/crevasse.strudel"
 mode = "ice-organ"
+code = { place = "right" }
 
 [song.sections]
-intro    = { mode = "ice-organ", camera = { move = "drift", punch = 0, kick = 0.3 }, text = [{ say = "03 · CREVASSE", at = 1, hold = 2.4, style = "card" }], code = { follow = "solo", place = "right", size = 20 } }
-build    = { shots = [{ mode = "ice-cave", bars = 4 }, { mode = "ice-organ", bars = 4 }], transition = { kind = "glitch", bars = 0.15 }, camera = { move = "push", punch = 1, kick = 1 }, text = [{ say = "> PROBE LOWERED", at = 1, hold = 2, place = "top" }], code = { follow = "solo", place = "right", size = 20 } }
-drop     = { shots = [{ mode = "ice-organ", bars = 8 }, { mode = "yeti-dj", bars = 4 }, { mode = "ice-organ", bars = 4 }], transition = { kind = "glitch", bars = 0.25 }, camera = { move = "shake", punch = 2, kick = 2 }, code = { follow = "solo", place = "right", size = 20 } }
-break    = { shots = [{ mode = "aurora", bars = 4 }, { mode = "ice-organ", bars = 8 }], transition = "fade", camera = { move = "drift", punch = 0, kick = 0 }, text = [{ say = "> DEPTH 120 M", at = 1, hold = 2, place = "top" }], code = { follow = "solo", place = "right", size = 20 } }
-build2   = { mode = "ice-organ", transition = { kind = "glitch", bars = 0.15 }, camera = { move = "push", punch = 1.5, kick = 1.5 }, code = { follow = "solo", place = "right", size = 20 } }
-drop2    = { shots = [{ mode = "ice-organ", bars = 8 }, { mode = "ice-cave", bars = 4 }, { mode = "ice-organ", bars = 4 }], transition = { kind = "glitch", bars = 0.3 }, camera = { move = "shake", punch = 2.4, kick = 2.2 }, code = { follow = "solo", place = "right", size = 20 } }
-overload = { shots = [{ mode = "ice-organ", bars = 4 }, { mode = "yeti-dj", bars = 4 }, { mode = "ice-organ", bars = 8 }], transition = { kind = "glitch", bars = 0.3 }, strobe = { on = "snare", strength = 0.15 }, camera = { move = "shake", punch = 3, kick = 2.4 }, text = [{ say = "> PRESSURE CRITICAL", at = 0, hold = 1.5, place = "top" }], code = { follow = "solo", place = "right", size = 20 } }
-outro    = { shots = [{ mode = "ice-organ", bars = 8 }, { mode = "aurora", bars = 4 }], transition = "fade", camera = { move = "pull", punch = 0, kick = 0.3 }, text = [{ say = "> PROBE RECOVERED", at = 6, hold = 3, place = "top" }], code = { follow = "solo", place = "right", size = 20 } }
+intro    = { mode = "ice-organ", camera = { move = "drift", punch = 0, kick = 0.3 }, text = [{ say = "03 · CREVASSE", at = 1, hold = 2.4, style = "card" }] }
+build    = { shots = [{ mode = "ice-cave", bars = 4 }, { mode = "ice-organ", bars = 4 }], transition = { kind = "glitch", bars = 0.15 }, camera = { move = "push", punch = 1, kick = 1 }, text = [{ say = "> PROBE LOWERED", at = 1, hold = 2, place = "top" }] }
+drop     = { shots = [{ mode = "ice-organ", bars = 8 }, { mode = "yeti-dj", bars = 4 }, { mode = "ice-organ", bars = 4 }], transition = { kind = "glitch", bars = 0.25 }, camera = { move = "shake", punch = 2, kick = 2 } }
+break    = { shots = [{ mode = "aurora", bars = 4 }, { mode = "ice-organ", bars = 8 }], transition = "fade", camera = { move = "drift", punch = 0, kick = 0 }, text = [{ say = "> DEPTH 120 M", at = 1, hold = 2, place = "top" }] }
+build2   = { mode = "ice-organ", transition = { kind = "glitch", bars = 0.15 }, camera = { move = "push", punch = 1.5, kick = 1.5 } }
+drop2    = { shots = [{ mode = "ice-organ", bars = 8 }, { mode = "ice-cave", bars = 4 }, { mode = "ice-organ", bars = 4 }], transition = { kind = "glitch", bars = 0.3 }, camera = { move = "shake", punch = 2.4, kick = 2.2 } }
+overload = { shots = [{ mode = "ice-organ", bars = 4 }, { mode = "yeti-dj", bars = 4 }, { mode = "ice-organ", bars = 8 }], transition = { kind = "glitch", bars = 0.3 }, strobe = { on = "snare", strength = 0.15 }, camera = { move = "shake", punch = 3, kick = 2.4 }, text = [{ say = "> PRESSURE CRITICAL", at = 0, hold = 1.5, place = "top" }] }
+outro    = { shots = [{ mode = "ice-organ", bars = 8 }, { mode = "aurora", bars = 4 }], transition = "fade", camera = { move = "pull", punch = 0, kick = 0.3 }, text = [{ say = "> PROBE RECOVERED", at = 6, hold = 3, place = "top" }] }
 
-# ---- 04 Avalanche -------------------------------------
-# 155 BPM, 112 bars. C minor schranz: the booth takes the drops, the cave answers.
+# 04 Avalanche, 155 BPM, 112 bars. C minor schranz: the booth takes the drops, the cave answers.
 
 [[song]]
 source = "../songs/avalanche.strudel"

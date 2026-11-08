@@ -1,17 +1,12 @@
 /**
  * ICE ORGAN: a pipe organ of ice in the cavern, with the yeti at the console.
- * Notes below C3 sound on the pedal rank, twelve tall pipes at the back, one
- * per pitch class; the rest on the manual rank in front, twenty-four pipes,
- * two chromatic octaves. A semitone is the next pipe over, so a bass rocking
- * between two notes a half step apart flickers between neighbours. A pipe
- * lights in its track's colour on the onset and glows while the note holds.
- * The yeti plays a two-keyboard console: a key goes down and lights with its
- * pipe, and the yeti's hands land on it on the onset (the left on the upper
- * keyboard for the pedal rank, the right on the lower for the manual). Its
- * foot comes down on the kick, shaking the icicles. The bass lights the crystal pillars, a penguin works
- * the bellows on the snares, and the hats flash the crown over the pipes.
- * Bar-line cuts go front, down onto the keys, along the ranks, then wide
- * for the phrase's last bar. Stutters loop the picture; chokes crack the lens.
+ * Notes below C3 sound on the pedal rank, the rest on the manual rank (see
+ * `organ.ts`). A pipe and its key light on the onset and glow while the note
+ * holds, and the yeti's hands land on the key: the left on the upper
+ * keyboard for the pedals, the right on the lower for the manual. Kicks
+ * stomp and shake the icicles, the bass lights the pillars, snares work the
+ * penguin's bellows, hats flash the crown. Cuts on the bar lines: front, the
+ * keys, along the ranks, wide.
  */
 
 import {clamp01, type FieldHap, type FieldTeam, HapField, type VizMode, type VizModeDef, type VizServices} from '@cycletron/viz-sdk';

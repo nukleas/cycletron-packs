@@ -6,7 +6,7 @@ const kick = {};
 const hat = {};
 
 /** `n` notes on `team` from `from`, `step` apart, each a step long. */
-function run(team: object, from: number, n: number, step: number): Sounded[] {
+function run(team: Sounded['team'], from: number, n: number, step: number): Sounded[] {
     return Array.from({length: n}, (_, i) => ({team, begin: from + i * step, end: from + (i + 1) * step}));
 }
 
