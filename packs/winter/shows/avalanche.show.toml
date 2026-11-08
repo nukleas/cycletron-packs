@@ -1,0 +1,82 @@
+# Avalanche, for the winter pack. Format: docs/SHOW_FILES.md.
+# The crowd takes the drop. The cave answers. The sky opens, then the crystals.
+
+[show]
+title = "Avalanche"
+out = "../renders/avalanche.mp4"
+size = "1920x1080"
+fps = 60
+
+[defaults]
+code = "hide"
+titles = false
+camera = { move = "drift", punch = 0.4, kick = 0.5 }
+palette = "glacier"
+grain = 0.1
+
+[[song]]
+source = "../songs/avalanche.strudel"
+mode = "ice-cave"
+fade = { in = 1, out = 4 }
+
+# 0–16: wind, a filtered kick, the hook on bells.
+[song.sections.intro]
+mode = "ice-cave"
+transition = "fade"
+camera = { move = "push", punch = 0, kick = 0.45 }
+text = [{ say = "AVALANCHE", at = 1, hold = 2.4, style = "card" }]
+
+# 16–24: the roll, the crush, then a hole.
+[song.sections.build]
+mode = "ice-cave"
+transition = { kind = "glitch", bars = 0.12 }
+camera = { move = "push", punch = 1.6, kick = 1.6 }
+
+# 24–40: the crowd, from the first hit. The glitch is the impact.
+[song.sections.drop]
+mode = "yeti-dj"
+transition = { kind = "glitch", bars = 0.18 }
+camera = { move = "shake", punch = 2.6, kick = 2.4 }
+text = [{ say = "FALL", at = 0.5, hold = 0.7, style = "card" }]
+
+# 40–48: the skip, answered in the cave.
+[song.sections.dropb]
+mode = "ice-cave"
+transition = { kind = "glitch", bars = 0.14 }
+camera = { move = "shake", punch = 2.2, kick = 2.2 }
+
+# 48–64: four bars of sky, then the tune on the crystals.
+[song.sections.break]
+shots = [{ mode = "aurora", bars = 4 }, { mode = "ice-cave", bars = 12 }]
+grain = 0.25
+transition = "fade"
+camera = { move = "drift", punch = 0, kick = 0 }
+text = [{ say = "WHITEOUT", at = 1, hold = 1.6, style = "card" }]
+
+# 64–72: it climbs again, then stops.
+[song.sections.build2]
+mode = "ice-cave"
+transition = { kind = "glitch", bars = 0.12 }
+camera = { move = "push", punch = 1.8, kick = 2 }
+
+# 72–88: double time. The crowd stays for the bells.
+[song.sections.drop2]
+mode = "yeti-dj"
+transition = { kind = "glitch", bars = 0.16 }
+strobe = { on = "snare", strength = 0.14 }
+camera = { move = "shake", punch = 2.4, kick = 2 }
+text = [{ say = "FALL", at = 0.5, hold = 0.7, style = "card" }]
+
+# 88–96: the crowd, then the cave for the choke.
+[song.sections.drop2b]
+shots = [{ mode = "yeti-dj", bars = 6 }, { mode = "ice-cave", bars = 2 }]
+transition = { kind = "glitch", bars = 0.1 }
+strobe = { on = "snare", strength = 0.12 }
+camera = { move = "shake", punch = 2.2, kick = 2 }
+text = [{ say = "FALL", at = 7, hold = 0.6, style = "card" }]
+
+# 96–112: the bells, then just weather. Back to the cave.
+[song.sections.outro]
+shots = [{ mode = "aurora", bars = 8 }, { mode = "ice-cave", bars = 8 }]
+transition = "fade"
+camera = { move = "pull", punch = 0, kick = 0.35 }

@@ -7,10 +7,18 @@
     "NaderLabs"
   ],
   "license": "AGPL-3.0-or-later",
-  "description": "A 3D winter after the 8-bit Christmas pack: a band in an ice cave, the yeti DJing it after hours, and the aurora over a snowy ridge, on the winter-3d visualizers.",
+  "description": "A 3D winter after the 8-bit Christmas pack: a band in an ice cave, the yeti DJing it after hours, a penguin headlining a warehouse, and the aurora over a snowy ridge, on the winter-3d visualizers. With a hard-techno EP for them.",
   "viz": [
     "viz/winter-3d"
   ],
-  "songs": [],
-  "shows": []
+  "songs": [
+    "songs/permafrost.strudel",
+    "songs/penguin-rave.strudel",
+    "songs/avalanche.strudel"
+  ],
+  "shows": [
+    "shows/permafrost.show.toml",
+    "shows/penguin-rave.show.toml",
+    "shows/avalanche.show.toml"
+  ]
 }

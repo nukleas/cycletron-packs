@@ -40,6 +40,8 @@ import {
 } from 'three';
 import {Cave} from '../../lib/cave.js';
 import {ARM, Penguin, Yeti} from '../../lib/figures.js';
+import {GlitchFx} from '../../lib/glitch-fx.js';
+import {GLITCH_KEEP, loopTime} from '../../lib/glitch.js';
 import {Ink} from '../../lib/ink.js';
 import {isChime, isKick, isSnare, winterRole} from '../../lib/roles.js';
 import {Crowd} from './crowd.js';
@@ -47,11 +49,10 @@ import {BEAMS, beamOf, Lasers, PITCHES} from './lasers.js';
 import {Show, STAGE_H} from './stage.js';
 
 const LOOKAHEAD = 2;
-const MAX_HAPS = 600;
-const MAX_PER_TRACK = 64;
-const DRUM_CAP = 48;
+const MAX_HAPS = 1500;
+const MAX_PER_TRACK = 160;
+const DRUM_CAP = 160;
 const IDLE_RATE = 0.25;
-const KEEP = 0.4;
 const PHRASE = 4;
 const YETI_Z = -3.6;
 const PENGUIN = new Vector3(3.4, STAGE_H, -1.8);
@@ -84,6 +85,7 @@ class YetiDjMode implements VizMode {
     private readonly scene = new Scene();
     private readonly camera = new PerspectiveCamera(50, 16 / 9, 0.1, 200);
     private readonly cave = new Cave(this.scene, new Vector3(0, 2.5, YETI_Z));
+    private readonly glitch = new GlitchFx(this.scene);
     private readonly field = new HapField<Team, Note>({
         lookahead: LOOKAHEAD,
         maxHaps: MAX_HAPS,
@@ -96,7 +98,7 @@ class YetiDjMode implements VizMode {
             return {...base, role, beam: register === undefined ? -1 : beamOf(base.note, register)};
         },
         cap: (_team, note) => (Number.isFinite(note) ? Infinity : DRUM_CAP),
-        keep: (h, cycle) => h.end + KEEP >= cycle,
+        keep: (h, cycle) => h.end + GLITCH_KEEP >= cycle,
     });
 
     private readonly yeti = new Yeti();
@@ -183,6 +185,7 @@ class YetiDjMode implements VizMode {
         this.crowd.paint(ink);
         this.camera.aspect = s.width / Math.max(1, s.height);
         this.camera.updateProjectionMatrix();
+        this.glitch.paint(ink);
         this.field.invalidate();
     }
 
@@ -190,8 +193,9 @@ class YetiDjMode implements VizMode {
         const field = this.field;
         field.update(dt, s);
         for (const t of field.teams) setRgb(t.color, t.rgb);
-        const now = field.cycle;
         const haps = field.haps;
+        // A stutter in the song loops the picture with it.
+        const now = loopTime(haps, field.cycle);
         const drums = field.locked ? haps : null;
         const {ink, yeti, penguin} = this;
 
@@ -220,6 +224,7 @@ class YetiDjMode implements VizMode {
         this.crowd.pose(kick > HIT ? 1 : 0, drop > HIT || snare === 'hit');
 
         this.placeCamera(now);
+        this.glitch.update(field.cycle, haps, this.camera);
     }
 
     render(ctx: CanvasRenderingContext2D, s: VizServices): void {

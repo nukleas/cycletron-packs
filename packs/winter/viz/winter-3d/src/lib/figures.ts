@@ -161,6 +161,8 @@ export class Penguin {
     private readonly scarf = new MeshLambertMaterial({flatShading: true});
     private readonly eye = new MeshLambertMaterial();
     private readonly flippers: Group[] = [];
+    private readonly feet: Mesh[] = [];
+    private readonly reach = new Vector3();
     private readonly body = new Group();
 
     constructor() {
@@ -178,6 +180,7 @@ export class Penguin {
             f.position.set(x, 0.05, 0.2);
             return f;
         });
+        this.feet.push(...feet);
         const tail = new Mesh(new ConeGeometry(0.22, 0.45, 5).rotateX(-2.2), coat);
         tail.position.set(0, 0.3, -0.55);
         const wrap = new Mesh(new TorusGeometry(0.42, 0.11, 5, 12).rotateX(Math.PI / 2), scarf);
@@ -217,5 +220,22 @@ export class Penguin {
     /** Off the ground by `lift` (0 to 1): a hop. */
     hop(lift: number): void {
         this.body.position.y = 0.4 * lift;
+    }
+
+    /** Touch a pad with flipper `i`; target is in the penguin's own frame. */
+    play(i: number, target: Vector3): void {
+        const flipper = this.flippers[i];
+        this.reach.copy(target).sub(flipper.position);
+        flipper.scale.set(1, this.reach.length() / 1.1, 1);
+        flipper.quaternion.setFromUnitVectors(DOWN, this.reach.normalize());
+    }
+
+    /** Lift a foot before the kick and plant it on the onset. */
+    stomp(side: number, pose: Stance): void {
+        for (let i = 0; i < this.feet.length; i++) {
+            const lifted = i === side && pose === 'ready';
+            this.feet[i].position.y = lifted ? 0.4 : 0.05;
+            this.feet[i].rotation.x = lifted ? -0.55 : 0;
+        }
     }
 }

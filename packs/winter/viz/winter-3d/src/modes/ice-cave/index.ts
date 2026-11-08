@@ -34,15 +34,16 @@ import {
 } from 'three';
 import {Cave} from '../../lib/cave.js';
 import {Penguin, REACH, Yeti} from '../../lib/figures.js';
+import {GlitchFx} from '../../lib/glitch-fx.js';
+import {GLITCH_KEEP, loopTime} from '../../lib/glitch.js';
 import {Ink} from '../../lib/ink.js';
 import {isChime, isKick, isSnare, winterRole} from '../../lib/roles.js';
 
 const LOOKAHEAD = 2;
-const MAX_HAPS = 600;
-const MAX_PER_TRACK = 64;
-const DRUM_CAP = 48;
+const MAX_HAPS = 1500;
+const MAX_PER_TRACK = 160;
+const DRUM_CAP = 160;
 const IDLE_RATE = 0.25;
-const KEEP = 0.4;
 const KEYS = 24;
 const ARC = 2.9;
 const YETI_Z = -3.6;
@@ -72,7 +73,7 @@ class IceCaveMode implements VizMode {
         team: (base) => ({...base, color: new Color()}),
         hap: (base) => ({...base, role: winterRole(base.team.name, base.note), crystal: keyOf(base.note)}),
         cap: (_team, note) => (Number.isFinite(note) ? Infinity : DRUM_CAP),
-        keep: (h, cycle) => h.end + KEEP >= cycle,
+        keep: (h, cycle) => h.end + GLITCH_KEEP >= cycle,
     });
 
     private readonly ledgeMat = new MeshStandardMaterial({flatShading: true, roughness: 0.6});
@@ -104,6 +105,7 @@ class IceCaveMode implements VizMode {
     private readonly aimAt = new Vector3();
 
     private readonly cave = new Cave(this.scene, new Vector3(0, 2, YETI_Z));
+    private readonly glitch = new GlitchFx(this.scene);
 
     constructor() {
         const {scene} = this;
@@ -176,6 +178,7 @@ class IceCaveMode implements VizMode {
         this.splash.color.copy(ink.ice);
         this.camera.aspect = s.width / Math.max(1, s.height);
         this.camera.updateProjectionMatrix();
+        this.glitch.paint(ink);
         this.field.invalidate();
     }
 
@@ -183,8 +186,9 @@ class IceCaveMode implements VizMode {
         const field = this.field;
         field.update(dt, s);
         for (const t of field.teams) setRgb(t.color, t.rgb);
-        const now = field.cycle;
         const haps = field.haps;
+        // A stutter in the song loops the picture with it.
+        const now = loopTime(haps, field.cycle);
         const drums = field.locked ? haps : null;
 
         this.lightKeys(now);
@@ -207,6 +211,7 @@ class IceCaveMode implements VizMode {
 
         this.countDrop(now);
         this.placeCamera(now);
+        this.glitch.update(field.cycle, haps, this.camera);
     }
 
     render(ctx: CanvasRenderingContext2D, s: VizServices): void {
