@@ -8,7 +8,7 @@ size = "1920x1080"
 fps = 60
 
 [defaults]
-code = "hide"
+code = { follow = "solo", size = 20 }
 titles = false
 camera = { move = "drift", punch = 0.4, kick = 0.5 }
 palette = "glacier"
@@ -37,7 +37,7 @@ camera = { move = "push", punch = 1.6, kick = 1.6 }
 mode = "yeti-dj"
 transition = { kind = "glitch", bars = 0.18 }
 camera = { move = "shake", punch = 2.6, kick = 2.4 }
-text = [{ say = "FALL", at = 0.5, hold = 0.7, style = "card" }]
+text = [{ say = "> SLOPE RELEASE", at = 0.5, hold = 1.5, place = "top" }]
 
 # 40–48: the skip, answered in the cave.
 [song.sections.dropb]
@@ -51,7 +51,7 @@ shots = [{ mode = "aurora", bars = 4 }, { mode = "ice-cave", bars = 12 }]
 grain = 0.25
 transition = "fade"
 camera = { move = "drift", punch = 0, kick = 0 }
-text = [{ say = "WHITEOUT", at = 1, hold = 1.6, style = "card" }]
+text = [{ say = "> WHITEOUT", at = 1, hold = 2, place = "top" }]
 
 # 64–72: it climbs again, then stops.
 [song.sections.build2]
@@ -65,7 +65,7 @@ mode = "yeti-dj"
 transition = { kind = "glitch", bars = 0.16 }
 strobe = { on = "snare", strength = 0.14 }
 camera = { move = "shake", punch = 2.4, kick = 2 }
-text = [{ say = "FALL", at = 0.5, hold = 0.7, style = "card" }]
+text = [{ say = "> SECOND RELEASE", at = 0.5, hold = 1.5, place = "top" }]
 
 # 88–96: the crowd, then the cave for the choke.
 [song.sections.drop2b]
@@ -73,7 +73,6 @@ shots = [{ mode = "yeti-dj", bars = 6 }, { mode = "ice-cave", bars = 2 }]
 transition = { kind = "glitch", bars = 0.1 }
 strobe = { on = "snare", strength = 0.12 }
 camera = { move = "shake", punch = 2.2, kick = 2 }
-text = [{ say = "FALL", at = 7, hold = 0.6, style = "card" }]
 
 # 96–112: the bells, then just weather. Back to the cave.
 [song.sections.outro]

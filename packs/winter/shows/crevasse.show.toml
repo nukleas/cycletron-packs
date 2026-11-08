@@ -1,0 +1,73 @@
+# Crevasse, for the winter pack. Format: docs/SHOW_FILES.md.
+# The organ carries it; the cave and the booth take the cutaways, the sky the break.
+
+[show]
+title = "Crevasse"
+out = "../renders/crevasse.mp4"
+size = "1920x1080"
+fps = 60
+
+[defaults]
+code = { follow = "solo", place = "right", size = 20 }
+titles = false
+camera = { move = "still", punch = 0, kick = 0.4 }
+palette = "glacier"
+grain = 0.1
+
+[[song]]
+source = "../songs/crevasse.strudel"
+mode = "ice-organ"
+fade = { in = 1, out = 3 }
+
+# 0–8: the drone, the bells, a filtered kick.
+[song.sections.intro]
+mode = "ice-organ"
+camera = { move = "drift", punch = 0, kick = 0.3 }
+text = [{ say = "CREVASSE", at = 2, hold = 3, style = "card" }]
+
+# 8–16: the bass and the lead, the snare roll, half a bar of nothing.
+[song.sections.build]
+shots = [{ mode = "ice-cave", bars = 4 }, { mode = "ice-organ", bars = 4 }]
+transition = { kind = "glitch", bars = 0.15 }
+camera = { move = "push", punch = 1, kick = 1 }
+text = [{ say = "> PROBE LOWERED", at = 1, hold = 2, place = "top" }]
+
+# 16–32: the first drop.
+[song.sections.drop]
+shots = [{ mode = "ice-organ", bars = 8 }, { mode = "yeti-dj", bars = 4 }, { mode = "ice-organ", bars = 4 }]
+transition = { kind = "glitch", bars = 0.25 }
+camera = { move = "shake", punch = 2, kick = 2 }
+
+# 32–44: the chords, the bells, the ghost bass.
+[song.sections.break]
+shots = [{ mode = "aurora", bars = 4 }, { mode = "ice-organ", bars = 8 }]
+transition = "fade"
+camera = { move = "drift", punch = 0, kick = 0 }
+text = [{ say = "> DEPTH 120 M", at = 1, hold = 2, place = "top" }]
+
+# 44–52: the A and A# stomp, the filter opening, a bar of nothing.
+[song.sections.build2]
+mode = "ice-organ"
+transition = { kind = "glitch", bars = 0.15 }
+camera = { move = "push", punch = 1.5, kick = 1.5 }
+
+# 52–68: the second drop, the counter-lead, the power chord at the end.
+[song.sections.drop2]
+shots = [{ mode = "ice-organ", bars = 8 }, { mode = "ice-cave", bars = 4 }, { mode = "ice-organ", bars = 4 }]
+transition = { kind = "glitch", bars = 0.3 }
+camera = { move = "shake", punch = 2.4, kick = 2.2 }
+
+# 68–84: everything, the phrygian arpeggio on top, a stutter to close.
+[song.sections.overload]
+shots = [{ mode = "ice-organ", bars = 4 }, { mode = "yeti-dj", bars = 4 }, { mode = "ice-organ", bars = 8 }]
+transition = { kind = "glitch", bars = 0.3 }
+strobe = { on = "snare", strength = 0.15 }
+camera = { move = "shake", punch = 3, kick = 2.4 }
+text = [{ say = "> PRESSURE CRITICAL", at = 0, hold = 1.5, place = "top" }]
+
+# 84–96: the kick fades, the bells ring out.
+[song.sections.outro]
+shots = [{ mode = "ice-organ", bars = 8 }, { mode = "aurora", bars = 4 }]
+transition = "fade"
+camera = { move = "pull", punch = 0, kick = 0.3 }
+text = [{ say = "> PROBE RECOVERED", at = 6, hold = 3, place = "top" }]

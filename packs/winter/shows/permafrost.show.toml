@@ -8,7 +8,7 @@ size = "1920x1080"
 fps = 60
 
 [defaults]
-code = "hide"
+code = { follow = "solo", size = 20 }
 titles = false
 camera = { move = "still", punch = 0, kick = 0.4 }
 palette = "glacier"
@@ -29,14 +29,13 @@ text = [{ say = "PERMAFROST", at = 4, hold = 3, style = "card" }]
 [song.sections.build]
 mode = "ice-cave"
 camera = { move = "push", punch = 1, kick = 1.2 }
-text = [{ say = "> CORE TEMP FALLING", at = 1, hold = 2, place = "top" }]
+text = [{ say = "> CORE TEMPERATURE FALLING", at = 1, hold = 2, place = "top" }]
 
 # 24–40: first drop.
 [song.sections.drop]
 shots = [{ mode = "ice-cave", bars = 1 }, { mode = "yeti-dj", bars = 7 }, { mode = "ice-cave", bars = 2 }, { mode = "yeti-dj", bars = 6 }]
 transition = { kind = "glitch", bars = 0.3 }
 camera = { move = "shake", punch = 2, kick = 2.5 }
-text = [{ say = "DROP THE TEMPERATURE", at = 0, hold = 1, style = "card", place = "top" }]
 
 # 40–44: everything stutters, then the tape stops.
 [song.sections.glitch]
@@ -44,7 +43,7 @@ mode = "yeti-dj"
 transition = "glitch"
 speed = 2
 camera = { move = "shake", punch = 3, kick = 4 }
-text = [{ say = "ERR: ICE.EXE", at = 2, hold = 1.5, style = "card" }]
+text = [{ say = "> SIGNAL LOST", at = 2, hold = 1.5, place = "top" }]
 
 # 44–60: pad, triangle lead, rims. The thaw.
 [song.sections.thaw]
@@ -58,17 +57,14 @@ camera = { move = "drift", punch = 0, kick = 0 }
 shots = [{ mode = "ice-cave", bars = 4 }, { mode = "yeti-dj", bars = 4 }]
 transition = { kind = "glitch", bars = 0.15 }
 camera = { move = "push", punch = 1.5, kick = 1.5 }
-text = [{ say = "> REFREEZE IN 3 2 1", at = 6, hold = 2, place = "top" }]
+text = [{ say = "> REFREEZING", at = 6, hold = 2, place = "top" }]
 
 # 68–84: the last drop, the hook bare, then the lead joins.
 [song.sections.drop2]
 shots = [{ mode = "yeti-dj", bars = 8 }, { mode = "ice-cave", bars = 4 }, { mode = "yeti-dj", bars = 4 }]
 transition = { kind = "glitch", bars = 0.3 }
 camera = { move = "shake", punch = 3, kick = 2 }
-text = [
-  { say = "ABSOLUTE ZERO", at = 0, hold = 1, style = "card", place = "top" },
-  { say = "YETI ON THE DECKS", at = 8, hold = 2, place = "top" },
-]
+text = [{ say = "ABSOLUTE ZERO", at = 0, hold = 1, style = "card" }]
 
 # 84–92: the lead an octave up, the bass doubles, and it all stutters to a stop.
 [song.sections.peak]
@@ -82,4 +78,4 @@ camera = { move = "shake", punch = 3, kick = 2 }
 mode = "ice-cave"
 transition = "fade"
 camera = { move = "drift", punch = 0, kick = 0.5 }
-text = [{ say = "STAY FROZEN", at = 6, hold = 3, style = "card" }]
+text = [{ say = "> STATION IDLE", at = 6, hold = 3, place = "top" }]

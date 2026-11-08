@@ -4,7 +4,7 @@ bpm: 155
 created: 2026-11-07
 tags: [winter, techno, hard-techno, schranz]
 ---
-// heavy schranz, the kick lands like wet snow
+// schranz in C minor
 // the tune is C minor degrees, a bar per group; the bells bring it back
 
 setbpm(155);

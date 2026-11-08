@@ -1,14 +1,14 @@
 ---
-name: "Penguin Rave"
+name: "Rookery"
 bpm: 145
 created: 2026-11-07
-tags: [winter, techno, hard-groove, acid, penguins]
+tags: [winter, techno, hard-groove, acid]
 ---
-// flippers up, no shoes on the ice
+// acid hard groove in F minor; the vowel lead answers the hook
 
 setbpm(145);
 
-"<intro@2 build@2 drop@4 waddle@4 break@4 build2@2 drop2@4 riot@3 salute outro@2>".slow(4).pickRestart({
+"<intro@2 build@2 drop@4 groove@4 break@4 build2@2 drop2@4 peak@3 reprise outro@2>".slow(4).pickRestart({
   intro: stack(
     note("<~ ~ [~ ~ c4 [eb4 f4] ~ c5 ~ f4] ~ ~ ~ [~ ~ c4 [eb4 f4] ~ c5 ~ f4] [~ f4 ~ ~ c4 [ab4 f4] ~ ~]>")
       .s("sawtooth").vowel("0 3 1 4 0 2 3 0").penv(9).pattack(0.055)
@@ -61,8 +61,8 @@ setbpm(145);
     s("~ sd ~ sd").bank("RolandTR909").dist(0.8).hpf(250).gain(0.41),
     s("[~ rim rim ~ ~ rim ~ rim]*2").bank("RolandTR909").hpf(900).gain("0.13 0.2 0.15 0.25").pan(0.3)
   ).lastOf(16, x => x.ply(2).mask("1 1 0 1")),
-  waddle: stack(
-    // the penguins answer every bar
+  groove: stack(
+    // the vowel lead answers every bar
     note("<[~ ~ c4 [eb4 f4] ~ c5 ~ f4] [~ f4 ~ ~ c4 [ab4 f4] ~ ~]>").s("sawtooth").vowel("0 3 1 4 0 2 3 0")
       .penv(9).pattack(0.055).hpf(450).lpf(3400).decay(0.095).sustain(0).crush(8).gain(0.44).pan(0.38),
     note("<[f5 ~ f5 ab5 ~ c6 bb5 ~] [ab5 ~ f5 ~ eb5 f5 ~ c5] ~ ~>").s("fm").fmi(2.5).fmh(2)
@@ -134,7 +134,7 @@ setbpm(145);
     s("~ sd ~ sd").bank("RolandTR909").dist(0.8).hpf(250).gain(0.41),
     s("<cr ~!7>").bank("RolandTR909").gain(0.19)
   ).lastOf(8, x => x.ply(2)),
-  riot: stack(
+  peak: stack(
     note("<[~ ~ ~ [c5 f4] ~ ~ ~ [ab4 c5]] [~ ~ ~ [f4 eb4 f4] ~ ~ ~ c5]>").s("sawtooth").vowel("<[0 2 0 4] [3 1 4 2]>")
       .ply("<1 2 1 3>").penv(-7).pattack(0.045).hpf(450).lpf(4800).decay(0.12).sustain(0).crush(7).gain(0.52).pan(0.36),
     note("<~ ~ [f5 ~ f5 ab5 ~ c6 bb5 ~] [ab5 ~ c6 ~ eb6 c6 ~ ab5]>").s("fm").fmi(3).fmh(2)
@@ -151,7 +151,7 @@ setbpm(145);
     s("~ sd ~ sd").bank("RolandTR909").dist(0.8).hpf(250).gain(0.41),
     s("<[~ ht ~ mt ~ lt ~ mt] [~ ht ~ mt ~ lt [mt lt] ~]>").bank("RolandTR909").dist(1).gain(0.25)
   ).lastOf(4, x => x.ply(2).crush(5)),
-  salute: stack(
+  reprise: stack(
     note("<[f5 ~ f5 ab5 ~ c6 bb5 ~] [ab5 ~ f5 ~ eb5 f5 ~ c5]>").s("fm").fmi(2.5).fmh(2)
       .crush(7).hpf(600).decay(0.105).sustain(0).gain(0.36).pan(0.58),
     note("<[f2 ~ f2 ab2 c3 f2 ~ eb3 f2 f3 ~ c3 ab2 f2 eb3 c3] [f2 c3 ~ f2 ab2 c3 f3 ~ f2 eb3 c3 ~ ab2 f2 c3 eb3]>")
